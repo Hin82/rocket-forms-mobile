@@ -92,6 +92,17 @@ export default function FormDetailScreen() {
       <View style={styles.actions}>
         <Button
           mode="contained"
+          icon="pencil-outline"
+          onPress={() => router.push(`/form/${id}/edit`)}
+          style={styles.editButton}
+          contentStyle={styles.editContent}
+          labelStyle={styles.editLabel}
+        >
+          Redigera formulär
+        </Button>
+
+        <Button
+          mode="contained"
           icon="eye-outline"
           onPress={() => router.push(`/form/${id}/submissions`)}
           style={styles.actionButton}
@@ -129,7 +140,7 @@ export default function FormDetailScreen() {
         {(form.fields || []).slice(0, 10).map((field: any, index: number) => (
           <View key={field.id || index} style={styles.fieldRow}>
             <MaterialCommunityIcons
-              name={getFieldIcon(field.type)}
+              name={getFieldIcon(field.type) as any}
               size={20}
               color="#e8622c"
             />
@@ -187,6 +198,9 @@ const styles = StyleSheet.create({
   chipText: { color: '#ccc', fontSize: 12 },
   date: { color: '#666' },
   actions: { paddingHorizontal: 16, gap: 10 },
+  editButton: { borderRadius: 12, backgroundColor: '#e8622c', marginBottom: 4 },
+  editContent: { paddingVertical: 8 },
+  editLabel: { fontSize: 16, fontWeight: '700' },
   actionButton: { borderRadius: 12, backgroundColor: '#e8622c' },
   actionButtonOutline: { borderRadius: 12, borderColor: '#e8622c' },
   actionContent: { paddingVertical: 4 },

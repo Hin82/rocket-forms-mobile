@@ -45,6 +45,11 @@ export default function LoginScreen() {
         style={styles.content}
       >
         <View style={styles.header}>
+          <Image
+            source={require('../../assets/images/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <Text variant="headlineLarge" style={styles.title}>Rocket Forms Pro</Text>
           <Text variant="bodyMedium" style={styles.subtitle}>Logga in på ditt konto</Text>
         </View>
@@ -119,6 +124,12 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 40,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    marginBottom: 16,
   },
   title: {
     color: '#ffffff',

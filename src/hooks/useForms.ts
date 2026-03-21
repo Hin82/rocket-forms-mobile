@@ -33,6 +33,7 @@ export function useForms(companyId?: string | null) {
   return useQuery({
     queryKey: ['forms', user?.id, companyId],
     queryFn: async () => {
+      // Fetch ALL forms the user has access to (personal + company)
       let query = supabase
         .from('forms')
         .select('*, form_groups(name)')
@@ -41,7 +42,21 @@ export function useForms(companyId?: string | null) {
       if (companyId) {
         query = query.eq('company_id', companyId);
       } else {
-        query = query.eq('user_id', user!.id).is('company_id', null);
+        // Get user's company memberships first
+        const { data: memberships } = await supabase
+          .from('company_memberships')
+          .select('company_id')
+          .eq('user_id', user!.id)
+          .eq('status', 'active');
+
+        const companyIds = (memberships || []).map(m => m.company_id);
+
+        if (companyIds.length > 0) {
+          // Fetch personal forms + all company forms
+          query = query.or(`user_id.eq.${user!.id},company_id.in.(${companyIds.join(',')})`);
+        } else {
+          query = query.eq('user_id', user!.id);
+        }
       }
 
       const { data, error } = await query;
@@ -87,7 +102,18 @@ export function useFormGroups(companyId?: string | null) {
       if (companyId) {
         query = query.eq('company_id', companyId);
       } else {
-        query = query.eq('user_id', user!.id);
+        const { data: memberships } = await supabase
+          .from('company_memberships')
+          .select('company_id')
+          .eq('user_id', user!.id)
+          .eq('status', 'active');
+
+        const companyIds = (memberships || []).map(m => m.company_id);
+        if (companyIds.length > 0) {
+          query = query.or(`user_id.eq.${user!.id},company_id.in.(${companyIds.join(',')})`);
+        } else {
+          query = query.eq('user_id', user!.id);
+        }
       }
 
       const { data, error } = await query;
