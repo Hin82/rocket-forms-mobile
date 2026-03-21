@@ -1,0 +1,217 @@
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Text, TextInput, Button, List, Chip } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useFormGroups } from '@/src/hooks/useForms';
+import * as Haptics from 'expo-haptics';
+
+const QUICK_FIELDS = [
+  { type: 'text', label: 'Textfält', icon: 'form-textbox' },
+  { type: 'email', label: 'E-post', icon: 'email-outline' },
+  { type: 'phone', label: 'Telefon', icon: 'phone-outline' },
+  { type: 'name', label: 'Namn', icon: 'account-outline' },
+  { type: 'textarea', label: 'Textområde', icon: 'text-box-outline' },
+  { type: 'select', label: 'Dropdown', icon: 'form-dropdown' },
+  { type: 'radio', label: 'Radioknappar', icon: 'radiobox-marked' },
+  { type: 'checkbox', label: 'Kryssrutor', icon: 'checkbox-marked-outline' },
+  { type: 'date', label: 'Datum', icon: 'calendar' },
+  { type: 'file', label: 'Filuppladdning', icon: 'file-outline' },
+  { type: 'signature', label: 'Underskrift', icon: 'draw' },
+  { type: 'rating', label: 'Betyg', icon: 'star-outline' },
+];
+
+interface NewField {
+  id: string;
+  type: string;
+  label: string;
+  required: boolean;
+}
+
+export default function CreateFormScreen() {
+  const [formName, setFormName] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [fields, setFields] = useState<NewField[]>([]);
+  const [step, setStep] = useState(1);
+
+  const { user } = useAuth();
+  const { data: groups } = useFormGroups();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const createForm = useMutation({
+    mutationFn: async () => {
+      const formFields = fields.map((f, i) => ({
+        id: f.id,
+        type: f.type,
+        label: f.label,
+        required: f.required,
+        order: i,
+        placeholder: '',
+        options: f.type === 'select' || f.type === 'radio' || f.type === 'checkbox'
+          ? ['Alternativ 1', 'Alternativ 2', 'Alternativ 3']
+          : undefined,
+      }));
+
+      const { data, error } = await supabase.from('forms').insert({
+        name: formName,
+        fields: formFields,
+        settings: {},
+        user_id: user!.id,
+        form_group_id: selectedGroup,
+      }).select().single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
+      router.replace(`/form/${data.id}`);
+    },
+    onError: (err: any) => {
+      Alert.alert('Fel', err.message || 'Kunde inte skapa formuläret');
+    },
+  });
+
+  const addField = (type: string, label: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setFields(prev => [...prev, {
+      id: `field_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      type,
+      label,
+      required: false,
+    }]);
+  };
+
+  const removeField = (id: string) => {
+    setFields(prev => prev.filter(f => f.id !== id));
+  };
+
+  // Step 1: Name + Group
+  if (step === 1) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <Text variant="headlineMedium" style={styles.title}>Nytt formulär</Text>
+          <Text variant="bodyMedium" style={styles.subtitle}>Ge ditt formulär ett namn</Text>
+
+          <TextInput
+            label="Formulärnamn"
+            value={formName}
+            onChangeText={setFormName}
+            mode="outlined"
+            style={styles.input}
+            autoFocus
+          />
+
+          {groups && groups.length > 0 && (
+            <>
+              <Text variant="titleSmall" style={styles.groupLabel}>Mapp (valfritt)</Text>
+              <View style={styles.groupChips}>
+                {groups.map(g => (
+                  <Chip
+                    key={g.id}
+                    selected={selectedGroup === g.id}
+                    onPress={() => setSelectedGroup(selectedGroup === g.id ? null : g.id)}
+                    style={styles.groupChip}
+                  >
+                    {g.name}
+                  </Chip>
+                ))}
+              </View>
+            </>
+          )}
+
+          <Button
+            mode="contained"
+            onPress={() => setStep(2)}
+            disabled={!formName.trim()}
+            style={styles.nextButton}
+            contentStyle={styles.buttonContent}
+          >
+            Nästa — Lägg till fält
+          </Button>
+
+          <Button mode="text" onPress={() => router.back()}>Avbryt</Button>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // Step 2: Add fields
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text variant="headlineSmall" style={styles.title}>{formName}</Text>
+        <Text variant="bodyMedium" style={styles.subtitle}>
+          Tryck på fälttyper för att lägga till ({fields.length} fält tillagda)
+        </Text>
+
+        {/* Added fields */}
+        {fields.length > 0 && (
+          <View style={styles.addedFields}>
+            {fields.map((f, i) => (
+              <Chip
+                key={f.id}
+                onClose={() => removeField(f.id)}
+                style={styles.addedChip}
+                textStyle={styles.addedChipText}
+              >
+                {i + 1}. {f.label}
+              </Chip>
+            ))}
+          </View>
+        )}
+
+        {/* Available field types */}
+        <View style={styles.fieldGrid}>
+          {QUICK_FIELDS.map(f => (
+            <Chip
+              key={f.type}
+              icon={f.icon}
+              onPress={() => addField(f.type, f.label)}
+              style={styles.fieldChip}
+            >
+              {f.label}
+            </Chip>
+          ))}
+        </View>
+
+        <Button
+          mode="contained"
+          onPress={() => createForm.mutate()}
+          disabled={fields.length === 0 || createForm.isPending}
+          loading={createForm.isPending}
+          style={styles.nextButton}
+          contentStyle={styles.buttonContent}
+        >
+          Skapa formulär
+        </Button>
+
+        <Button mode="text" onPress={() => setStep(1)}>Tillbaka</Button>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#121220' },
+  content: { padding: 24, paddingBottom: 40 },
+  title: { color: '#fff', fontWeight: 'bold', marginBottom: 8 },
+  subtitle: { color: '#888', marginBottom: 24 },
+  input: { marginBottom: 16 },
+  groupLabel: { color: '#ccc', marginBottom: 8 },
+  groupChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
+  groupChip: { backgroundColor: '#2d2d44' },
+  nextButton: { marginTop: 16, borderRadius: 12, backgroundColor: '#e8622c' },
+  buttonContent: { paddingVertical: 6 },
+  addedFields: { gap: 6, marginBottom: 24 },
+  addedChip: { backgroundColor: '#1e1e2e' },
+  addedChipText: { color: '#fff' },
+  fieldGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  fieldChip: { backgroundColor: '#2d2d44' },
+});
