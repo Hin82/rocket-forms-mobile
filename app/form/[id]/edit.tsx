@@ -22,6 +22,9 @@ import { useFormGroups } from '@/src/hooks/useForms';
 import FieldPalette from '@/src/components/editor/FieldPalette';
 import FieldEditorSheet from '@/src/components/editor/FieldEditorSheet';
 import FormSettingsSheet from '@/src/components/editor/FormSettingsSheet';
+import FormPreviewSheet from '@/src/components/editor/FormPreviewSheet';
+import ShareSheet from '@/src/components/editor/ShareSheet';
+import VersionHistorySheet from '@/src/components/editor/VersionHistorySheet';
 import BottomSheet from '@gorhom/bottom-sheet';
 
 const FIELD_ICONS: Record<string, string> = {
@@ -93,6 +96,9 @@ export default function FormEditorScreen() {
   const settingsRef = useRef<BottomSheet>(null);
 
   const [editingField, setEditingField] = useState<FormField | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showVersions, setShowVersions] = useState(false);
 
   // ---- Handlers ----
   const handleOpenPalette = useCallback(() => {
@@ -157,16 +163,21 @@ export default function FormEditorScreen() {
   }, [saveForm]);
 
   const handlePreview = useCallback(() => {
-    Alert.alert('Forhandsgranskning', 'Kommer snart');
+    setShowPreview(true);
   }, []);
 
   const handleShare = useCallback(() => {
-    Alert.alert('Dela', 'Kommer snart');
+    setShowShare(true);
   }, []);
 
   const handleVersionHistory = useCallback(() => {
-    Alert.alert('Versionshistorik', 'Kommer snart');
+    setShowVersions(true);
   }, []);
+
+  const handleRestoreVersion = useCallback((fields: any[], settings: any) => {
+    updateForm({ fields, settings } as any);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [updateForm]);
 
   // ---- Render ----
   if (loading) {
@@ -314,6 +325,29 @@ export default function FormEditorScreen() {
         onUpdateSettings={updateSettings}
         onUpdateFormMeta={(meta) => updateForm(meta as any)}
         onClose={() => settingsRef.current?.close()}
+      />
+
+      {/* Preview, Share, Version History */}
+      <FormPreviewSheet
+        visible={showPreview}
+        onClose={() => setShowPreview(false)}
+        fields={form.fields}
+        settings={form.settings}
+        formName={form.name}
+      />
+
+      <ShareSheet
+        visible={showShare}
+        onClose={() => setShowShare(false)}
+        formId={id!}
+        formName={form.name}
+      />
+
+      <VersionHistorySheet
+        visible={showVersions}
+        onClose={() => setShowVersions(false)}
+        formId={id!}
+        onRestore={handleRestoreVersion}
       />
     </GestureHandlerRootView>
   );
