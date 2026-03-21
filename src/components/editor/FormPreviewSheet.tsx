@@ -361,13 +361,42 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
         </View>
       );
 
-    case 'document':
+    case 'document': {
+      const docUrl: string | null = (field.documentUrl as string | undefined) ?? (typeof field.document === 'string' ? field.document : null);
+      if (!docUrl) {
+        return (
+          <View style={[styles.placeholderBox, { borderColor: textColor + '33' }]}>
+            <MaterialCommunityIcons name="file-document-outline" size={28} color={textColor + '55'} />
+            <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>Inget dokument valt</Text>
+          </View>
+        );
+      }
+      const isPdf = docUrl.toLowerCase().endsWith('.pdf');
+      const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(docUrl);
+      if (isImage) {
+        return (
+          <View style={{ alignItems: field.documentAlignment === 'right' ? 'flex-end' : field.documentAlignment === 'center' ? 'center' : 'flex-start' }}>
+            <Image
+              source={{ uri: docUrl }}
+              style={{ width: '100%', height: 300, borderRadius: 8 }}
+              resizeMode="contain"
+            />
+          </View>
+        );
+      }
+      // PDF or other document — show as a preview card with link
       return (
-        <View style={[styles.placeholderBox, { borderColor: textColor + '33' }]}>
-          <MaterialCommunityIcons name="file-document-outline" size={28} color={textColor + '55'} />
-          <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>Dokument</Text>
+        <View style={[styles.documentPreview, { borderColor: textColor + '22' }]}>
+          <MaterialCommunityIcons name="file-pdf-box" size={40} color="#e8622c" />
+          <Text style={{ color: textColor, marginTop: 8, fontWeight: '600' }}>
+            {field.title || field.label || 'PDF-dokument'}
+          </Text>
+          <Text style={{ color: textColor + '88', fontSize: 12, marginTop: 4 }}>
+            Dokumentet visas i publicerat formulär
+          </Text>
         </View>
       );
+    }
 
     case 'address':
       return (
@@ -650,6 +679,14 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   placeholderBoxText: { fontSize: 13 },
+
+  documentPreview: {
+    padding: 24,
+    borderWidth: 1,
+    borderRadius: 12,
+    alignItems: 'center' as const,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+  },
 
   addressStack: { gap: 10 },
 
