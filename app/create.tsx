@@ -106,6 +106,10 @@ export default function CreateFormScreen() {
             onChangeText={setFormName}
             mode="outlined"
             style={styles.input}
+            textColor="#fff"
+            outlineColor="#2d2d44"
+            activeOutlineColor="#e8622c"
+            theme={{ colors: { onSurfaceVariant: '#888' } }}
             autoFocus
           />
 
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 40 },
   title: { color: '#fff', fontWeight: 'bold', marginBottom: 8 },
   subtitle: { color: '#888', marginBottom: 24 },
-  input: { marginBottom: 16 },
+  input: { marginBottom: 16, backgroundColor: '#121220' },
   groupLabel: { color: '#ccc', marginBottom: 8 },
   groupChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
   groupChip: { backgroundColor: '#2d2d44' },

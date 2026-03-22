@@ -33,6 +33,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       mfaCode: '6-digit code',
       mfaInvalidCode: 'Invalid code, try again',
       verify: 'Verify',
+      rememberMe: 'Remember me',
     },
     settings: {
       // Main settings
@@ -305,6 +306,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       notFound: 'Not found',
       yes: 'Yes',
       no: 'No',
+      deleteForm: 'Delete form',
+      deleteFormConfirm: 'Are you sure you want to delete "{name}"? This cannot be undone.',
+      couldNotDelete: 'Could not delete form',
     },
     create: {
       newForm: 'New form',
@@ -383,6 +387,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       mfaCode: '6-siffrig kod',
       mfaInvalidCode: 'Felaktig kod, försök igen',
       verify: 'Verifiera',
+      rememberMe: 'Kom ihåg mig',
     },
     settings: {
       account: 'Konto',
@@ -646,6 +651,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       notFound: 'Hittades inte',
       yes: 'Ja',
       no: 'Nej',
+      deleteForm: 'Radera formulär',
+      deleteFormConfirm: 'Vill du verkligen radera "{name}"? Detta kan inte ångras.',
+      couldNotDelete: 'Kunde inte radera formuläret',
     },
     create: {
       newForm: 'Nytt formulär',
@@ -725,6 +733,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       mfaCode: '6-sifret kode',
       mfaInvalidCode: 'Ugyldig kode, prøv igjen',
       verify: 'Bekreft',
+      rememberMe: 'Husk meg',
     },
     settings: {
       account: 'Konto', profile: 'Profil', manageProfile: 'Administrer profilen din',
@@ -839,7 +848,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       enterpriseFeature7: 'SSO / SAML', enterpriseFeature8: 'Avansert brukeradministrasjon',
     },
     nav: { forms: 'Skjemaer', submissions: 'Innsendte', notificationsTab: 'Varsler', settingsTab: 'Innstillinger', back: 'Tilbake', form: 'Skjema', submitted: 'Innsendte', submissionDetail: 'Innsending' },
-    forms: { searchPlaceholder: 'Søk skjemaer...', allForms: 'Alle skjemaer', noForms: 'Ingen skjemaer ennå', new: 'Nytt', fields: 'felt', submittedCount: 'innsendte', created: 'Opprettet', editForm: 'Rediger skjema', viewSubmissions: 'Vis innsendte', shareForm: 'Del skjema', copyLink: 'Kopier lenke', formFields: 'Felt i skjemaet', moreFields: '+{count} flere felt', formNotFound: 'Skjemaet ble ikke funnet', copied: 'Kopiert!', linkCopied: 'Lenken er kopiert til utklippstavlen', fillForm: 'Fyll ut skjemaet:', noValues: 'Ingen verdier', noSubmissions: 'Ingen innsendinger ennå', signature: 'Underskrift', submittedAt: 'Innsendt', notFound: 'Ikke funnet', yes: 'Ja', no: 'Nei' },
+    forms: { searchPlaceholder: 'Søk skjemaer...', allForms: 'Alle skjemaer', noForms: 'Ingen skjemaer ennå', new: 'Nytt', fields: 'felt', submittedCount: 'innsendte', created: 'Opprettet', editForm: 'Rediger skjema', viewSubmissions: 'Vis innsendte', shareForm: 'Del skjema', copyLink: 'Kopier lenke', formFields: 'Felt i skjemaet', moreFields: '+{count} flere felt', formNotFound: 'Skjemaet ble ikke funnet', copied: 'Kopiert!', linkCopied: 'Lenken er kopiert til utklippstavlen', fillForm: 'Fyll ut skjemaet:', noValues: 'Ingen verdier', noSubmissions: 'Ingen innsendinger ennå', signature: 'Underskrift', submittedAt: 'Innsendt', notFound: 'Ikke funnet', yes: 'Ja', no: 'Nei', deleteForm: 'Slett skjema', deleteFormConfirm: 'Er du sikker på at du vil slette "{name}"? Dette kan ikke angres.', couldNotDelete: 'Kunne ikke slette skjemaet' },
     create: { newForm: 'Nytt skjema', nameYourForm: 'Gi skjemaet ditt et navn', formName: 'Skjemanavn', folderOptional: 'Mappe (valgfritt)', nextAddFields: 'Neste — Legg til felt', cancel: 'Avbryt', tapToAdd: 'Trykk på felttyper for å legge til ({count} felt lagt til)', createForm: 'Opprett skjema', back: 'Tilbake', error: 'Feil', couldNotCreate: 'Kunne ikke opprette skjema', textField: 'Tekstfelt', emailField: 'E-post', phoneField: 'Telefon', nameField: 'Navn', textArea: 'Tekstområde', dropdown: 'Nedtrekksliste', radioButtons: 'Radioknapper', checkboxes: 'Avkrysningsbokser', dateField: 'Dato', fileUpload: 'Filopplasting', signatureField: 'Underskrift', ratingField: 'Vurdering', option: 'Alternativ' },
     notifications: { markAllRead: 'Merk alle som lest', noNotifications: 'Ingen varsler' },
     editor: { deleteField: 'Slett felt', deleteFieldConfirm: 'Slette "{label}"?', cancel: 'Avbryt', delete: 'Slett', copy: 'Kopier', copyLabel: '(kopi)', save: 'Lagre', unsaved: 'Ulagret', loadingForm: 'Laster skjemaet...', couldNotLoadForm: 'Kunne ikke laste skjemaet', goBack: 'Gå tilbake', noFields: 'Ingen felt ennå', tapToAddFields: 'Trykk på + for å legge til felt' },
@@ -876,6 +885,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       mfaCode: '6-cifret kode',
       mfaInvalidCode: 'Ugyldig kode, prøv igen',
       verify: 'Bekræft',
+      rememberMe: 'Husk mig',
     },
     settings: {
       account: 'Konto', profile: 'Profil', manageProfile: 'Administrer din profil',
@@ -989,7 +999,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       enterpriseFeature7: 'SSO / SAML', enterpriseFeature8: 'Avanceret brugeradministration',
     },
     nav: { forms: 'Formularer', submissions: 'Indsendte', notificationsTab: 'Notifikationer', settingsTab: 'Indstillinger', back: 'Tilbage', form: 'Formular', submitted: 'Indsendte', submissionDetail: 'Indsendelse' },
-    forms: { searchPlaceholder: 'Søg formularer...', allForms: 'Alle formularer', noForms: 'Ingen formularer endnu', new: 'Ny', fields: 'felter', submittedCount: 'indsendte', created: 'Oprettet', editForm: 'Rediger formular', viewSubmissions: 'Vis indsendte', shareForm: 'Del formular', copyLink: 'Kopiér link', formFields: 'Felter i formularen', moreFields: '+{count} flere felter', formNotFound: 'Formularen blev ikke fundet', copied: 'Kopieret!', linkCopied: 'Linket er kopieret til udklipsholder', fillForm: 'Udfyld formularen:', noValues: 'Ingen værdier', noSubmissions: 'Ingen indsendelser endnu', signature: 'Underskrift', submittedAt: 'Indsendt', notFound: 'Ikke fundet', yes: 'Ja', no: 'Nej' },
+    forms: { searchPlaceholder: 'Søg formularer...', allForms: 'Alle formularer', noForms: 'Ingen formularer endnu', new: 'Ny', fields: 'felter', submittedCount: 'indsendte', created: 'Oprettet', editForm: 'Rediger formular', viewSubmissions: 'Vis indsendte', shareForm: 'Del formular', copyLink: 'Kopiér link', formFields: 'Felter i formularen', moreFields: '+{count} flere felter', formNotFound: 'Formularen blev ikke fundet', copied: 'Kopieret!', linkCopied: 'Linket er kopieret til udklipsholder', fillForm: 'Udfyld formularen:', noValues: 'Ingen værdier', noSubmissions: 'Ingen indsendelser endnu', signature: 'Underskrift', submittedAt: 'Indsendt', notFound: 'Ikke fundet', yes: 'Ja', no: 'Nej', deleteForm: 'Slet formular', deleteFormConfirm: 'Er du sikker på, at du vil slette "{name}"? Dette kan ikke fortrydes.', couldNotDelete: 'Kunne ikke slette formularen' },
     create: { newForm: 'Ny formular', nameYourForm: 'Giv din formular et navn', formName: 'Formularnavn', folderOptional: 'Mappe (valgfrit)', nextAddFields: 'Næste — Tilføj felter', cancel: 'Annuller', tapToAdd: 'Tryk på felttyper for at tilføje ({count} felter tilføjet)', createForm: 'Opret formular', back: 'Tilbage', error: 'Fejl', couldNotCreate: 'Kunne ikke oprette formular', textField: 'Tekstfelt', emailField: 'E-mail', phoneField: 'Telefon', nameField: 'Navn', textArea: 'Tekstområde', dropdown: 'Dropdown', radioButtons: 'Radioknapper', checkboxes: 'Afkrydsningsfelter', dateField: 'Dato', fileUpload: 'Filupload', signatureField: 'Underskrift', ratingField: 'Bedømmelse', option: 'Mulighed' },
     notifications: { markAllRead: 'Markér alle som læst', noNotifications: 'Ingen notifikationer' },
     editor: { deleteField: 'Slet felt', deleteFieldConfirm: 'Slet "{label}"?', cancel: 'Annuller', delete: 'Slet', copy: 'Kopiér', copyLabel: '(kopi)', save: 'Gem', unsaved: 'Ikke gemt', loadingForm: 'Indlæser formularen...', couldNotLoadForm: 'Kunne ikke indlæse formularen', goBack: 'Gå tilbage', noFields: 'Ingen felter endnu', tapToAddFields: 'Tryk på + for at tilføje felter' },
@@ -1011,6 +1021,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       back: 'Takaisin', mfaTitle: 'Kaksivaiheinen tunnistautuminen',
       mfaSubtitle: 'Syötä koodi tunnistautumissovelluksestasi', mfaCode: '6-numeroinen koodi',
       mfaInvalidCode: 'Väärä koodi, yritä uudelleen', verify: 'Vahvista',
+      rememberMe: 'Muista minut',
     },
     settings: {
       account: 'Tili', profile: 'Profiili', manageProfile: 'Hallitse profiiliasi',
@@ -1112,7 +1123,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       enterpriseDesc: 'Kaikki Premiumissa + SLA, priorisoitu tuki', enterpriseFeature1: 'Kaikki Premiumissa', enterpriseFeature2: 'SLA-takuu (99.9% käytettävyys)', enterpriseFeature3: 'Priorisoitu tuki 24/7', enterpriseFeature4: 'Oma yhteyshenkilö', enterpriseFeature5: 'Mukautetut integraatiot', enterpriseFeature6: 'Rajaton tallennustila', enterpriseFeature7: 'SSO / SAML', enterpriseFeature8: 'Edistynyt käyttäjähallinta',
     },
     nav: { forms: 'Lomakkeet', submissions: 'Lähetetyt', notificationsTab: 'Ilmoitukset', settingsTab: 'Asetukset', back: 'Takaisin', form: 'Lomake', submitted: 'Lähetetyt', submissionDetail: 'Lähetys' },
-    forms: { searchPlaceholder: 'Hae lomakkeita...', allForms: 'Kaikki lomakkeet', noForms: 'Ei lomakkeita vielä', new: 'Uusi', fields: 'kenttää', submittedCount: 'lähetetty', created: 'Luotu', editForm: 'Muokkaa lomaketta', viewSubmissions: 'Näytä lähetykset', shareForm: 'Jaa lomake', copyLink: 'Kopioi linkki', formFields: 'Lomakkeen kentät', moreFields: '+{count} kenttää lisää', formNotFound: 'Lomaketta ei löytynyt', copied: 'Kopioitu!', linkCopied: 'Linkki kopioitu leikepöydälle', fillForm: 'Täytä lomake:', noValues: 'Ei arvoja', noSubmissions: 'Ei lähetyksiä vielä', signature: 'Allekirjoitus', submittedAt: 'Lähetetty', notFound: 'Ei löytynyt', yes: 'Kyllä', no: 'Ei' },
+    forms: { searchPlaceholder: 'Hae lomakkeita...', allForms: 'Kaikki lomakkeet', noForms: 'Ei lomakkeita vielä', new: 'Uusi', fields: 'kenttää', submittedCount: 'lähetetty', created: 'Luotu', editForm: 'Muokkaa lomaketta', viewSubmissions: 'Näytä lähetykset', shareForm: 'Jaa lomake', copyLink: 'Kopioi linkki', formFields: 'Lomakkeen kentät', moreFields: '+{count} kenttää lisää', formNotFound: 'Lomaketta ei löytynyt', copied: 'Kopioitu!', linkCopied: 'Linkki kopioitu leikepöydälle', fillForm: 'Täytä lomake:', noValues: 'Ei arvoja', noSubmissions: 'Ei lähetyksiä vielä', signature: 'Allekirjoitus', submittedAt: 'Lähetetty', notFound: 'Ei löytynyt', yes: 'Kyllä', no: 'Ei', deleteForm: 'Poista lomake', deleteFormConfirm: 'Haluatko varmasti poistaa "{name}"? Tätä ei voi kumota.', couldNotDelete: 'Lomaketta ei voitu poistaa' },
     create: { newForm: 'Uusi lomake', nameYourForm: 'Anna lomakkeellesi nimi', formName: 'Lomakkeen nimi', folderOptional: 'Kansio (valinnainen)', nextAddFields: 'Seuraava — Lisää kenttiä', cancel: 'Peruuta', tapToAdd: 'Napauta kenttätyyppejä lisätäksesi ({count} kenttää lisätty)', createForm: 'Luo lomake', back: 'Takaisin', error: 'Virhe', couldNotCreate: 'Lomaketta ei voitu luoda', textField: 'Tekstikenttä', emailField: 'Sähköposti', phoneField: 'Puhelin', nameField: 'Nimi', textArea: 'Tekstialue', dropdown: 'Pudotusvalikko', radioButtons: 'Valintanapit', checkboxes: 'Valintaruudut', dateField: 'Päivämäärä', fileUpload: 'Tiedoston lataus', signatureField: 'Allekirjoitus', ratingField: 'Arviointi', option: 'Vaihtoehto' },
     notifications: { markAllRead: 'Merkitse kaikki luetuiksi', noNotifications: 'Ei ilmoituksia' },
     editor: { deleteField: 'Poista kenttä', deleteFieldConfirm: 'Poista "{label}"?', cancel: 'Peruuta', delete: 'Poista', copy: 'Kopioi', copyLabel: '(kopio)', save: 'Tallenna', unsaved: 'Tallentamaton', loadingForm: 'Ladataan lomaketta...', couldNotLoadForm: 'Lomaketta ei voitu ladata', goBack: 'Palaa takaisin', noFields: 'Ei kenttiä vielä', tapToAddFields: 'Napauta + lisätäksesi kenttiä' },
@@ -1134,6 +1145,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       back: 'Zurück', mfaTitle: 'Zwei-Faktor-Authentifizierung',
       mfaSubtitle: 'Geben Sie den Code aus Ihrer Authentifizierungs-App ein', mfaCode: '6-stelliger Code',
       mfaInvalidCode: 'Ungültiger Code, erneut versuchen', verify: 'Bestätigen',
+      rememberMe: 'Angemeldet bleiben',
     },
     settings: {
       account: 'Konto', profile: 'Profil', manageProfile: 'Profil verwalten',
@@ -1235,7 +1247,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       enterpriseDesc: 'Alles in Premium + SLA, Prioritätssupport', enterpriseFeature1: 'Alles in Premium', enterpriseFeature2: 'SLA-Garantie (99.9% Verfügbarkeit)', enterpriseFeature3: 'Prioritätssupport rund um die Uhr', enterpriseFeature4: 'Dedizierter Ansprechpartner', enterpriseFeature5: 'Individuelle Integrationen', enterpriseFeature6: 'Unbegrenzter Speicher', enterpriseFeature7: 'SSO / SAML', enterpriseFeature8: 'Erweiterte Benutzerverwaltung',
     },
     nav: { forms: 'Formulare', submissions: 'Einreichungen', notificationsTab: 'Benachrichtigungen', settingsTab: 'Einstellungen', back: 'Zurück', form: 'Formular', submitted: 'Eingereicht', submissionDetail: 'Einreichung' },
-    forms: { searchPlaceholder: 'Formulare suchen...', allForms: 'Alle Formulare', noForms: 'Noch keine Formulare', new: 'Neu', fields: 'Felder', submittedCount: 'eingereicht', created: 'Erstellt', editForm: 'Formular bearbeiten', viewSubmissions: 'Einreichungen anzeigen', shareForm: 'Formular teilen', copyLink: 'Link kopieren', formFields: 'Formularfelder', moreFields: '+{count} weitere Felder', formNotFound: 'Formular nicht gefunden', copied: 'Kopiert!', linkCopied: 'Link in die Zwischenablage kopiert', fillForm: 'Formular ausfüllen:', noValues: 'Keine Werte', noSubmissions: 'Noch keine Einreichungen', signature: 'Unterschrift', submittedAt: 'Eingereicht', notFound: 'Nicht gefunden', yes: 'Ja', no: 'Nein' },
+    forms: { searchPlaceholder: 'Formulare suchen...', allForms: 'Alle Formulare', noForms: 'Noch keine Formulare', new: 'Neu', fields: 'Felder', submittedCount: 'eingereicht', created: 'Erstellt', editForm: 'Formular bearbeiten', viewSubmissions: 'Einreichungen anzeigen', shareForm: 'Formular teilen', copyLink: 'Link kopieren', formFields: 'Formularfelder', moreFields: '+{count} weitere Felder', formNotFound: 'Formular nicht gefunden', copied: 'Kopiert!', linkCopied: 'Link in die Zwischenablage kopiert', fillForm: 'Formular ausfüllen:', noValues: 'Keine Werte', noSubmissions: 'Noch keine Einreichungen', signature: 'Unterschrift', submittedAt: 'Eingereicht', notFound: 'Nicht gefunden', yes: 'Ja', no: 'Nein', deleteForm: 'Formular löschen', deleteFormConfirm: 'Sind Sie sicher, dass Sie "{name}" löschen möchten? Dies kann nicht rückgängig gemacht werden.', couldNotDelete: 'Formular konnte nicht gelöscht werden' },
     create: { newForm: 'Neues Formular', nameYourForm: 'Geben Sie Ihrem Formular einen Namen', formName: 'Formularname', folderOptional: 'Ordner (optional)', nextAddFields: 'Weiter — Felder hinzufügen', cancel: 'Abbrechen', tapToAdd: 'Tippen Sie auf Feldtypen zum Hinzufügen ({count} Felder hinzugefügt)', createForm: 'Formular erstellen', back: 'Zurück', error: 'Fehler', couldNotCreate: 'Formular konnte nicht erstellt werden', textField: 'Textfeld', emailField: 'E-Mail', phoneField: 'Telefon', nameField: 'Name', textArea: 'Textbereich', dropdown: 'Dropdown', radioButtons: 'Optionsfelder', checkboxes: 'Kontrollkästchen', dateField: 'Datum', fileUpload: 'Datei-Upload', signatureField: 'Unterschrift', ratingField: 'Bewertung', option: 'Option' },
     notifications: { markAllRead: 'Alle als gelesen markieren', noNotifications: 'Keine Benachrichtigungen' },
     editor: { deleteField: 'Feld löschen', deleteFieldConfirm: '"{label}" löschen?', cancel: 'Abbrechen', delete: 'Löschen', copy: 'Kopieren', copyLabel: '(Kopie)', save: 'Speichern', unsaved: 'Ungespeichert', loadingForm: 'Formular wird geladen...', couldNotLoadForm: 'Formular konnte nicht geladen werden', goBack: 'Zurück gehen', noFields: 'Noch keine Felder', tapToAddFields: 'Tippen Sie auf + um Felder hinzuzufügen' },
@@ -1257,6 +1269,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       back: 'Retour', mfaTitle: 'Authentification à deux facteurs',
       mfaSubtitle: "Entrez le code de votre application d'authentification", mfaCode: 'Code à 6 chiffres',
       mfaInvalidCode: 'Code invalide, réessayez', verify: 'Vérifier',
+      rememberMe: 'Se souvenir de moi',
     },
     settings: {
       account: 'Compte', profile: 'Profil', manageProfile: 'Gérer votre profil',
@@ -1358,7 +1371,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       enterpriseDesc: 'Tout dans Premium + SLA, support prioritaire', enterpriseFeature1: 'Tout dans Premium', enterpriseFeature2: 'Garantie SLA (99.9% disponibilité)', enterpriseFeature3: 'Support prioritaire 24h/24', enterpriseFeature4: 'Contact dédié', enterpriseFeature5: 'Intégrations personnalisées', enterpriseFeature6: 'Stockage illimité', enterpriseFeature7: 'SSO / SAML', enterpriseFeature8: 'Gestion avancée des utilisateurs',
     },
     nav: { forms: 'Formulaires', submissions: 'Soumissions', notificationsTab: 'Notifications', settingsTab: 'Paramètres', back: 'Retour', form: 'Formulaire', submitted: 'Soumis', submissionDetail: 'Soumission' },
-    forms: { searchPlaceholder: 'Rechercher des formulaires...', allForms: 'Tous les formulaires', noForms: 'Aucun formulaire pour le moment', new: 'Nouveau', fields: 'champs', submittedCount: 'soumis', created: 'Créé', editForm: 'Modifier le formulaire', viewSubmissions: 'Voir les soumissions', shareForm: 'Partager le formulaire', copyLink: 'Copier le lien', formFields: 'Champs du formulaire', moreFields: '+{count} champs supplémentaires', formNotFound: 'Formulaire introuvable', copied: 'Copié !', linkCopied: 'Lien copié dans le presse-papiers', fillForm: 'Remplir le formulaire :', noValues: 'Aucune valeur', noSubmissions: 'Aucune soumission pour le moment', signature: 'Signature', submittedAt: 'Soumis', notFound: 'Introuvable', yes: 'Oui', no: 'Non' },
+    forms: { searchPlaceholder: 'Rechercher des formulaires...', allForms: 'Tous les formulaires', noForms: 'Aucun formulaire pour le moment', new: 'Nouveau', fields: 'champs', submittedCount: 'soumis', created: 'Créé', editForm: 'Modifier le formulaire', viewSubmissions: 'Voir les soumissions', shareForm: 'Partager le formulaire', copyLink: 'Copier le lien', formFields: 'Champs du formulaire', moreFields: '+{count} champs supplémentaires', formNotFound: 'Formulaire introuvable', copied: 'Copié !', linkCopied: 'Lien copié dans le presse-papiers', fillForm: 'Remplir le formulaire :', noValues: 'Aucune valeur', noSubmissions: 'Aucune soumission pour le moment', signature: 'Signature', submittedAt: 'Soumis', notFound: 'Introuvable', yes: 'Oui', no: 'Non', deleteForm: 'Supprimer le formulaire', deleteFormConfirm: 'Êtes-vous sûr de vouloir supprimer "{name}" ? Cette action est irréversible.', couldNotDelete: 'Impossible de supprimer le formulaire' },
     create: { newForm: 'Nouveau formulaire', nameYourForm: 'Donnez un nom à votre formulaire', formName: 'Nom du formulaire', folderOptional: 'Dossier (optionnel)', nextAddFields: 'Suivant — Ajouter des champs', cancel: 'Annuler', tapToAdd: 'Appuyez sur les types de champs pour ajouter ({count} champs ajoutés)', createForm: 'Créer le formulaire', back: 'Retour', error: 'Erreur', couldNotCreate: 'Impossible de créer le formulaire', textField: 'Champ texte', emailField: 'E-mail', phoneField: 'Téléphone', nameField: 'Nom', textArea: 'Zone de texte', dropdown: 'Liste déroulante', radioButtons: 'Boutons radio', checkboxes: 'Cases à cocher', dateField: 'Date', fileUpload: 'Téléchargement de fichier', signatureField: 'Signature', ratingField: 'Évaluation', option: 'Option' },
     notifications: { markAllRead: 'Tout marquer comme lu', noNotifications: 'Aucune notification' },
     editor: { deleteField: 'Supprimer le champ', deleteFieldConfirm: 'Supprimer "{label}" ?', cancel: 'Annuler', delete: 'Supprimer', copy: 'Copier', copyLabel: '(copie)', save: 'Enregistrer', unsaved: 'Non enregistré', loadingForm: 'Chargement du formulaire...', couldNotLoadForm: 'Impossible de charger le formulaire', goBack: 'Retour', noFields: 'Aucun champ pour le moment', tapToAddFields: 'Appuyez sur + pour ajouter des champs' },
@@ -1380,6 +1393,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       back: 'Volver', mfaTitle: 'Autenticación de dos factores',
       mfaSubtitle: 'Ingresa el código de tu aplicación de autenticación', mfaCode: 'Código de 6 dígitos',
       mfaInvalidCode: 'Código inválido, intenta de nuevo', verify: 'Verificar',
+      rememberMe: 'Recordarme',
     },
     settings: {
       account: 'Cuenta', profile: 'Perfil', manageProfile: 'Gestionar tu perfil',
@@ -1481,7 +1495,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       enterpriseDesc: 'Todo en Premium + SLA, soporte prioritario', enterpriseFeature1: 'Todo en Premium', enterpriseFeature2: 'Garantía SLA (99.9% disponibilidad)', enterpriseFeature3: 'Soporte prioritario 24/7', enterpriseFeature4: 'Contacto dedicado', enterpriseFeature5: 'Integraciones personalizadas', enterpriseFeature6: 'Almacenamiento ilimitado', enterpriseFeature7: 'SSO / SAML', enterpriseFeature8: 'Gestión avanzada de usuarios',
     },
     nav: { forms: 'Formularios', submissions: 'Envíos', notificationsTab: 'Notificaciones', settingsTab: 'Configuración', back: 'Volver', form: 'Formulario', submitted: 'Enviado', submissionDetail: 'Envío' },
-    forms: { searchPlaceholder: 'Buscar formularios...', allForms: 'Todos los formularios', noForms: 'Aún no hay formularios', new: 'Nuevo', fields: 'campos', submittedCount: 'enviados', created: 'Creado', editForm: 'Editar formulario', viewSubmissions: 'Ver envíos', shareForm: 'Compartir formulario', copyLink: 'Copiar enlace', formFields: 'Campos del formulario', moreFields: '+{count} campos más', formNotFound: 'Formulario no encontrado', copied: '¡Copiado!', linkCopied: 'Enlace copiado al portapapeles', fillForm: 'Completar el formulario:', noValues: 'Sin valores', noSubmissions: 'Aún no hay envíos', signature: 'Firma', submittedAt: 'Enviado', notFound: 'No encontrado', yes: 'Sí', no: 'No' },
+    forms: { searchPlaceholder: 'Buscar formularios...', allForms: 'Todos los formularios', noForms: 'Aún no hay formularios', new: 'Nuevo', fields: 'campos', submittedCount: 'enviados', created: 'Creado', editForm: 'Editar formulario', viewSubmissions: 'Ver envíos', shareForm: 'Compartir formulario', copyLink: 'Copiar enlace', formFields: 'Campos del formulario', moreFields: '+{count} campos más', formNotFound: 'Formulario no encontrado', copied: '¡Copiado!', linkCopied: 'Enlace copiado al portapapeles', fillForm: 'Completar el formulario:', noValues: 'Sin valores', noSubmissions: 'Aún no hay envíos', signature: 'Firma', submittedAt: 'Enviado', notFound: 'No encontrado', yes: 'Sí', no: 'No', deleteForm: 'Eliminar formulario', deleteFormConfirm: '¿Estás seguro de que quieres eliminar "{name}"? Esto no se puede deshacer.', couldNotDelete: 'No se pudo eliminar el formulario' },
     create: { newForm: 'Nuevo formulario', nameYourForm: 'Dale un nombre a tu formulario', formName: 'Nombre del formulario', folderOptional: 'Carpeta (opcional)', nextAddFields: 'Siguiente — Agregar campos', cancel: 'Cancelar', tapToAdd: 'Toca los tipos de campo para agregar ({count} campos agregados)', createForm: 'Crear formulario', back: 'Volver', error: 'Error', couldNotCreate: 'No se pudo crear el formulario', textField: 'Campo de texto', emailField: 'Correo', phoneField: 'Teléfono', nameField: 'Nombre', textArea: 'Área de texto', dropdown: 'Desplegable', radioButtons: 'Botones de radio', checkboxes: 'Casillas de verificación', dateField: 'Fecha', fileUpload: 'Carga de archivo', signatureField: 'Firma', ratingField: 'Calificación', option: 'Opción' },
     notifications: { markAllRead: 'Marcar todo como leído', noNotifications: 'Sin notificaciones' },
     editor: { deleteField: 'Eliminar campo', deleteFieldConfirm: '¿Eliminar "{label}"?', cancel: 'Cancelar', delete: 'Eliminar', copy: 'Copiar', copyLabel: '(copia)', save: 'Guardar', unsaved: 'Sin guardar', loadingForm: 'Cargando formulario...', couldNotLoadForm: 'No se pudo cargar el formulario', goBack: 'Volver', noFields: 'Aún no hay campos', tapToAddFields: 'Toca + para agregar campos' },

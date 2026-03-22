@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Share, Alert } from 'react-native';
 import { Text, Card, Button, Chip, ActivityIndicator, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
@@ -16,6 +16,7 @@ export default function FormDetailScreen() {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
+  const queryClient = useQueryClient();
 
   const { data: form, isLoading } = useQuery({
     queryKey: ['form', id],
@@ -55,6 +56,31 @@ export default function FormDetailScreen() {
     await Clipboard.setStringAsync(formUrl);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Alert.alert(t('forms', 'copied'), t('forms', 'linkCopied'));
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      t('forms', 'deleteForm'),
+      t('forms', 'deleteFormConfirm', { name: form?.name ?? '' }),
+      [
+        { text: t('settings', 'cancel'), style: 'cancel' },
+        {
+          text: t('settings', 'delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase.from('forms').delete().eq('id', id);
+              if (error) throw error;
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              queryClient.invalidateQueries({ queryKey: ['forms'] });
+              router.back();
+            } catch (err: any) {
+              Alert.alert(t('settings', 'error'), err.message || t('forms', 'couldNotDelete'));
+            }
+          },
+        },
+      ],
+    );
   };
 
   if (isLoading) {
@@ -104,6 +130,9 @@ export default function FormDetailScreen() {
         </Button>
         <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={styles.actionButtonOutline} textColor="#e8622c">
           {t('forms', 'copyLink')}
+        </Button>
+        <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={styles.deleteButton} textColor="#ef4444">
+          {t('forms', 'deleteForm')}
         </Button>
       </View>
 
@@ -155,6 +184,7 @@ const styles = StyleSheet.create({
   editLabel: { fontSize: 16, fontWeight: '700' },
   actionButton: { borderRadius: 12, backgroundColor: '#e8622c' },
   actionButtonOutline: { borderRadius: 12, borderColor: '#e8622c' },
+  deleteButton: { borderRadius: 12, borderColor: '#ef4444' },
   actionContent: { paddingVertical: 4 },
   divider: { backgroundColor: '#2d2d44', marginVertical: 20, marginHorizontal: 16 },
   fieldsSection: { paddingHorizontal: 16 },
