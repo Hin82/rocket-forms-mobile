@@ -1,17 +1,38 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Alert, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Linking, Image } from 'react-native';
 import { Text, List, Divider, Button, Avatar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
+import { useTranslation } from '@/src/translations';
+import { supabase } from '@/src/lib/supabase';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const { language } = useLanguage();
+  const { t } = useTranslation();
+
+  const currentLang = LANGUAGES.find(l => l.code === language);
+
+  const { data: avatarSeed } = useQuery({
+    queryKey: ['avatar-seed', user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('avatar_seed')
+        .eq('id', user!.id)
+        .single();
+      return data?.avatar_seed || 'default';
+    },
+    enabled: !!user,
+  });
 
   const handleSignOut = () => {
-    Alert.alert('Logga ut', 'Vill du logga ut?', [
-      { text: 'Avbryt', style: 'cancel' },
-      { text: 'Logga ut', style: 'destructive', onPress: signOut },
+    Alert.alert(t('settings', 'signOut'), t('settings', 'signOutConfirm'), [
+      { text: t('settings', 'cancel'), style: 'cancel' },
+      { text: t('settings', 'signOut'), style: 'destructive', onPress: signOut },
     ]);
   };
 
@@ -19,7 +40,14 @@ export default function SettingsScreen() {
     <ScrollView style={styles.container}>
       {/* Profile section */}
       <View style={styles.profileSection}>
-        <Avatar.Icon size={64} icon="account" style={styles.avatar} />
+        {avatarSeed && avatarSeed !== 'default' ? (
+          <Image
+            source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}` }}
+            style={styles.avatarImage}
+          />
+        ) : (
+          <Avatar.Icon size={64} icon="account" style={styles.avatar} />
+        )}
         <Text variant="titleMedium" style={styles.email}>{user?.email}</Text>
       </View>
 
@@ -27,26 +55,26 @@ export default function SettingsScreen() {
 
       {/* Konto */}
       <List.Section>
-        <List.Subheader style={styles.subheader}>Konto</List.Subheader>
+        <List.Subheader style={styles.subheader}>{t('settings', 'account')}</List.Subheader>
         <List.Item
-          title="Profil"
-          description="Hantera din profil"
+          title={t('settings', 'profile')}
+          description={t('settings', 'manageProfile')}
           left={props => <List.Icon {...props} icon="account-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
           onPress={() => router.push('/settings/profile')}
         />
         <List.Item
-          title="F\u00f6retag"
-          description="Hantera f\u00f6retag och team"
+          title={t('settings', 'company')}
+          description={t('settings', 'manageCompanyTeam')}
           left={props => <List.Icon {...props} icon="domain" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
           onPress={() => router.push('/settings/company')}
         />
         <List.Item
-          title="Spr\u00e5k"
-          description="Svenska"
+          title={t('settings', 'language')}
+          description={currentLang?.name ?? 'English'}
           left={props => <List.Icon {...props} icon="translate" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
@@ -58,10 +86,10 @@ export default function SettingsScreen() {
 
       {/* Notiser */}
       <List.Section>
-        <List.Subheader style={styles.subheader}>Notiser</List.Subheader>
+        <List.Subheader style={styles.subheader}>{t('settings', 'notifications')}</List.Subheader>
         <List.Item
-          title="Notis-inst\u00e4llningar"
-          description="Hantera push-notiser"
+          title={t('settings', 'notificationSettings')}
+          description={t('settings', 'managePushNotifications')}
           left={props => <List.Icon {...props} icon="bell-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
@@ -73,10 +101,10 @@ export default function SettingsScreen() {
 
       {/* Prenumeration */}
       <List.Section>
-        <List.Subheader style={styles.subheader}>Prenumeration</List.Subheader>
+        <List.Subheader style={styles.subheader}>{t('settings', 'subscription')}</List.Subheader>
         <List.Item
-          title="Min prenumeration"
-          description="Hantera din plan"
+          title={t('settings', 'mySubscription')}
+          description={t('settings', 'managePlan')}
           left={props => <List.Icon {...props} icon="credit-card-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
@@ -88,26 +116,26 @@ export default function SettingsScreen() {
 
       {/* Integrationer */}
       <List.Section>
-        <List.Subheader style={styles.subheader}>Integrationer</List.Subheader>
+        <List.Subheader style={styles.subheader}>{t('settings', 'integrations')}</List.Subheader>
         <List.Item
-          title="API-nycklar"
-          description="Hantera API-\u00e5tkomst"
+          title={t('settings', 'apiKeys')}
+          description={t('settings', 'manageApiAccess')}
           left={props => <List.Icon {...props} icon="key-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
           onPress={() => router.push('/settings/api-keys')}
         />
         <List.Item
-          title="E-postkonfiguration"
-          description="SMTP och e-postmallar"
+          title={t('settings', 'emailConfig')}
+          description={t('settings', 'smtpAndTemplates')}
           left={props => <List.Icon {...props} icon="email-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
           onPress={() => router.push('/settings/email-setup')}
         />
         <List.Item
-          title="Dom\u00e4ner"
-          description="Anpassade dom\u00e4ner"
+          title={t('settings', 'domains')}
+          description={t('settings', 'customDomains')}
           left={props => <List.Icon {...props} icon="web" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
@@ -119,9 +147,9 @@ export default function SettingsScreen() {
 
       {/* Om */}
       <List.Section>
-        <List.Subheader style={styles.subheader}>Om</List.Subheader>
+        <List.Subheader style={styles.subheader}>{t('settings', 'about')}</List.Subheader>
         <List.Item
-          title="\u00d6ppna webbapp"
+          title={t('settings', 'openWebApp')}
           description="rocketformspro.com"
           left={props => <List.Icon {...props} icon="open-in-new" color="#e8622c" />}
           titleStyle={styles.itemTitle}
@@ -129,7 +157,7 @@ export default function SettingsScreen() {
           onPress={() => Linking.openURL('https://rocketformspro.com')}
         />
         <List.Item
-          title="Version"
+          title={t('settings', 'version')}
           description="1.0.0"
           left={props => <List.Icon {...props} icon="information-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
@@ -144,7 +172,7 @@ export default function SettingsScreen() {
         textColor="#ef4444"
         icon="logout"
       >
-        Logga ut
+        {t('settings', 'signOut')}
       </Button>
 
       <View style={{ height: 40 }} />
@@ -156,6 +184,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121220' },
   profileSection: { alignItems: 'center', paddingVertical: 32 },
   avatar: { backgroundColor: '#2d2d44' },
+  avatarImage: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#2d2d44' },
   email: { color: '#fff', marginTop: 12 },
   divider: { backgroundColor: '#2d2d44' },
   subheader: { color: '#888' },

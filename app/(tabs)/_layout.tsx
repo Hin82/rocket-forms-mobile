@@ -1,7 +1,10 @@
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from '@/src/translations';
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -20,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Formulär',
+          title: t('nav', 'forms'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="file-document-outline" size={size} color={color} />
           ),
@@ -29,7 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="submissions"
         options={{
-          title: 'Inskickade',
+          title: t('nav', 'submissions'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="inbox-outline" size={size} color={color} />
           ),
@@ -38,7 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="notifications"
         options={{
-          title: 'Notiser',
+          title: t('nav', 'notificationsTab'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="bell-outline" size={size} color={color} />
           ),
@@ -47,7 +50,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Inställningar',
+          title: t('nav', 'settingsTab'),
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cog-outline" size={size} color={color} />
           ),

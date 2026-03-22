@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useTranslation } from '@/src/translations';
 
 interface Company {
   id: string;
@@ -33,6 +34,7 @@ interface Member {
 
 export default function CompanyScreen() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -52,18 +54,11 @@ export default function CompanyScreen() {
     try {
       const { data, error } = await supabase
         .from('company_memberships')
-        .select(`
-          role,
-          companies (
-            id,
-            name
-          )
-        `)
+        .select(`role, companies (id, name)`)
         .eq('user_id', user!.id);
 
       if (error) throw error;
 
-      // Get member counts
       const companiesWithCounts: Company[] = [];
       for (const membership of data ?? []) {
         const company = (membership as any).companies;
@@ -84,7 +79,7 @@ export default function CompanyScreen() {
 
       setCompanies(companiesWithCounts);
     } catch (err: any) {
-      Alert.alert('Fel', err.message ?? 'Kunde inte ladda företag');
+      Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotLoadCompanies'));
     } finally {
       setLoading(false);
     }
@@ -95,23 +90,36 @@ export default function CompanyScreen() {
     try {
       const { data, error } = await supabase
         .from('company_memberships')
-        .select('id, user_id, role, profiles (email, first_name, last_name)')
+        .select('id, user_id, role')
         .eq('company_id', companyId);
 
       if (error) throw error;
 
-      const mapped: Member[] = (data ?? []).map((m: any) => ({
-        id: m.id,
-        user_id: m.user_id,
-        role: m.role,
-        email: m.profiles?.email ?? 'Okänd',
-        first_name: m.profiles?.first_name ?? null,
-        last_name: m.profiles?.last_name ?? null,
-      }));
+      // Look up user profiles separately
+      const userIds = (data ?? []).map((m: any) => m.user_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, email, first_name, last_name')
+        .in('id', userIds);
+
+      const profileMap: Record<string, any> = {};
+      (profiles ?? []).forEach((p: any) => { profileMap[p.id] = p; });
+
+      const mapped: Member[] = (data ?? []).map((m: any) => {
+        const profile = profileMap[m.user_id];
+        return {
+          id: m.id,
+          user_id: m.user_id,
+          role: m.role,
+          email: profile?.email ?? '?',
+          first_name: profile?.first_name ?? null,
+          last_name: profile?.last_name ?? null,
+        };
+      });
 
       setMembers(mapped);
     } catch (err: any) {
-      Alert.alert('Fel', err.message ?? 'Kunde inte ladda medlemmar');
+      Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotLoadMembers'));
     } finally {
       setMembersLoading(false);
     }
@@ -143,20 +151,16 @@ export default function CompanyScreen() {
 
       const { error: memberError } = await supabase
         .from('company_memberships')
-        .insert({
-          company_id: company.id,
-          user_id: user!.id,
-          role: 'admin',
-        });
+        .insert({ company_id: company.id, user_id: user!.id, role: 'admin' });
 
       if (memberError) throw memberError;
 
       setNewCompanyName('');
       setShowCreateInput(false);
-      Alert.alert('Klart', `Företaget "${name}" har skapats.`);
+      Alert.alert(t('settings', 'done'), t('settings', 'companyCreated', { name }));
       loadCompanies();
     } catch (err: any) {
-      Alert.alert('Fel', err.message ?? 'Kunde inte skapa företag');
+      Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotCreateCompany'));
     } finally {
       setCreating(false);
     }
@@ -177,20 +181,20 @@ export default function CompanyScreen() {
 
       setInviteEmail('');
       setInvitingCompanyId(null);
-      Alert.alert('Klart', `Inbjudan har skickats till ${email}.`);
+      Alert.alert(t('settings', 'done'), t('settings', 'inviteSent', { email }));
     } catch (err: any) {
-      Alert.alert('Fel', err.message ?? 'Kunde inte skicka inbjudan');
+      Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotSendInvite'));
     }
   };
 
   const handleRemoveMember = (membershipId: string, memberEmail: string) => {
     Alert.alert(
-      'Ta bort medlem',
-      `Vill du ta bort ${memberEmail} från företaget?`,
+      t('settings', 'removeMember'),
+      t('settings', 'removeMemberConfirm', { email: memberEmail }),
       [
-        { text: 'Avbryt', style: 'cancel' },
+        { text: t('settings', 'cancel'), style: 'cancel' },
         {
-          text: 'Ta bort',
+          text: t('settings', 'remove'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -204,7 +208,7 @@ export default function CompanyScreen() {
               setMembers((prev) => prev.filter((m) => m.id !== membershipId));
               loadCompanies();
             } catch (err: any) {
-              Alert.alert('Fel', err.message ?? 'Kunde inte ta bort medlem');
+              Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotRemoveMember'));
             }
           },
         },
@@ -214,12 +218,12 @@ export default function CompanyScreen() {
 
   const handleDeleteCompany = (companyId: string, companyName: string) => {
     Alert.alert(
-      'Radera företag',
-      `Vill du verkligen radera "${companyName}"? Detta kan inte ångras.`,
+      t('settings', 'removeCompany'),
+      t('settings', 'deleteCompanyConfirm', { name: companyName }),
       [
-        { text: 'Avbryt', style: 'cancel' },
+        { text: t('settings', 'cancel'), style: 'cancel' },
         {
-          text: 'Radera',
+          text: t('settings', 'delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -231,10 +235,10 @@ export default function CompanyScreen() {
               if (error) throw error;
 
               setExpandedId(null);
-              Alert.alert('Klart', 'Företaget har raderats.');
+              Alert.alert(t('settings', 'done'), t('settings', 'companyDeleted'));
               loadCompanies();
             } catch (err: any) {
-              Alert.alert('Fel', err.message ?? 'Kunde inte radera företag');
+              Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotDeleteCompany'));
             }
           },
         },
@@ -249,7 +253,7 @@ export default function CompanyScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'Företag', headerBackTitle: 'Tillbaka' }} />
+        <Stack.Screen options={{ title: t('settings', 'company'), headerBackTitle: t('auth', 'back') }} />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#e8622c" />
         </View>
@@ -259,10 +263,10 @@ export default function CompanyScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: 'Företag', headerBackTitle: 'Tillbaka' }} />
+      <Stack.Screen options={{ title: t('settings', 'company'), headerBackTitle: t('auth', 'back') }} />
       <ScrollView contentContainerStyle={styles.content}>
         {companies.length === 0 && (
-          <Text style={styles.emptyText}>Du tillhör inga företag ännu.</Text>
+          <Text style={styles.emptyText}>{t('settings', 'noCompanies')}</Text>
         )}
 
         {companies.map((company) => (
@@ -274,17 +278,14 @@ export default function CompanyScreen() {
             <Card.Title
               title={company.name}
               titleStyle={styles.cardTitle}
-              subtitle={`${company.member_count} medlem${company.member_count !== 1 ? 'mar' : ''}`}
+              subtitle={`${company.member_count} ${company.member_count !== 1 ? t('settings', 'members').toLowerCase() : t('settings', 'member').toLowerCase()}`}
               subtitleStyle={styles.cardSubtitle}
               right={() => (
                 <Chip
-                  style={[
-                    styles.roleBadge,
-                    company.role === 'admin' && styles.adminBadge,
-                  ]}
+                  style={[styles.roleBadge, company.role === 'admin' && styles.adminBadge]}
                   textStyle={styles.roleBadgeText}
                 >
-                  {company.role === 'admin' ? 'Admin' : 'Medlem'}
+                  {company.role === 'admin' ? t('settings', 'admin') : t('settings', 'member')}
                 </Chip>
               )}
             />
@@ -297,7 +298,7 @@ export default function CompanyScreen() {
                   <ActivityIndicator size="small" color="#e8622c" style={{ marginVertical: 16 }} />
                 ) : (
                   <>
-                    <Text style={styles.sectionLabel}>Medlemmar</Text>
+                    <Text style={styles.sectionLabel}>{t('settings', 'members')}</Text>
                     {members.map((member) => (
                       <View key={member.id} style={styles.memberRow}>
                         <View style={styles.memberInfo}>
@@ -311,13 +312,10 @@ export default function CompanyScreen() {
                           )}
                         </View>
                         <Chip
-                          style={[
-                            styles.memberRoleBadge,
-                            member.role === 'admin' && styles.adminBadge,
-                          ]}
+                          style={[styles.memberRoleBadge, member.role === 'admin' && styles.adminBadge]}
                           textStyle={styles.roleBadgeText}
                         >
-                          {member.role === 'admin' ? 'Admin' : 'Medlem'}
+                          {member.role === 'admin' ? t('settings', 'admin') : t('settings', 'member')}
                         </Chip>
                         {isAdmin(company.id) && member.user_id !== user!.id && (
                           <IconButton
@@ -337,7 +335,7 @@ export default function CompanyScreen() {
                         {invitingCompanyId === company.id ? (
                           <View style={styles.inviteRow}>
                             <TextInput
-                              label="E-postadress"
+                              label={t('settings', 'emailAddress')}
                               value={inviteEmail}
                               onChangeText={setInviteEmail}
                               mode="outlined"
@@ -357,7 +355,7 @@ export default function CompanyScreen() {
                               compact
                               style={styles.inviteSendButton}
                             >
-                              Skicka
+                              {t('settings', 'sendInvite')}
                             </Button>
                             <IconButton
                               icon="close"
@@ -377,7 +375,7 @@ export default function CompanyScreen() {
                             style={styles.actionButton}
                             textColor="#e8622c"
                           >
-                            Bjud in
+                            {t('settings', 'invite')}
                           </Button>
                         )}
 
@@ -388,7 +386,7 @@ export default function CompanyScreen() {
                           style={[styles.actionButton, { borderColor: '#ef4444' }]}
                           textColor="#ef4444"
                         >
-                          Radera företag
+                          {t('settings', 'removeCompany')}
                         </Button>
                       </>
                     )}
@@ -404,7 +402,7 @@ export default function CompanyScreen() {
         {showCreateInput ? (
           <View style={styles.createSection}>
             <TextInput
-              label="Företagsnamn"
+              label={t('settings', 'companyName')}
               value={newCompanyName}
               onChangeText={setNewCompanyName}
               mode="outlined"
@@ -424,7 +422,7 @@ export default function CompanyScreen() {
                 textColor="#fff"
                 style={{ flex: 1 }}
               >
-                Skapa
+                {t('settings', 'create')}
               </Button>
               <Button
                 mode="outlined"
@@ -435,7 +433,7 @@ export default function CompanyScreen() {
                 textColor="#888"
                 style={{ flex: 1 }}
               >
-                Avbryt
+                {t('settings', 'cancel')}
               </Button>
             </View>
           </View>
@@ -448,7 +446,7 @@ export default function CompanyScreen() {
             buttonColor="#e8622c"
             textColor="#fff"
           >
-            Skapa nytt företag
+            {t('settings', 'createNewCompany')}
           </Button>
         )}
       </ScrollView>
@@ -457,113 +455,30 @@ export default function CompanyScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121220',
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  emptyText: {
-    color: '#888',
-    textAlign: 'center',
-    marginTop: 32,
-    fontSize: 16,
-  },
-  card: {
-    backgroundColor: '#1e1e2e',
-    marginBottom: 12,
-    borderRadius: 12,
-  },
-  cardTitle: {
-    color: '#fff',
-  },
-  cardSubtitle: {
-    color: '#888',
-  },
-  roleBadge: {
-    backgroundColor: '#2d2d44',
-    marginRight: 12,
-  },
-  adminBadge: {
-    backgroundColor: '#e8622c33',
-  },
-  roleBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-  },
-  memberRoleBadge: {
-    backgroundColor: '#2d2d44',
-  },
-  expandedContent: {
-    paddingBottom: 16,
-  },
-  divider: {
-    backgroundColor: '#2d2d44',
-  },
-  sectionLabel: {
-    color: '#888',
-    fontSize: 13,
-    marginTop: 12,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  memberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  memberInfo: {
-    flex: 1,
-  },
-  memberName: {
-    color: '#fff',
-    fontSize: 15,
-  },
-  memberEmail: {
-    color: '#888',
-    fontSize: 13,
-  },
-  inviteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    gap: 8,
-  },
-  inviteInput: {
-    flex: 1,
-    backgroundColor: '#1e1e2e',
-  },
-  inviteSendButton: {
-    borderRadius: 8,
-  },
-  actionButton: {
-    marginTop: 8,
-    borderColor: '#2d2d44',
-    borderRadius: 8,
-  },
-  createSection: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-  },
-  createInput: {
-    backgroundColor: '#1e1e2e',
-  },
-  createButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  createButton: {
-    borderRadius: 12,
-    paddingVertical: 4,
-  },
+  container: { flex: 1, backgroundColor: '#121220' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  content: { padding: 16, paddingBottom: 40 },
+  emptyText: { color: '#888', textAlign: 'center', marginTop: 32, fontSize: 16 },
+  card: { backgroundColor: '#1e1e2e', marginBottom: 12, borderRadius: 12 },
+  cardTitle: { color: '#fff' },
+  cardSubtitle: { color: '#888' },
+  roleBadge: { backgroundColor: '#2d2d44', marginRight: 12 },
+  adminBadge: { backgroundColor: '#e8622c33' },
+  roleBadgeText: { color: '#fff', fontSize: 12 },
+  memberRoleBadge: { backgroundColor: '#2d2d44' },
+  expandedContent: { paddingBottom: 16 },
+  divider: { backgroundColor: '#2d2d44' },
+  sectionLabel: { color: '#888', fontSize: 13, marginTop: 12, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
+  memberRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
+  memberInfo: { flex: 1 },
+  memberName: { color: '#fff', fontSize: 15 },
+  memberEmail: { color: '#888', fontSize: 13 },
+  inviteRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 8 },
+  inviteInput: { flex: 1, backgroundColor: '#1e1e2e' },
+  inviteSendButton: { borderRadius: 8 },
+  actionButton: { marginTop: 8, borderColor: '#2d2d44', borderRadius: 8 },
+  createSection: { backgroundColor: '#1e1e2e', borderRadius: 12, padding: 16, gap: 12 },
+  createInput: { backgroundColor: '#1e1e2e' },
+  createButtons: { flexDirection: 'row', gap: 12 },
+  createButton: { borderRadius: 12, paddingVertical: 4 },
 });

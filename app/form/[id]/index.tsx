@@ -7,10 +7,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from '@/src/translations';
+import { useLanguage } from '@/src/contexts/LanguageContext';
 
 export default function FormDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
 
   const { data: form, isLoading } = useQuery({
     queryKey: ['form', id],
@@ -41,7 +46,7 @@ export default function FormDetailScreen() {
 
   const handleShare = async () => {
     await Share.share({
-      message: `Fyll i formuläret: ${form?.name}\n${formUrl}`,
+      message: `${t('forms', 'fillForm')} ${form?.name}\n${formUrl}`,
       url: formUrl,
     });
   };
@@ -49,7 +54,7 @@ export default function FormDetailScreen() {
   const handleCopyLink = async () => {
     await Clipboard.setStringAsync(formUrl);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    Alert.alert('Kopierat!', 'Länken har kopierats till urklipp');
+    Alert.alert(t('forms', 'copied'), t('forms', 'linkCopied'));
   };
 
   if (isLoading) {
@@ -57,7 +62,7 @@ export default function FormDetailScreen() {
   }
 
   if (!form) {
-    return <View style={styles.centered}><Text style={{ color: '#888' }}>Formuläret hittades inte</Text></View>;
+    return <View style={styles.centered}><Text style={{ color: '#888' }}>{t('forms', 'formNotFound')}</Text></View>;
   }
 
   const fieldCount = form.fields?.length || 0;
@@ -65,16 +70,15 @@ export default function FormDetailScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header card */}
       <Card style={styles.headerCard}>
         <Card.Content>
           <Text variant="headlineSmall" style={styles.formName}>{form.name}</Text>
           <View style={styles.chips}>
             <Chip icon="format-list-numbered" style={styles.chip} textStyle={styles.chipText}>
-              {fieldCount} fält
+              {fieldCount} {t('forms', 'fields')}
             </Chip>
             <Chip icon="file-check-outline" style={styles.chip} textStyle={styles.chipText}>
-              {submissionCount ?? 0} inskickade
+              {submissionCount ?? 0} {t('forms', 'submittedCount')}
             </Chip>
             {groupName && (
               <Chip icon="folder-outline" style={styles.chip} textStyle={styles.chipText}>
@@ -83,75 +87,39 @@ export default function FormDetailScreen() {
             )}
           </View>
           <Text variant="bodySmall" style={styles.date}>
-            Skapad {new Date(form.created_at).toLocaleDateString('sv-SE')}
+            {t('forms', 'created')} {new Date(form.created_at).toLocaleDateString(dateLocale)}
           </Text>
         </Card.Content>
       </Card>
 
-      {/* Actions */}
       <View style={styles.actions}>
-        <Button
-          mode="contained"
-          icon="pencil-outline"
-          onPress={() => router.push(`/form/${id}/edit`)}
-          style={styles.editButton}
-          contentStyle={styles.editContent}
-          labelStyle={styles.editLabel}
-        >
-          Redigera formulär
+        <Button mode="contained" icon="pencil-outline" onPress={() => router.push(`/form/${id}/edit`)} style={styles.editButton} contentStyle={styles.editContent} labelStyle={styles.editLabel}>
+          {t('forms', 'editForm')}
         </Button>
-
-        <Button
-          mode="contained"
-          icon="eye-outline"
-          onPress={() => router.push(`/form/${id}/submissions`)}
-          style={styles.actionButton}
-          contentStyle={styles.actionContent}
-        >
-          Visa inskickade
+        <Button mode="contained" icon="eye-outline" onPress={() => router.push(`/form/${id}/submissions`)} style={styles.actionButton} contentStyle={styles.actionContent}>
+          {t('forms', 'viewSubmissions')}
         </Button>
-
-        <Button
-          mode="outlined"
-          icon="share-variant-outline"
-          onPress={handleShare}
-          style={styles.actionButtonOutline}
-          textColor="#e8622c"
-        >
-          Dela formulär
+        <Button mode="outlined" icon="share-variant-outline" onPress={handleShare} style={styles.actionButtonOutline} textColor="#e8622c">
+          {t('forms', 'shareForm')}
         </Button>
-
-        <Button
-          mode="outlined"
-          icon="content-copy"
-          onPress={handleCopyLink}
-          style={styles.actionButtonOutline}
-          textColor="#e8622c"
-        >
-          Kopiera länk
+        <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={styles.actionButtonOutline} textColor="#e8622c">
+          {t('forms', 'copyLink')}
         </Button>
       </View>
 
       <Divider style={styles.divider} />
 
-      {/* Field overview */}
       <View style={styles.fieldsSection}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>Fält i formuläret</Text>
+        <Text variant="titleMedium" style={styles.sectionTitle}>{t('forms', 'formFields')}</Text>
         {(form.fields || []).slice(0, 10).map((field: any, index: number) => (
           <View key={field.id || index} style={styles.fieldRow}>
-            <MaterialCommunityIcons
-              name={getFieldIcon(field.type) as any}
-              size={20}
-              color="#e8622c"
-            />
-            <Text style={styles.fieldLabel} numberOfLines={1}>
-              {field.label || field.type}
-            </Text>
+            <MaterialCommunityIcons name={getFieldIcon(field.type) as any} size={20} color="#e8622c" />
+            <Text style={styles.fieldLabel} numberOfLines={1}>{field.label || field.type}</Text>
             {field.required && <Text style={styles.required}>*</Text>}
           </View>
         ))}
         {fieldCount > 10 && (
-          <Text style={styles.moreFields}>+{fieldCount - 10} fler fält</Text>
+          <Text style={styles.moreFields}>{t('forms', 'moreFields', { count: String(fieldCount - 10) })}</Text>
         )}
       </View>
 
@@ -162,24 +130,12 @@ export default function FormDetailScreen() {
 
 function getFieldIcon(type: string): string {
   const icons: Record<string, string> = {
-    text: 'form-textbox',
-    email: 'email-outline',
-    phone: 'phone-outline',
-    textarea: 'text-box-outline',
-    select: 'form-dropdown',
-    radio: 'radiobox-marked',
-    checkbox: 'checkbox-marked-outline',
-    date: 'calendar',
-    time: 'clock-outline',
-    file: 'file-outline',
-    image: 'image-outline',
-    signature: 'draw',
-    rating: 'star-outline',
-    name: 'account-outline',
-    number: 'numeric',
-    document: 'file-document-outline',
-    yesno: 'toggle-switch-outline',
-    address: 'map-marker-outline',
+    text: 'form-textbox', email: 'email-outline', phone: 'phone-outline',
+    textarea: 'text-box-outline', select: 'form-dropdown', radio: 'radiobox-marked',
+    checkbox: 'checkbox-marked-outline', date: 'calendar', time: 'clock-outline',
+    file: 'file-outline', image: 'image-outline', signature: 'draw',
+    rating: 'star-outline', name: 'account-outline', number: 'numeric',
+    document: 'file-document-outline', yesno: 'toggle-switch-outline', address: 'map-marker-outline',
   };
   return icons[type] || 'form-textbox';
 }
@@ -187,11 +143,7 @@ function getFieldIcon(type: string): string {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121220' },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  headerCard: {
-    margin: 16,
-    backgroundColor: '#1e1e2e',
-    borderRadius: 16,
-  },
+  headerCard: { margin: 16, backgroundColor: '#1e1e2e', borderRadius: 16 },
   formName: { color: '#fff', fontWeight: 'bold', marginBottom: 12 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
   chip: { backgroundColor: '#2d2d44' },
@@ -207,14 +159,7 @@ const styles = StyleSheet.create({
   divider: { backgroundColor: '#2d2d44', marginVertical: 20, marginHorizontal: 16 },
   fieldsSection: { paddingHorizontal: 16 },
   sectionTitle: { color: '#fff', marginBottom: 12 },
-  fieldRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2d2d44',
-  },
+  fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#2d2d44' },
   fieldLabel: { color: '#ccc', flex: 1 },
   required: { color: '#e8622c', fontWeight: 'bold' },
   moreFields: { color: '#888', marginTop: 12, textAlign: 'center' },

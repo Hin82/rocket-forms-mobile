@@ -8,21 +8,7 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useFormGroups } from '@/src/hooks/useForms';
 import * as Haptics from 'expo-haptics';
-
-const QUICK_FIELDS = [
-  { type: 'text', label: 'Textfält', icon: 'form-textbox' },
-  { type: 'email', label: 'E-post', icon: 'email-outline' },
-  { type: 'phone', label: 'Telefon', icon: 'phone-outline' },
-  { type: 'name', label: 'Namn', icon: 'account-outline' },
-  { type: 'textarea', label: 'Textområde', icon: 'text-box-outline' },
-  { type: 'select', label: 'Dropdown', icon: 'form-dropdown' },
-  { type: 'radio', label: 'Radioknappar', icon: 'radiobox-marked' },
-  { type: 'checkbox', label: 'Kryssrutor', icon: 'checkbox-marked-outline' },
-  { type: 'date', label: 'Datum', icon: 'calendar' },
-  { type: 'file', label: 'Filuppladdning', icon: 'file-outline' },
-  { type: 'signature', label: 'Underskrift', icon: 'draw' },
-  { type: 'rating', label: 'Betyg', icon: 'star-outline' },
-];
+import { useTranslation } from '@/src/translations';
 
 interface NewField {
   id: string;
@@ -41,6 +27,22 @@ export default function CreateFormScreen() {
   const { data: groups } = useFormGroups();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  const QUICK_FIELDS = [
+    { type: 'text', label: t('create', 'textField'), icon: 'form-textbox' },
+    { type: 'email', label: t('create', 'emailField'), icon: 'email-outline' },
+    { type: 'phone', label: t('create', 'phoneField'), icon: 'phone-outline' },
+    { type: 'name', label: t('create', 'nameField'), icon: 'account-outline' },
+    { type: 'textarea', label: t('create', 'textArea'), icon: 'text-box-outline' },
+    { type: 'select', label: t('create', 'dropdown'), icon: 'form-dropdown' },
+    { type: 'radio', label: t('create', 'radioButtons'), icon: 'radiobox-marked' },
+    { type: 'checkbox', label: t('create', 'checkboxes'), icon: 'checkbox-marked-outline' },
+    { type: 'date', label: t('create', 'dateField'), icon: 'calendar' },
+    { type: 'file', label: t('create', 'fileUpload'), icon: 'file-outline' },
+    { type: 'signature', label: t('create', 'signatureField'), icon: 'draw' },
+    { type: 'rating', label: t('create', 'ratingField'), icon: 'star-outline' },
+  ];
 
   const createForm = useMutation({
     mutationFn: async () => {
@@ -52,7 +54,7 @@ export default function CreateFormScreen() {
         order: i,
         placeholder: '',
         options: f.type === 'select' || f.type === 'radio' || f.type === 'checkbox'
-          ? ['Alternativ 1', 'Alternativ 2', 'Alternativ 3']
+          ? [`${t('create', 'option')} 1`, `${t('create', 'option')} 2`, `${t('create', 'option')} 3`]
           : undefined,
       }));
 
@@ -73,7 +75,7 @@ export default function CreateFormScreen() {
       router.replace(`/form/${data.id}`);
     },
     onError: (err: any) => {
-      Alert.alert('Fel', err.message || 'Kunde inte skapa formuläret');
+      Alert.alert(t('create', 'error'), err.message || t('create', 'couldNotCreate'));
     },
   });
 
@@ -91,16 +93,15 @@ export default function CreateFormScreen() {
     setFields(prev => prev.filter(f => f.id !== id));
   };
 
-  // Step 1: Name + Group
   if (step === 1) {
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Text variant="headlineMedium" style={styles.title}>Nytt formulär</Text>
-          <Text variant="bodyMedium" style={styles.subtitle}>Ge ditt formulär ett namn</Text>
+          <Text variant="headlineMedium" style={styles.title}>{t('create', 'newForm')}</Text>
+          <Text variant="bodyMedium" style={styles.subtitle}>{t('create', 'nameYourForm')}</Text>
 
           <TextInput
-            label="Formulärnamn"
+            label={t('create', 'formName')}
             value={formName}
             onChangeText={setFormName}
             mode="outlined"
@@ -110,7 +111,7 @@ export default function CreateFormScreen() {
 
           {groups && groups.length > 0 && (
             <>
-              <Text variant="titleSmall" style={styles.groupLabel}>Mapp (valfritt)</Text>
+              <Text variant="titleSmall" style={styles.groupLabel}>{t('create', 'folderOptional')}</Text>
               <View style={styles.groupChips}>
                 {groups.map(g => (
                   <Chip
@@ -133,25 +134,23 @@ export default function CreateFormScreen() {
             style={styles.nextButton}
             contentStyle={styles.buttonContent}
           >
-            Nästa — Lägg till fält
+            {t('create', 'nextAddFields')}
           </Button>
 
-          <Button mode="text" onPress={() => router.back()}>Avbryt</Button>
+          <Button mode="text" onPress={() => router.back()}>{t('create', 'cancel')}</Button>
         </ScrollView>
       </SafeAreaView>
     );
   }
 
-  // Step 2: Add fields
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text variant="headlineSmall" style={styles.title}>{formName}</Text>
         <Text variant="bodyMedium" style={styles.subtitle}>
-          Tryck på fälttyper för att lägga till ({fields.length} fält tillagda)
+          {t('create', 'tapToAdd', { count: String(fields.length) })}
         </Text>
 
-        {/* Added fields */}
         {fields.length > 0 && (
           <View style={styles.addedFields}>
             {fields.map((f, i) => (
@@ -167,7 +166,6 @@ export default function CreateFormScreen() {
           </View>
         )}
 
-        {/* Available field types */}
         <View style={styles.fieldGrid}>
           {QUICK_FIELDS.map(f => (
             <Chip
@@ -189,10 +187,10 @@ export default function CreateFormScreen() {
           style={styles.nextButton}
           contentStyle={styles.buttonContent}
         >
-          Skapa formulär
+          {t('create', 'createForm')}
         </Button>
 
-        <Button mode="text" onPress={() => setStep(1)}>Tillbaka</Button>
+        <Button mode="text" onPress={() => setStep(1)}>{t('create', 'back')}</Button>
       </ScrollView>
     </SafeAreaView>
   );

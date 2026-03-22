@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { supabase } from '@/src/lib/supabase';
+import { useTranslation } from '@/src/translations';
 
 interface NotificationPrefs {
   email_notifications: boolean;
@@ -32,6 +33,7 @@ export default function NotificationsPreferencesScreen() {
   const [prefs, setPrefs] = useState<NotificationPrefs>(defaultPrefs);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadPreferences();
@@ -47,14 +49,13 @@ export default function NotificationsPreferencesScreen() {
         setPrefs({ ...defaultPrefs, ...saved });
       }
     } catch (err: any) {
-      Alert.alert('Fel', err.message ?? 'Kunde inte ladda inställningar');
+      Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotLoadSettings'));
     } finally {
       setLoading(false);
     }
   };
 
   const updatePref = async (key: keyof NotificationPrefs, value: boolean) => {
-    // If enabling push notifications, request permission first
     if (key === 'push_notifications' && value) {
       const granted = await requestPushPermission();
       if (!granted) return;
@@ -72,15 +73,12 @@ export default function NotificationsPreferencesScreen() {
 
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
-          'Behörighet krävs',
-          'Du behöver aktivera push-notiser i enhetens inställningar för att använda denna funktion.',
-        );
+        Alert.alert(t('settings', 'permissionRequired'), t('settings', 'enablePushInSettings'));
         return false;
       }
       return true;
     } catch {
-      Alert.alert('Fel', 'Kunde inte begära behörighet för push-notiser');
+      Alert.alert(t('settings', 'error'), t('settings', 'couldNotRequestPermission'));
       return false;
     }
   };
@@ -89,13 +87,11 @@ export default function NotificationsPreferencesScreen() {
     setSaving(true);
     try {
       const { error } = await supabase.auth.updateUser({
-        data: {
-          notification_preferences: prefsToSave,
-        },
+        data: { notification_preferences: prefsToSave },
       });
       if (error) throw error;
     } catch (err: any) {
-      Alert.alert('Fel', err.message ?? 'Kunde inte spara inställningar');
+      Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotSaveSettings'));
     } finally {
       setSaving(false);
     }
@@ -104,25 +100,25 @@ export default function NotificationsPreferencesScreen() {
   const handleTestNotification = async () => {
     try {
       if (Platform.OS === 'web') {
-        Alert.alert('Test', 'Push-notiser stöds inte på webben.');
+        Alert.alert(t('settings', 'test'), t('settings', 'pushNotSupported'));
         return;
       }
 
       const { status } = await Notifications.getPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Behörighet saknas', 'Aktivera push-notiser först.');
+        Alert.alert(t('settings', 'permissionMissing'), t('settings', 'enablePushFirst'));
         return;
       }
 
       await Notifications.scheduleNotificationAsync({
         content: {
           title: 'Rocket Forms Pro',
-          body: 'Detta är en testnotis! Allt fungerar korrekt.',
+          body: t('settings', 'testNotificationBody'),
         },
         trigger: null,
       });
     } catch (err: any) {
-      Alert.alert('Fel', err.message ?? 'Kunde inte skicka testnotis');
+      Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotSendTest'));
     }
   };
 
@@ -150,7 +146,7 @@ export default function NotificationsPreferencesScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'Notiser', headerBackTitle: 'Tillbaka' }} />
+        <Stack.Screen options={{ title: t('settings', 'notifications'), headerBackTitle: t('auth', 'back') }} />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#e8622c" />
         </View>
@@ -160,33 +156,30 @@ export default function NotificationsPreferencesScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: 'Notiser', headerBackTitle: 'Tillbaka' }} />
+      <Stack.Screen options={{ title: t('settings', 'notifications'), headerBackTitle: t('auth', 'back') }} />
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Channels */}
         <List.Section>
-          <List.Subheader style={styles.subheader}>Kanaler</List.Subheader>
-          {renderToggle('email_notifications', 'E-postnotiser', 'Få notiser via e-post')}
-          {renderToggle('push_notifications', 'Push-notiser', 'Notiser direkt till enheten')}
-          {renderToggle('in_app_notifications', 'In-app-notiser', 'Visa notiser i appen')}
+          <List.Subheader style={styles.subheader}>{t('settings', 'channels')}</List.Subheader>
+          {renderToggle('email_notifications', t('settings', 'emailNotifications'), t('settings', 'receiveViaEmail'))}
+          {renderToggle('push_notifications', t('settings', 'pushNotifications'), t('settings', 'pushToDevice'))}
+          {renderToggle('in_app_notifications', t('settings', 'inAppNotifications'), t('settings', 'showInApp'))}
         </List.Section>
 
         <Divider style={styles.divider} />
 
-        {/* Events */}
         <List.Section>
-          <List.Subheader style={styles.subheader}>Händelser</List.Subheader>
-          {renderToggle('form_submissions', 'Formulärinskickningar', 'När ett formulär skickas in')}
-          {renderToggle('system_alerts', 'Systemaviseringar', 'Viktiga systemmeddelanden')}
-          {renderToggle('webhook_errors', 'Webhook-fel', 'När en webhook misslyckas')}
+          <List.Subheader style={styles.subheader}>{t('settings', 'events')}</List.Subheader>
+          {renderToggle('form_submissions', t('settings', 'formSubmissions'), t('settings', 'whenFormSubmitted'))}
+          {renderToggle('system_alerts', t('settings', 'systemAlerts'), t('settings', 'importantMessages'))}
+          {renderToggle('webhook_errors', t('settings', 'webhookErrors'), t('settings', 'whenWebhookFails'))}
         </List.Section>
 
         <Divider style={styles.divider} />
 
-        {/* Summaries */}
         <List.Section>
-          <List.Subheader style={styles.subheader}>Sammanfattningar</List.Subheader>
-          {renderToggle('daily_summary', 'Daglig sammanfattning', 'Daglig översikt via e-post')}
-          {renderToggle('weekly_report', 'Veckorapport', 'Veckovis sammanfattning')}
+          <List.Subheader style={styles.subheader}>{t('settings', 'summaries')}</List.Subheader>
+          {renderToggle('daily_summary', t('settings', 'dailySummary'), t('settings', 'dailyOverview'))}
+          {renderToggle('weekly_report', t('settings', 'weeklyReport'), t('settings', 'weeklySummary'))}
         </List.Section>
 
         <Divider style={styles.divider} />
@@ -198,11 +191,11 @@ export default function NotificationsPreferencesScreen() {
           style={styles.testButton}
           textColor="#e8622c"
         >
-          Testa notis
+          {t('settings', 'testNotification')}
         </Button>
 
         {saving && (
-          <Text style={styles.savingText}>Sparar...</Text>
+          <Text style={styles.savingText}>{t('settings', 'saving')}</Text>
         )}
 
         <View style={{ height: 40 }} />
@@ -212,33 +205,14 @@ export default function NotificationsPreferencesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121220',
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    paddingBottom: 16,
-  },
-  subheader: {
-    color: '#888',
-  },
-  toggleItem: {
-    paddingVertical: 4,
-  },
-  itemTitle: {
-    color: '#fff',
-  },
-  itemDesc: {
-    color: '#888',
-  },
-  divider: {
-    backgroundColor: '#2d2d44',
-  },
+  container: { flex: 1, backgroundColor: '#121220' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  content: { paddingBottom: 16 },
+  subheader: { color: '#888' },
+  toggleItem: { paddingVertical: 4 },
+  itemTitle: { color: '#fff' },
+  itemDesc: { color: '#888' },
+  divider: { backgroundColor: '#2d2d44' },
   testButton: {
     marginHorizontal: 16,
     marginTop: 24,

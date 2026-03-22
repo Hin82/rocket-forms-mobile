@@ -26,6 +26,7 @@ import FormPreviewSheet from '@/src/components/editor/FormPreviewSheet';
 import ShareSheet from '@/src/components/editor/ShareSheet';
 import VersionHistorySheet from '@/src/components/editor/VersionHistorySheet';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { useTranslation } from '@/src/translations';
 
 const FIELD_ICONS: Record<string, string> = {
   text: 'form-textbox',
@@ -89,6 +90,7 @@ export default function FormEditorScreen() {
   } = useFormEditor(id!);
 
   const { data: groups = [] } = useFormGroups();
+  const { t } = useTranslation();
 
   // Sheet refs
   const paletteRef = useRef<BottomSheet>(null);
@@ -130,9 +132,9 @@ export default function FormEditorScreen() {
   }, [removeField]);
 
   const handleSwipeDelete = useCallback((fieldId: string, label: string) => {
-    Alert.alert('Ta bort falt', `Ta bort "${label}"?`, [
-      { text: 'Avbryt', style: 'cancel' },
-      { text: 'Ta bort', style: 'destructive', onPress: () => handleDeleteField(fieldId) },
+    Alert.alert(t('editor', 'deleteField'), t('editor', 'deleteFieldConfirm', { label }), [
+      { text: t('editor', 'cancel'), style: 'cancel' },
+      { text: t('editor', 'delete'), style: 'destructive', onPress: () => handleDeleteField(fieldId) },
     ]);
   }, [handleDeleteField]);
 
@@ -141,7 +143,7 @@ export default function FormEditorScreen() {
     const duplicated: FormField = {
       ...JSON.parse(JSON.stringify(field)),
       id: generateId(),
-      label: field.label + ' (kopia)',
+      label: field.label + ' ' + t('editor', 'copyLabel'),
     };
     // Insert after the original field
     updateForm({
@@ -184,7 +186,7 @@ export default function FormEditorScreen() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#e8622c" />
-        <Text style={styles.loadingText}>Laddar formularet...</Text>
+        <Text style={styles.loadingText}>{t('editor', 'loadingForm')}</Text>
       </View>
     );
   }
@@ -193,9 +195,9 @@ export default function FormEditorScreen() {
     return (
       <View style={styles.centered}>
         <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#cc3333" />
-        <Text style={styles.errorText}>{error || 'Kunde inte ladda formularet'}</Text>
+        <Text style={styles.errorText}>{error || t('editor', 'couldNotLoadForm')}</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>Ga tillbaka</Text>
+          <Text style={styles.backBtnText}>{t('editor', 'goBack')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -225,7 +227,7 @@ export default function FormEditorScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle} numberOfLines={1}>{form.name}</Text>
-          {dirty && <Text style={styles.unsavedBadge}>Osparad</Text>}
+          {dirty && <Text style={styles.unsavedBadge}>{t('editor', 'unsaved')}</Text>}
         </View>
         <View style={styles.headerRight}>
           <IconButton
@@ -264,7 +266,7 @@ export default function FormEditorScreen() {
             {saving ? (
               <ActivityIndicator size={16} color="#fff" />
             ) : (
-              <Text style={styles.saveBtnText}>Spara</Text>
+              <Text style={styles.saveBtnText}>{t('editor', 'save')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -274,8 +276,8 @@ export default function FormEditorScreen() {
       {form.fields.length === 0 ? (
         <View style={styles.emptyState}>
           <MaterialCommunityIcons name="form-textbox" size={64} color="#2d2d44" />
-          <Text style={styles.emptyTitle}>Inga falt annu</Text>
-          <Text style={styles.emptySubtitle}>Tryck pa + for att lagga till falt</Text>
+          <Text style={styles.emptyTitle}>{t('editor', 'noFields')}</Text>
+          <Text style={styles.emptySubtitle}>{t('editor', 'tapToAddFields')}</Text>
         </View>
       ) : (
         <DraggableFlatList
@@ -370,6 +372,7 @@ function SwipeableFieldRow({
   onDelete: () => void;
   onDuplicate: () => void;
 }) {
+  const { t } = useTranslation();
   const renderRightActions = (
     progress: Animated.AnimatedInterpolation<number>,
     dragX: Animated.AnimatedInterpolation<number>,
@@ -383,11 +386,11 @@ function SwipeableFieldRow({
       <Animated.View style={[styles.swipeActions, { transform: [{ translateX }] }]}>
         <TouchableOpacity onPress={onDuplicate} style={styles.swipeDuplicateBtn}>
           <MaterialCommunityIcons name="content-copy" size={22} color="#fff" />
-          <Text style={styles.swipeDuplicateText}>Kopiera</Text>
+          <Text style={styles.swipeDuplicateText}>{t('editor', 'copy')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onDelete} style={styles.swipeDeleteBtn}>
           <MaterialCommunityIcons name="delete-outline" size={22} color="#fff" />
-          <Text style={styles.swipeDeleteText}>Ta bort</Text>
+          <Text style={styles.swipeDeleteText}>{t('editor', 'delete')}</Text>
         </TouchableOpacity>
       </Animated.View>
     );

@@ -73,7 +73,7 @@ function RootLayoutNav() {
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                     <Stack.Screen
                       name="form/[id]/index"
-                      options={{ title: 'Formul\u00e4r', headerBackTitle: 'Tillbaka' }}
+                      options={{ title: 'Formulär', headerBackTitle: 'Tillbaka' }}
                     />
                     <Stack.Screen
                       name="form/[id]/submissions"
@@ -89,15 +89,15 @@ function RootLayoutNav() {
                     />
                     <Stack.Screen
                       name="settings/company"
-                      options={{ title: 'F\u00f6retag', headerBackTitle: 'Tillbaka' }}
+                      options={{ title: 'Företag', headerBackTitle: 'Tillbaka' }}
                     />
                     <Stack.Screen
                       name="settings/language"
-                      options={{ title: 'Spr\u00e5k', headerBackTitle: 'Tillbaka' }}
+                      options={{ title: 'Språk', headerBackTitle: 'Tillbaka' }}
                     />
                     <Stack.Screen
                       name="settings/notifications-preferences"
-                      options={{ title: 'Notis-inst\u00e4llningar', headerBackTitle: 'Tillbaka' }}
+                      options={{ title: 'Notis-inställningar', headerBackTitle: 'Tillbaka' }}
                     />
                     <Stack.Screen
                       name="settings/subscription"
@@ -109,7 +109,7 @@ function RootLayoutNav() {
                     />
                     <Stack.Screen
                       name="settings/domains"
-                      options={{ title: 'Dom\u00e4ner', headerBackTitle: 'Tillbaka' }}
+                      options={{ title: 'Domäner', headerBackTitle: 'Tillbaka' }}
                     />
                     <Stack.Screen
                       name="settings/email-setup"
