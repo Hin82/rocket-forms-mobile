@@ -44,9 +44,7 @@ function generateRandomHex(bytes: number): string {
   if (typeof globalThis.crypto?.getRandomValues === 'function') {
     globalThis.crypto.getRandomValues(array);
   } else {
-    for (let i = 0; i < bytes; i++) {
-      array[i] = Math.floor(Math.random() * 256);
-    }
+    throw new Error('Secure random number generator not available. Cannot generate API keys.');
   }
   return Array.from(array)
     .map((b) => b.toString(16).padStart(2, '0'))
