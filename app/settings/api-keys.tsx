@@ -78,14 +78,14 @@ export default function ApiKeysScreen() {
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
       const rawKey = 'rfp_' + generateRandomHex(32);
-      const prefix = rawKey.substring(0, 8);
+      const prefix = rawKey.substring(0, 12);
       const hash = await sha256(rawKey);
 
       const { error } = await supabase.from('wp_api_keys').insert({
         user_id: user!.id,
         key_hash: hash,
         key_prefix: prefix,
-        name: name || null,
+        name: name || 'WordPress Plugin',
         is_active: true,
       });
       if (error) throw error;
@@ -221,7 +221,7 @@ export default function ApiKeysScreen() {
               <View key={key.id} style={styles.keyCard}>
                 <View style={styles.keyHeader}>
                   <View style={styles.keyInfo}>
-                    <Text style={styles.keyPrefix}>{key.key_prefix}...****</Text>
+                    <Text style={styles.keyPrefix}>{key.key_prefix}…</Text>
                     {key.name && <Text style={styles.keyName}>{key.name}</Text>}
                   </View>
                   <Chip
