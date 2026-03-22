@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking } from 'react-native';
 import {
-  Text,
-  Button,
-  ActivityIndicator,
-  TextInput,
-  Chip,
-  SegmentedButtons,
-  IconButton,
+  Text, Button, ActivityIndicator, TextInput, Chip, SegmentedButtons, IconButton,
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,6 +10,7 @@ import * as Clipboard from 'expo-clipboard';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
+import { useTranslation } from '@/src/translations';
 
 type DomainStatus = 'pending' | 'verified' | 'failed';
 type DomainType = 'email' | 'forms';
@@ -28,28 +23,37 @@ interface CustomDomain {
   created_at: string;
 }
 
-const STATUS_CONFIG: Record<DomainStatus, { label: string; color: string; bgColor: string }> = {
-  pending: { label: 'V\u00e4ntar', color: '#f59e0b', bgColor: '#3d3520' },
-  verified: { label: 'Verifierad', color: '#22c55e', bgColor: '#16432a' },
-  failed: { label: 'Misslyckades', color: '#ef4444', bgColor: '#442020' },
-};
-
 export default function DomainsScreen() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [showAdd, setShowAdd] = useState(false);
   const [newDomain, setNewDomain] = useState('');
   const [domainType, setDomainType] = useState<DomainType>('forms');
   const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
 
-  // Check subscription tier
+  const statusConfig: Record<DomainStatus, { label: string; color: string; bgColor: string }> = {
+    pending: { label: t('settings', 'pending'), color: '#f59e0b', bgColor: '#3d3520' },
+    verified: { label: t('settings', 'verified'), color: '#22c55e', bgColor: '#16432a' },
+    failed: { label: t('settings', 'failed'), color: '#ef4444', bgColor: '#442020' },
+  };
+
   const { data: tier, isLoading: tierLoading } = useQuery({
     queryKey: ['subscription-tier', user?.id],
     queryFn: async () => {
+      const { data: membership } = await supabase
+        .from('company_memberships')
+        .select('company_id')
+        .eq('user_id', user!.id)
+        .limit(1)
+        .single();
+
+      if (!membership) return 'free';
+
       const { data, error } = await supabase
         .from('companies')
         .select('subscription_tier')
-        .eq('owner_id', user!.id)
+        .eq('id', membership.company_id)
         .single();
       if (error) throw error;
       return (data?.subscription_tier as string) || 'free';
@@ -76,10 +80,7 @@ export default function DomainsScreen() {
   const addMutation = useMutation({
     mutationFn: async ({ domain, type }: { domain: string; type: DomainType }) => {
       const { error } = await supabase.from('custom_domains').insert({
-        user_id: user!.id,
-        domain,
-        type,
-        status: 'pending',
+        user_id: user!.id, domain, type, status: 'pending',
       });
       if (error) throw error;
     },
@@ -87,16 +88,15 @@ export default function DomainsScreen() {
       queryClient.invalidateQueries({ queryKey: ['custom-domains'] });
       setNewDomain('');
       setShowAdd(false);
-      Alert.alert('Dom\u00e4n tillagd', 'Konfigurera dina DNS-poster och verifiera dom\u00e4nen.');
+      Alert.alert(t('settings', 'domainAdded'), t('settings', 'configureDns'));
     },
     onError: (err: Error) => {
-      Alert.alert('Fel', err.message || 'Kunde inte l\u00e4gga till dom\u00e4n');
+      Alert.alert(t('settings', 'error'), err.message || t('settings', 'couldNotAddDomain'));
     },
   });
 
   const verifyMutation = useMutation({
     mutationFn: async (domainId: string) => {
-      // Trigger verification check
       const { error } = await supabase
         .from('custom_domains')
         .update({ status: 'pending' })
@@ -105,7 +105,7 @@ export default function DomainsScreen() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-domains'] });
-      Alert.alert('Verifiering startad', 'DNS-kontroll p\u00e5g\u00e5r. Det kan ta upp till 24 timmar.');
+      Alert.alert(t('settings', 'verificationStarted'), t('settings', 'dnsCheckInProgress'));
     },
   });
 
@@ -124,24 +124,24 @@ export default function DomainsScreen() {
 
   const handleDelete = (domain: CustomDomain) => {
     Alert.alert(
-      'Ta bort dom\u00e4n',
-      `\u00c4r du s\u00e4ker p\u00e5 att du vill ta bort ${domain.domain}?`,
+      t('settings', 'removeDomainTitle'),
+      t('settings', 'removeDomainConfirm', { domain: domain.domain }),
       [
-        { text: 'Avbryt', style: 'cancel' },
-        { text: 'Ta bort', style: 'destructive', onPress: () => deleteMutation.mutate(domain.id) },
+        { text: t('settings', 'cancel'), style: 'cancel' },
+        { text: t('settings', 'remove'), style: 'destructive', onPress: () => deleteMutation.mutate(domain.id) },
       ],
     );
   };
 
   const copyToClipboard = async (text: string) => {
     await Clipboard.setStringAsync(text);
-    Alert.alert('Kopierat', 'DNS-post kopierad till urklipp');
+    Alert.alert(t('settings', 'copied'), t('settings', 'dnsCopied'));
   };
 
   if (tierLoading || isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'Egna dom\u00e4ner', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+        <Stack.Screen options={{ title: t('settings', 'ownDomains'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#e8622c" />
         </View>
@@ -149,17 +149,14 @@ export default function DomainsScreen() {
     );
   }
 
-  // Not premium - show upgrade prompt
   if (!isPremium) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'Egna dom\u00e4ner', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+        <Stack.Screen options={{ title: t('settings', 'ownDomains'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
         <View style={styles.centered}>
           <MaterialCommunityIcons name="lock-outline" size={64} color="#2d2d44" />
-          <Text style={styles.lockedTitle}>Premium kr\u00e4vs</Text>
-          <Text style={styles.lockedDesc}>
-            Egna dom\u00e4ner \u00e4r tillg\u00e4ngligt f\u00f6r Premium- och Enterprise-kunder. Uppgradera f\u00f6r att anv\u00e4nda anpassade dom\u00e4ner f\u00f6r e-post och formul\u00e4r.
-          </Text>
+          <Text style={styles.lockedTitle}>{t('settings', 'premiumRequired')}</Text>
+          <Text style={styles.lockedDesc}>{t('settings', 'domainsForPremium')}</Text>
           <Button
             mode="contained"
             onPress={() => Linking.openURL('https://rocketformspro.com/pricing')}
@@ -167,7 +164,7 @@ export default function DomainsScreen() {
             buttonColor="#e8622c"
             icon="arrow-up-bold"
           >
-            Uppgradera till Premium
+            {t('settings', 'upgradeToPremium')}
           </Button>
         </View>
       </SafeAreaView>
@@ -177,10 +174,10 @@ export default function DomainsScreen() {
   if (error) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'Egna dom\u00e4ner', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+        <Stack.Screen options={{ title: t('settings', 'ownDomains'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
         <View style={styles.centered}>
           <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#ef4444" />
-          <Text style={styles.errorText}>Kunde inte h\u00e4mta dom\u00e4ner</Text>
+          <Text style={styles.errorText}>{t('settings', 'couldNotLoadDomains')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -188,54 +185,40 @@ export default function DomainsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: 'Egna dom\u00e4ner', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <Stack.Screen options={{ title: t('settings', 'ownDomains'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <Text style={styles.infoText}>
-          Anslut egna dom\u00e4ner f\u00f6r att anpassa dina formul\u00e4rs URL:er och e-postadresser.
-        </Text>
+        <Text style={styles.infoText}>{t('settings', 'connectDomains')}</Text>
 
-        {/* Add domain */}
         {!showAdd ? (
-          <Button
-            mode="contained"
-            onPress={() => setShowAdd(true)}
-            style={styles.addButton}
-            buttonColor="#e8622c"
-            icon="plus"
-          >
-            L\u00e4gg till dom\u00e4n
+          <Button mode="contained" onPress={() => setShowAdd(true)} style={styles.addButton} buttonColor="#e8622c" icon="plus">
+            {t('settings', 'addDomain')}
           </Button>
         ) : (
           <View style={styles.addCard}>
-            <Text style={styles.addTitle}>Ny dom\u00e4n</Text>
+            <Text style={styles.addTitle}>{t('settings', 'newDomain')}</Text>
             <TextInput
-              label="Dom\u00e4nnamn"
-              placeholder="forms.mittf\u00f6retag.se"
+              label={t('settings', 'domainName')}
+              placeholder={t('settings', 'domainPlaceholder')}
               value={newDomain}
               onChangeText={setNewDomain}
               style={styles.input}
               textColor="#fff"
               theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
             />
-            <Text style={styles.typeLabel}>Typ</Text>
+            <Text style={styles.typeLabel}>{t('settings', 'type')}</Text>
             <SegmentedButtons
               value={domainType}
               onValueChange={(v) => setDomainType(v as DomainType)}
               buttons={[
-                { value: 'forms', label: 'Formul\u00e4r', icon: 'form-select' },
-                { value: 'email', label: 'E-post', icon: 'email-outline' },
+                { value: 'forms', label: t('settings', 'forms'), icon: 'form-select' },
+                { value: 'email', label: t('settings', 'emailType'), icon: 'email-outline' },
               ]}
               style={styles.segmented}
               theme={{ colors: { secondaryContainer: '#e8622c', onSecondaryContainer: '#fff' } }}
             />
             <View style={styles.addActions}>
-              <Button
-                mode="outlined"
-                onPress={() => { setShowAdd(false); setNewDomain(''); }}
-                textColor="#888"
-                style={styles.cancelButton}
-              >
-                Avbryt
+              <Button mode="outlined" onPress={() => { setShowAdd(false); setNewDomain(''); }} textColor="#888" style={styles.cancelButton}>
+                {t('settings', 'cancel')}
               </Button>
               <Button
                 mode="contained"
@@ -245,25 +228,22 @@ export default function DomainsScreen() {
                 buttonColor="#e8622c"
                 style={styles.submitButton}
               >
-                L\u00e4gg till
+                {t('settings', 'add')}
               </Button>
             </View>
           </View>
         )}
 
-        {/* Domain list */}
         {(!domains || domains.length === 0) ? (
           <View style={styles.emptyState}>
             <MaterialCommunityIcons name="web" size={64} color="#2d2d44" />
-            <Text style={styles.emptyTitle}>Inga dom\u00e4ner</Text>
-            <Text style={styles.emptyDesc}>
-              L\u00e4gg till din f\u00f6rsta egna dom\u00e4n f\u00f6r att komma ig\u00e5ng.
-            </Text>
+            <Text style={styles.emptyTitle}>{t('settings', 'noDomains')}</Text>
+            <Text style={styles.emptyDesc}>{t('settings', 'addFirstDomain')}</Text>
           </View>
         ) : (
           <View style={styles.domainList}>
             {domains.map((domain) => {
-              const status = STATUS_CONFIG[domain.status];
+              const status = statusConfig[domain.status];
               const isExpanded = expandedDomain === domain.id;
 
               return (
@@ -272,95 +252,54 @@ export default function DomainsScreen() {
                     <View style={styles.domainInfo}>
                       <Text style={styles.domainName}>{domain.domain}</Text>
                       <View style={styles.domainMeta}>
-                        <Chip
-                          style={[styles.statusChip, { backgroundColor: status.bgColor }]}
-                          textStyle={{ color: status.color, fontSize: 11 }}
-                        >
+                        <Chip style={[styles.statusChip, { backgroundColor: status.bgColor }]} textStyle={{ color: status.color, fontSize: 11 }}>
                           {status.label}
                         </Chip>
                         <Chip style={styles.typeChip} textStyle={styles.typeChipText}>
-                          {domain.type === 'email' ? 'E-post' : 'Formul\u00e4r'}
+                          {domain.type === 'email' ? t('settings', 'emailType') : t('settings', 'forms')}
                         </Chip>
                       </View>
                     </View>
-                    <IconButton
-                      icon={isExpanded ? 'chevron-up' : 'chevron-down'}
-                      iconColor="#888"
-                      onPress={() => setExpandedDomain(isExpanded ? null : domain.id)}
-                    />
+                    <IconButton icon={isExpanded ? 'chevron-up' : 'chevron-down'} iconColor="#888" onPress={() => setExpandedDomain(isExpanded ? null : domain.id)} />
                   </View>
 
                   {isExpanded && (
                     <View style={styles.dnsSection}>
-                      <Text style={styles.dnsTitle}>DNS-konfiguration</Text>
+                      <Text style={styles.dnsTitle}>{t('settings', 'dnsConfig')}</Text>
 
                       {domain.type === 'email' ? (
                         <>
                           <View style={styles.dnsRecord}>
-                            <Text style={styles.dnsLabel}>SPF-post (TXT)</Text>
+                            <Text style={styles.dnsLabel}>{t('settings', 'spfRecord')}</Text>
                             <View style={styles.dnsValueRow}>
-                              <Text style={styles.dnsValue} selectable>
-                                v=spf1 include:spf.rocketformspro.com ~all
-                              </Text>
-                              <IconButton
-                                icon="content-copy"
-                                size={16}
-                                iconColor="#e8622c"
-                                onPress={() => copyToClipboard('v=spf1 include:spf.rocketformspro.com ~all')}
-                              />
+                              <Text style={styles.dnsValue} selectable>v=spf1 include:spf.rocketformspro.com ~all</Text>
+                              <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard('v=spf1 include:spf.rocketformspro.com ~all')} />
                             </View>
                           </View>
                           <View style={styles.dnsRecord}>
-                            <Text style={styles.dnsLabel}>DMARC-post (TXT)</Text>
+                            <Text style={styles.dnsLabel}>{t('settings', 'dmarcRecord')}</Text>
                             <View style={styles.dnsValueRow}>
-                              <Text style={styles.dnsValue} selectable>
-                                v=DMARC1; p=none; rua=mailto:dmarc@rocketformspro.com
-                              </Text>
-                              <IconButton
-                                icon="content-copy"
-                                size={16}
-                                iconColor="#e8622c"
-                                onPress={() => copyToClipboard('v=DMARC1; p=none; rua=mailto:dmarc@rocketformspro.com')}
-                              />
+                              <Text style={styles.dnsValue} selectable>v=DMARC1; p=none; rua=mailto:dmarc@rocketformspro.com</Text>
+                              <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard('v=DMARC1; p=none; rua=mailto:dmarc@rocketformspro.com')} />
                             </View>
                           </View>
                         </>
                       ) : (
                         <View style={styles.dnsRecord}>
-                          <Text style={styles.dnsLabel}>CNAME-post</Text>
+                          <Text style={styles.dnsLabel}>{t('settings', 'cnameRecord')}</Text>
                           <View style={styles.dnsValueRow}>
-                            <Text style={styles.dnsValue} selectable>
-                              {domain.domain} CNAME forms.rocketformspro.com
-                            </Text>
-                            <IconButton
-                              icon="content-copy"
-                              size={16}
-                              iconColor="#e8622c"
-                              onPress={() => copyToClipboard(`${domain.domain} CNAME forms.rocketformspro.com`)}
-                            />
+                            <Text style={styles.dnsValue} selectable>{domain.domain} CNAME forms.rocketformspro.com</Text>
+                            <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard(`${domain.domain} CNAME forms.rocketformspro.com`)} />
                           </View>
                         </View>
                       )}
 
                       <View style={styles.domainActions}>
-                        <Button
-                          mode="outlined"
-                          onPress={() => verifyMutation.mutate(domain.id)}
-                          textColor="#e8622c"
-                          style={styles.verifyButton}
-                          icon="check-circle-outline"
-                          loading={verifyMutation.isPending}
-                        >
-                          Verifiera
+                        <Button mode="outlined" onPress={() => verifyMutation.mutate(domain.id)} textColor="#e8622c" style={styles.verifyButton} icon="check-circle-outline" loading={verifyMutation.isPending}>
+                          {t('settings', 'verifyDomain')}
                         </Button>
-                        <Button
-                          mode="outlined"
-                          onPress={() => handleDelete(domain)}
-                          textColor="#ef4444"
-                          style={styles.deleteButton}
-                          icon="delete-outline"
-                        >
-                          Ta bort
+                        <Button mode="outlined" onPress={() => handleDelete(domain)} textColor="#ef4444" style={styles.deleteButton} icon="delete-outline">
+                          {t('settings', 'removeDomain')}
                         </Button>
                       </View>
                     </View>
@@ -386,12 +325,7 @@ const styles = StyleSheet.create({
   upgradeButton: { borderRadius: 12, marginTop: 24 },
   infoText: { color: '#888', fontSize: 13, marginBottom: 16, lineHeight: 20 },
   addButton: { borderRadius: 12, marginBottom: 24 },
-  addCard: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-  },
+  addCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16, marginBottom: 24 },
   addTitle: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 12 },
   input: { backgroundColor: '#2d2d44', marginBottom: 12, borderRadius: 8 },
   typeLabel: { color: '#888', fontSize: 13, marginBottom: 8 },
@@ -403,16 +337,8 @@ const styles = StyleSheet.create({
   emptyTitle: { color: '#888', fontSize: 18, fontWeight: '600', marginTop: 16 },
   emptyDesc: { color: '#666', fontSize: 14, marginTop: 8, textAlign: 'center' },
   domainList: { gap: 12 },
-  domainCard: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 16,
-    padding: 16,
-  },
-  domainHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+  domainCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16 },
+  domainHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   domainInfo: { flex: 1 },
   domainName: { color: '#fff', fontSize: 15, fontWeight: '600' },
   domainMeta: { flexDirection: 'row', gap: 8, marginTop: 6 },

@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import {
-  Text,
-  Button,
-  ActivityIndicator,
-  TextInput,
-  Chip,
-  SegmentedButtons,
-  IconButton,
-  RadioButton,
+  Text, Button, ActivityIndicator, TextInput, Chip, SegmentedButtons, IconButton, RadioButton,
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +11,8 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
+import { useTranslation } from '@/src/translations';
 
 type Provider = 'brevo' | 'smtp' | 'o365';
 type Encryption = 'tls' | 'ssl' | 'none';
@@ -49,13 +44,14 @@ const PROVIDER_LABELS: Record<Provider, string> = {
 export default function EmailSetupScreen() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { t, language } = useTranslation();
+  const dateLocale = language === 'sv' ? sv : enUS;
 
   const [showAdd, setShowAdd] = useState(false);
   const [provider, setProvider] = useState<Provider>('brevo');
   const [fromEmail, setFromEmail] = useState('');
   const [fromName, setFromName] = useState('');
 
-  // Provider-specific fields
   const [brevoApiKey, setBrevoApiKey] = useState('');
   const [smtpHost, setSmtpHost] = useState('');
   const [smtpPort, setSmtpPort] = useState('587');
@@ -97,63 +93,42 @@ export default function EmailSetupScreen() {
   const createMutation = useMutation({
     mutationFn: async () => {
       let config: Record<string, string> = {};
-
-      if (provider === 'brevo') {
-        config = { api_key: brevoApiKey };
-      } else if (provider === 'smtp') {
-        config = {
-          host: smtpHost,
-          port: smtpPort,
-          username: smtpUsername,
-          password: smtpPassword,
-          encryption: smtpEncryption,
-        };
-      } else if (provider === 'o365') {
-        config = { tenant_id: o365TenantId, client_id: o365ClientId };
-      }
+      if (provider === 'brevo') config = { api_key: brevoApiKey };
+      else if (provider === 'smtp') config = { host: smtpHost, port: smtpPort, username: smtpUsername, password: smtpPassword, encryption: smtpEncryption };
+      else if (provider === 'o365') config = { tenant_id: o365TenantId, client_id: o365ClientId };
 
       const { error } = await supabase.from('email_configurations').insert({
-        user_id: user!.id,
-        provider,
-        from_email: fromEmail,
-        from_name: fromName,
-        config,
-        is_active: true,
+        user_id: user!.id, provider, from_email: fromEmail, from_name: fromName, config, is_active: true,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['email-configs'] });
       resetForm();
-      Alert.alert('Konfiguration sparad', 'E-postkonfigurationen har lagts till.');
+      Alert.alert(t('settings', 'configSaved'), t('settings', 'emailConfigAdded'));
     },
     onError: (err: Error) => {
-      Alert.alert('Fel', err.message || 'Kunde inte spara konfiguration');
+      Alert.alert(t('settings', 'error'), err.message || t('settings', 'couldNotSaveConfig'));
     },
   });
 
   const testMutation = useMutation({
     mutationFn: async (configId: string) => {
-      const { data, error } = await supabase.functions.invoke('test-email', {
-        body: { config_id: configId },
-      });
+      const { data, error } = await supabase.functions.invoke('test-email', { body: { config_id: configId } });
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      Alert.alert('Test skickat', 'Ett testmail har skickats till din e-post.');
+      Alert.alert(t('settings', 'testSent'), t('settings', 'testEmailSent'));
     },
     onError: (err: Error) => {
-      Alert.alert('Test misslyckades', err.message || 'Kunde inte skicka testmail');
+      Alert.alert(t('settings', 'testFailed'), err.message || t('settings', 'couldNotSendTest2'));
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (configId: string) => {
-      const { error } = await supabase
-        .from('email_configurations')
-        .delete()
-        .eq('id', configId);
+      const { error } = await supabase.from('email_configurations').delete().eq('id', configId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -163,34 +138,25 @@ export default function EmailSetupScreen() {
 
   const handleDelete = (config: EmailConfig) => {
     Alert.alert(
-      'Ta bort konfiguration',
-      `\u00c4r du s\u00e4ker p\u00e5 att du vill ta bort ${PROVIDER_LABELS[config.provider]}-konfigurationen f\u00f6r ${config.from_email}?`,
+      t('settings', 'removeConfigTitle'),
+      t('settings', 'removeConfigConfirm', { provider: PROVIDER_LABELS[config.provider], email: config.from_email }),
       [
-        { text: 'Avbryt', style: 'cancel' },
-        { text: 'Ta bort', style: 'destructive', onPress: () => deleteMutation.mutate(config.id) },
+        { text: t('settings', 'cancel'), style: 'cancel' },
+        { text: t('settings', 'remove'), style: 'destructive', onPress: () => deleteMutation.mutate(config.id) },
       ],
     );
   };
 
   const resetForm = () => {
-    setShowAdd(false);
-    setProvider('brevo');
-    setFromEmail('');
-    setFromName('');
-    setBrevoApiKey('');
-    setSmtpHost('');
-    setSmtpPort('587');
-    setSmtpUsername('');
-    setSmtpPassword('');
-    setSmtpEncryption('tls');
-    setO365TenantId('');
-    setO365ClientId('');
+    setShowAdd(false); setProvider('brevo'); setFromEmail(''); setFromName('');
+    setBrevoApiKey(''); setSmtpHost(''); setSmtpPort('587'); setSmtpUsername('');
+    setSmtpPassword(''); setSmtpEncryption('tls'); setO365TenantId(''); setO365ClientId('');
   };
 
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'E-postkonfiguration', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+        <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#e8622c" />
         </View>
@@ -201,10 +167,10 @@ export default function EmailSetupScreen() {
   if (error) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'E-postkonfiguration', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+        <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
         <View style={styles.centered}>
           <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#ef4444" />
-          <Text style={styles.errorText}>Kunde inte h\u00e4mta e-postkonfigurationer</Text>
+          <Text style={styles.errorText}>{t('settings', 'couldNotLoadEmailConfigs')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -212,53 +178,32 @@ export default function EmailSetupScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: 'E-postkonfiguration', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        {/* Existing configurations */}
         {configs && configs.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Konfigurationer</Text>
+            <Text style={styles.sectionLabel}>{t('settings', 'configurations')}</Text>
             {configs.map((config) => (
               <View key={config.id} style={styles.configCard}>
                 <View style={styles.configHeader}>
                   <View style={styles.configInfo}>
                     <Text style={styles.configProvider}>{PROVIDER_LABELS[config.provider]}</Text>
                     <Text style={styles.configEmail}>{config.from_email}</Text>
-                    {config.from_name && (
-                      <Text style={styles.configName}>{config.from_name}</Text>
-                    )}
+                    {config.from_name && <Text style={styles.configName}>{config.from_name}</Text>}
                   </View>
                   <Chip
-                    style={[
-                      styles.statusChip,
-                      { backgroundColor: config.is_active ? '#16432a' : '#442020' },
-                    ]}
+                    style={[styles.statusChip, { backgroundColor: config.is_active ? '#16432a' : '#442020' }]}
                     textStyle={{ color: config.is_active ? '#22c55e' : '#ef4444', fontSize: 11 }}
                   >
-                    {config.is_active ? 'Aktiv' : 'Inaktiv'}
+                    {config.is_active ? t('settings', 'active') : t('settings', 'inactive')}
                   </Chip>
                 </View>
                 <View style={styles.configActions}>
-                  <Button
-                    mode="outlined"
-                    onPress={() => testMutation.mutate(config.id)}
-                    textColor="#e8622c"
-                    style={styles.testButton}
-                    icon="email-send-outline"
-                    loading={testMutation.isPending}
-                    compact
-                  >
-                    Testa
+                  <Button mode="outlined" onPress={() => testMutation.mutate(config.id)} textColor="#e8622c" style={styles.testButton} icon="email-send-outline" loading={testMutation.isPending} compact>
+                    {t('settings', 'testEmail')}
                   </Button>
-                  <Button
-                    mode="outlined"
-                    onPress={() => handleDelete(config)}
-                    textColor="#ef4444"
-                    style={styles.deleteConfigButton}
-                    icon="delete-outline"
-                    compact
-                  >
-                    Ta bort
+                  <Button mode="outlined" onPress={() => handleDelete(config)} textColor="#ef4444" style={styles.deleteConfigButton} icon="delete-outline" compact>
+                    {t('settings', 'removeConfig')}
                   </Button>
                 </View>
               </View>
@@ -266,23 +211,15 @@ export default function EmailSetupScreen() {
           </View>
         )}
 
-        {/* Add configuration */}
         {!showAdd ? (
-          <Button
-            mode="contained"
-            onPress={() => setShowAdd(true)}
-            style={styles.addButton}
-            buttonColor="#e8622c"
-            icon="plus"
-          >
-            L\u00e4gg till konfiguration
+          <Button mode="contained" onPress={() => setShowAdd(true)} style={styles.addButton} buttonColor="#e8622c" icon="plus">
+            {t('settings', 'addConfiguration')}
           </Button>
         ) : (
           <View style={styles.addCard}>
-            <Text style={styles.addTitle}>Ny e-postkonfiguration</Text>
+            <Text style={styles.addTitle}>{t('settings', 'newEmailConfig')}</Text>
 
-            {/* Provider selector */}
-            <Text style={styles.fieldLabel}>Leverant\u00f6r</Text>
+            <Text style={styles.fieldLabel}>{t('settings', 'provider')}</Text>
             <SegmentedButtons
               value={provider}
               onValueChange={(v) => setProvider(v as Provider)}
@@ -295,58 +232,22 @@ export default function EmailSetupScreen() {
               theme={{ colors: { secondaryContainer: '#e8622c', onSecondaryContainer: '#fff' } }}
             />
 
-            {/* Provider-specific fields */}
             {provider === 'brevo' && (
-              <TextInput
-                label="Brevo API-nyckel"
-                value={brevoApiKey}
-                onChangeText={setBrevoApiKey}
-                style={styles.input}
-                textColor="#fff"
-                secureTextEntry
-                theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-              />
+              <TextInput label={t('settings', 'brevoApiKey')} value={brevoApiKey} onChangeText={setBrevoApiKey}
+                style={styles.input} textColor="#fff" secureTextEntry theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
             )}
 
             {provider === 'smtp' && (
               <>
-                <TextInput
-                  label="SMTP-v\u00e4rd"
-                  value={smtpHost}
-                  onChangeText={setSmtpHost}
-                  placeholder="smtp.example.com"
-                  style={styles.input}
-                  textColor="#fff"
-                  theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-                />
-                <TextInput
-                  label="Port"
-                  value={smtpPort}
-                  onChangeText={setSmtpPort}
-                  keyboardType="numeric"
-                  style={styles.input}
-                  textColor="#fff"
-                  theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-                />
-                <TextInput
-                  label="Anv\u00e4ndarnamn"
-                  value={smtpUsername}
-                  onChangeText={setSmtpUsername}
-                  style={styles.input}
-                  textColor="#fff"
-                  autoCapitalize="none"
-                  theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-                />
-                <TextInput
-                  label="L\u00f6senord"
-                  value={smtpPassword}
-                  onChangeText={setSmtpPassword}
-                  secureTextEntry
-                  style={styles.input}
-                  textColor="#fff"
-                  theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-                />
-                <Text style={styles.fieldLabel}>Kryptering</Text>
+                <TextInput label={t('settings', 'smtpHost')} value={smtpHost} onChangeText={setSmtpHost}
+                  placeholder="smtp.example.com" style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                <TextInput label={t('settings', 'port')} value={smtpPort} onChangeText={setSmtpPort}
+                  keyboardType="numeric" style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                <TextInput label={t('settings', 'username')} value={smtpUsername} onChangeText={setSmtpUsername}
+                  style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                <TextInput label={t('settings', 'smtpPassword')} value={smtpPassword} onChangeText={setSmtpPassword}
+                  secureTextEntry style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                <Text style={styles.fieldLabel}>{t('settings', 'encryption')}</Text>
                 <RadioButton.Group onValueChange={(v) => setSmtpEncryption(v as Encryption)} value={smtpEncryption}>
                   <View style={styles.radioRow}>
                     <View style={styles.radioOption}>
@@ -359,7 +260,7 @@ export default function EmailSetupScreen() {
                     </View>
                     <View style={styles.radioOption}>
                       <RadioButton value="none" color="#e8622c" uncheckedColor="#666" />
-                      <Text style={styles.radioLabel}>Ingen</Text>
+                      <Text style={styles.radioLabel}>{t('settings', 'none')}</Text>
                     </View>
                   </View>
                 </RadioButton.Group>
@@ -368,76 +269,35 @@ export default function EmailSetupScreen() {
 
             {provider === 'o365' && (
               <>
-                <TextInput
-                  label="Tenant ID"
-                  value={o365TenantId}
-                  onChangeText={setO365TenantId}
-                  style={styles.input}
-                  textColor="#fff"
-                  autoCapitalize="none"
-                  theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-                />
-                <TextInput
-                  label="Client ID"
-                  value={o365ClientId}
-                  onChangeText={setO365ClientId}
-                  style={styles.input}
-                  textColor="#fff"
-                  autoCapitalize="none"
-                  theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-                />
+                <TextInput label="Tenant ID" value={o365TenantId} onChangeText={setO365TenantId}
+                  style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                <TextInput label="Client ID" value={o365ClientId} onChangeText={setO365ClientId}
+                  style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
               </>
             )}
 
-            {/* Common fields */}
-            <TextInput
-              label="Fr\u00e5n e-post"
-              value={fromEmail}
-              onChangeText={setFromEmail}
-              placeholder="noreply@mittf\u00f6retag.se"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              style={styles.input}
-              textColor="#fff"
-              theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-            />
-            <TextInput
-              label="Fr\u00e5n namn"
-              value={fromName}
-              onChangeText={setFromName}
-              placeholder="Mitt F\u00f6retag"
-              style={styles.input}
-              textColor="#fff"
-              theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
-            />
+            <TextInput label={t('settings', 'fromEmail')} value={fromEmail} onChangeText={setFromEmail}
+              placeholder={t('settings', 'fromEmailPlaceholder')} keyboardType="email-address" autoCapitalize="none"
+              style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+            <TextInput label={t('settings', 'fromName')} value={fromName} onChangeText={setFromName}
+              placeholder={t('settings', 'fromNamePlaceholder')}
+              style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
 
             <View style={styles.addActions}>
-              <Button
-                mode="outlined"
-                onPress={resetForm}
-                textColor="#888"
-                style={styles.cancelButton}
-              >
-                Avbryt
+              <Button mode="outlined" onPress={resetForm} textColor="#888" style={styles.cancelButton}>
+                {t('settings', 'cancel')}
               </Button>
-              <Button
-                mode="contained"
-                onPress={() => createMutation.mutate()}
-                loading={createMutation.isPending}
-                disabled={!fromEmail.trim() || createMutation.isPending}
-                buttonColor="#e8622c"
-                style={styles.submitButton}
-              >
-                Spara
+              <Button mode="contained" onPress={() => createMutation.mutate()} loading={createMutation.isPending}
+                disabled={!fromEmail.trim() || createMutation.isPending} buttonColor="#e8622c" style={styles.submitButton}>
+                {t('settings', 'save')}
               </Button>
             </View>
           </View>
         )}
 
-        {/* Recent emails */}
         {recentEmails && recentEmails.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Senaste e-post</Text>
+            <Text style={styles.sectionLabel}>{t('settings', 'recentEmails')}</Text>
             {recentEmails.map((email) => (
               <View key={email.id} style={styles.emailRow}>
                 <MaterialCommunityIcons
@@ -450,21 +310,18 @@ export default function EmailSetupScreen() {
                   <Text style={styles.emailSubject} numberOfLines={1}>{email.subject}</Text>
                 </View>
                 <Text style={styles.emailDate}>
-                  {format(new Date(email.created_at), 'd MMM', { locale: sv })}
+                  {format(new Date(email.created_at), 'd MMM', { locale: dateLocale })}
                 </Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* Empty state if no configs */}
         {(!configs || configs.length === 0) && !showAdd && (
           <View style={styles.emptyState}>
             <MaterialCommunityIcons name="email-outline" size={64} color="#2d2d44" />
-            <Text style={styles.emptyTitle}>Ingen e-postkonfiguration</Text>
-            <Text style={styles.emptyDesc}>
-              Konfigurera e-post f\u00f6r att skicka notiser och bekr\u00e4ftelser fr\u00e5n dina formul\u00e4r.
-            </Text>
+            <Text style={styles.emptyTitle}>{t('settings', 'noEmailConfig')}</Text>
+            <Text style={styles.emptyDesc}>{t('settings', 'configureEmail')}</Text>
           </View>
         )}
       </ScrollView>
@@ -480,18 +337,8 @@ const styles = StyleSheet.create({
   errorText: { color: '#ef4444', marginTop: 12, fontSize: 16 },
   section: { marginBottom: 24 },
   sectionLabel: { color: '#888', fontSize: 13, marginBottom: 8 },
-  configCard: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 8,
-  },
-  configHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
+  configCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16, marginBottom: 8 },
+  configHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
   configInfo: { flex: 1 },
   configProvider: { color: '#fff', fontSize: 16, fontWeight: '600' },
   configEmail: { color: '#e8622c', fontSize: 14, marginTop: 2 },
@@ -501,12 +348,7 @@ const styles = StyleSheet.create({
   testButton: { borderColor: '#e8622c', borderRadius: 8, flex: 1 },
   deleteConfigButton: { borderColor: '#ef4444', borderRadius: 8, flex: 1 },
   addButton: { borderRadius: 12, marginBottom: 24 },
-  addCard: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-  },
+  addCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16, marginBottom: 24 },
   addTitle: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 16 },
   fieldLabel: { color: '#888', fontSize: 13, marginBottom: 8, marginTop: 4 },
   segmented: { marginBottom: 16 },
@@ -517,15 +359,7 @@ const styles = StyleSheet.create({
   addActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 },
   cancelButton: { borderColor: '#2d2d44', borderRadius: 8 },
   submitButton: { borderRadius: 8 },
-  emailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1e1e2e',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 6,
-    gap: 10,
-  },
+  emailRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1e1e2e', borderRadius: 12, padding: 12, marginBottom: 6, gap: 10 },
   emailInfo: { flex: 1 },
   emailTo: { color: '#fff', fontSize: 13 },
   emailSubject: { color: '#888', fontSize: 12 },

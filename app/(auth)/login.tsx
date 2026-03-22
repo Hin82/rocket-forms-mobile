@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Image, Pressable } from 'react-native';
+import { TextInput, Button, Text, HelperText, Menu } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
+import { useTranslation } from '@/src/translations';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -11,13 +13,18 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [langMenuVisible, setLangMenuVisible] = useState(false);
 
   const { signIn } = useAuth();
   const router = useRouter();
+  const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
+
+  const currentLang = LANGUAGES.find(l => l.code === language);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      setError('Fyll i e-post och lösenord');
+      setError(t('auth', 'fillFields'));
       return;
     }
 
@@ -31,8 +38,8 @@ export default function LoginScreen() {
       }
     } catch (err: any) {
       setError(err.message === 'Invalid login credentials'
-        ? 'Felaktig e-post eller lösenord'
-        : err.message || 'Något gick fel');
+        ? t('auth', 'invalidCredentials')
+        : err.message || t('auth', 'somethingWentWrong'));
     } finally {
       setLoading(false);
     }
@@ -40,6 +47,34 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Language selector */}
+      <View style={styles.langRow}>
+        <Menu
+          visible={langMenuVisible}
+          onDismiss={() => setLangMenuVisible(false)}
+          anchor={
+            <Pressable onPress={() => setLangMenuVisible(true)} style={styles.langButton}>
+              <Text style={styles.langButtonText}>
+                {currentLang?.flag}  {currentLang?.name}
+              </Text>
+            </Pressable>
+          }
+          contentStyle={styles.langMenu}
+        >
+          {LANGUAGES.map(lang => (
+            <Menu.Item
+              key={lang.code}
+              title={`${lang.flag}  ${lang.name}`}
+              onPress={() => {
+                setLanguage(lang.code);
+                setLangMenuVisible(false);
+              }}
+              titleStyle={lang.code === language ? styles.langSelected : styles.langMenuItem}
+            />
+          ))}
+        </Menu>
+      </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
@@ -51,12 +86,12 @@ export default function LoginScreen() {
             resizeMode="contain"
           />
           <Text variant="headlineLarge" style={styles.title}>Rocket Forms Pro</Text>
-          <Text variant="bodyMedium" style={styles.subtitle}>Logga in på ditt konto</Text>
+          <Text variant="bodyMedium" style={styles.subtitle}>{t('auth', 'loginSubtitle')}</Text>
         </View>
 
         <View style={styles.form}>
           <TextInput
-            label="E-postadress"
+            label={t('auth', 'email')}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -67,7 +102,7 @@ export default function LoginScreen() {
           />
 
           <TextInput
-            label="Lösenord"
+            label={t('auth', 'password')}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -87,7 +122,7 @@ export default function LoginScreen() {
             style={styles.button}
             contentStyle={styles.buttonContent}
           >
-            Logga in
+            {t('auth', 'login')}
           </Button>
 
           <Button
@@ -95,7 +130,7 @@ export default function LoginScreen() {
             onPress={() => router.push('/(auth)/reset-password')}
             style={styles.link}
           >
-            Glömt lösenord?
+            {t('auth', 'forgotPassword')}
           </Button>
 
           <Button
@@ -103,7 +138,7 @@ export default function LoginScreen() {
             onPress={() => router.push('/(auth)/register')}
             style={styles.link}
           >
-            Skapa konto
+            {t('auth', 'createAccount')}
           </Button>
         </View>
       </KeyboardAvoidingView>
@@ -115,6 +150,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1a1a2e',
+  },
+  langRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  langButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2d2d44',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  langButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  langMenu: {
+    backgroundColor: '#2d2d44',
+  },
+  langMenuItem: {
+    color: '#ccc',
+  },
+  langSelected: {
+    color: '#e8622c',
+    fontWeight: '600',
   },
   content: {
     flex: 1,

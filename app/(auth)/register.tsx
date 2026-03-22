@@ -4,6 +4,7 @@ import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useTranslation } from '@/src/translations';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -15,18 +16,19 @@ export default function RegisterScreen() {
 
   const { signUp } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleRegister = async () => {
     if (!email.trim() || !password.trim()) {
-      setError('Fyll i alla fält');
+      setError(t('auth', 'fillAllFields'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Lösenorden matchar inte');
+      setError(t('auth', 'passwordsMismatch'));
       return;
     }
     if (password.length < 6) {
-      setError('Lösenordet måste vara minst 6 tecken');
+      setError(t('auth', 'passwordTooShort'));
       return;
     }
 
@@ -37,7 +39,7 @@ export default function RegisterScreen() {
       await signUp(email.trim(), password);
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Något gick fel');
+      setError(err.message || t('auth', 'somethingWentWrong'));
     } finally {
       setLoading(false);
     }
@@ -47,12 +49,12 @@ export default function RegisterScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
-          <Text variant="headlineMedium" style={styles.successTitle}>Konto skapat!</Text>
+          <Text variant="headlineMedium" style={styles.successTitle}>{t('auth', 'accountCreated')}</Text>
           <Text variant="bodyLarge" style={styles.successText}>
-            Kolla din e-post för att verifiera kontot.
+            {t('auth', 'checkEmail')}
           </Text>
           <Button mode="contained" onPress={() => router.replace('/(auth)/login')} style={styles.button}>
-            Till inloggning
+            {t('auth', 'toLogin')}
           </Button>
         </View>
       </SafeAreaView>
@@ -62,24 +64,24 @@ export default function RegisterScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.content}>
-        <Text variant="headlineLarge" style={styles.title}>Skapa konto</Text>
+        <Text variant="headlineLarge" style={styles.title}>{t('auth', 'createAccountTitle')}</Text>
 
         <View style={styles.form}>
-          <TextInput label="E-postadress" value={email} onChangeText={setEmail}
+          <TextInput label={t('auth', 'email')} value={email} onChangeText={setEmail}
             autoCapitalize="none" keyboardType="email-address" mode="outlined"
             left={<TextInput.Icon icon="email-outline" />} />
-          <TextInput label="Lösenord" value={password} onChangeText={setPassword}
+          <TextInput label={t('auth', 'password')} value={password} onChangeText={setPassword}
             secureTextEntry mode="outlined" left={<TextInput.Icon icon="lock-outline" />} />
-          <TextInput label="Bekräfta lösenord" value={confirmPassword} onChangeText={setConfirmPassword}
+          <TextInput label={t('auth', 'confirmPassword')} value={confirmPassword} onChangeText={setConfirmPassword}
             secureTextEntry mode="outlined" left={<TextInput.Icon icon="lock-check-outline" />} />
 
           {error ? <HelperText type="error" visible>{error}</HelperText> : null}
 
           <Button mode="contained" onPress={handleRegister} loading={loading} disabled={loading}
             style={styles.button} contentStyle={styles.buttonContent}>
-            Skapa konto
+            {t('auth', 'createAccount')}
           </Button>
-          <Button mode="text" onPress={() => router.back()}>Har redan konto? Logga in</Button>
+          <Button mode="text" onPress={() => router.back()}>{t('auth', 'alreadyHaveAccount')}</Button>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

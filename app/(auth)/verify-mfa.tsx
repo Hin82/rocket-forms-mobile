@@ -4,6 +4,7 @@ import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useTranslation } from '@/src/translations';
 
 export default function VerifyMfaScreen() {
   const { factorId } = useLocalSearchParams<{ factorId: string }>();
@@ -11,15 +12,16 @@ export default function VerifyMfaScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { completeMfa } = useAuth();
+  const { t } = useTranslation();
 
   const handleVerify = async () => {
-    if (code.length !== 6) { setError('Ange en 6-siffrig kod'); return; }
+    if (code.length !== 6) { setError(t('auth', 'mfaInvalidCode')); return; }
     setLoading(true);
     setError('');
     try {
       await completeMfa(factorId!, code);
     } catch (err: any) {
-      setError('Felaktig kod, försök igen');
+      setError(t('auth', 'mfaInvalidCode'));
     } finally {
       setLoading(false);
     }
@@ -28,14 +30,14 @@ export default function VerifyMfaScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text variant="headlineMedium" style={styles.title}>Tvåfaktorsautentisering</Text>
-        <Text style={styles.text}>Ange koden från din autentiseringsapp</Text>
-        <TextInput label="6-siffrig kod" value={code} onChangeText={setCode}
+        <Text variant="headlineMedium" style={styles.title}>{t('auth', 'mfaTitle')}</Text>
+        <Text style={styles.text}>{t('auth', 'mfaSubtitle')}</Text>
+        <TextInput label={t('auth', 'mfaCode')} value={code} onChangeText={setCode}
           keyboardType="number-pad" maxLength={6} mode="outlined" style={styles.input}
           autoFocus />
         {error ? <HelperText type="error" visible>{error}</HelperText> : null}
         <Button mode="contained" onPress={handleVerify} loading={loading} style={styles.button}>
-          Verifiera
+          {t('auth', 'verify')}
         </Button>
       </View>
     </SafeAreaView>

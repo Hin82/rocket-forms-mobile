@@ -10,6 +10,8 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { format } from 'date-fns';
 import { sv } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
+import { useTranslation } from '@/src/translations';
 
 interface ApiKey {
   id: string;
@@ -29,7 +31,6 @@ async function sha256(message: string): Promise<string> {
     return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // Fallback: use expo-crypto if available
   try {
     const ExpoCrypto = require('expo-crypto');
     return await ExpoCrypto.digestStringAsync(ExpoCrypto.CryptoDigestAlgorithm.SHA256, message);
@@ -57,6 +58,8 @@ export default function ApiKeysScreen() {
   const queryClient = useQueryClient();
   const [keyName, setKeyName] = useState('');
   const [showCreate, setShowCreate] = useState(false);
+  const { t, language } = useTranslation();
+  const dateLocale = language === 'sv' ? sv : enUS;
 
   const { data: keys, isLoading, error } = useQuery({
     queryKey: ['api-keys', user?.id],
@@ -93,20 +96,14 @@ export default function ApiKeysScreen() {
       setKeyName('');
       setShowCreate(false);
 
-      // Show the key once
       Alert.alert(
-        'API-nyckel skapad',
-        `Din nyckel (visas bara en g\u00e5ng):\n\n${rawKey}`,
-        [
-          {
-            text: 'Kopiera & st\u00e4ng',
-            onPress: () => Clipboard.setStringAsync(rawKey),
-          },
-        ],
+        t('settings', 'apiKeyCreated'),
+        `${t('settings', 'keyShownOnce')}:\n\n${rawKey}`,
+        [{ text: t('settings', 'copyAndClose'), onPress: () => Clipboard.setStringAsync(rawKey) }],
       );
     },
     onError: (err: Error) => {
-      Alert.alert('Fel', err.message || 'Kunde inte skapa nyckel');
+      Alert.alert(t('settings', 'error'), err.message || t('settings', 'couldNotCreateKey'));
     },
   });
 
@@ -122,33 +119,25 @@ export default function ApiKeysScreen() {
       queryClient.invalidateQueries({ queryKey: ['api-keys'] });
     },
     onError: (err: Error) => {
-      Alert.alert('Fel', err.message || 'Kunde inte revokera nyckel');
+      Alert.alert(t('settings', 'error'), err.message || t('settings', 'couldNotRevokeKey'));
     },
   });
 
   const handleRevoke = (key: ApiKey) => {
     Alert.alert(
-      'Revokera nyckel',
-      `\u00c4r du s\u00e4ker p\u00e5 att du vill revokera nyckeln "${key.key_prefix}..."? Detta kan inte \u00e5ngras.`,
+      t('settings', 'revokeKey'),
+      t('settings', 'revokeKeyConfirm', { prefix: key.key_prefix }),
       [
-        { text: 'Avbryt', style: 'cancel' },
-        {
-          text: 'Revokera',
-          style: 'destructive',
-          onPress: () => revokeMutation.mutate(key.id),
-        },
+        { text: t('settings', 'cancel'), style: 'cancel' },
+        { text: t('settings', 'revoke'), style: 'destructive', onPress: () => revokeMutation.mutate(key.id) },
       ],
     );
-  };
-
-  const handleCreate = () => {
-    createMutation.mutate(keyName.trim());
   };
 
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'API-nycklar', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+        <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#e8622c" />
         </View>
@@ -159,10 +148,10 @@ export default function ApiKeysScreen() {
   if (error) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: 'API-nycklar', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+        <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
         <View style={styles.centered}>
           <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#ef4444" />
-          <Text style={styles.errorText}>Kunde inte h\u00e4mta API-nycklar</Text>
+          <Text style={styles.errorText}>{t('settings', 'couldNotLoadApiKeys')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -170,13 +159,10 @@ export default function ApiKeysScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: 'API-nycklar', headerBackTitle: 'Tillbaka', headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <Text style={styles.infoText}>
-          API-nycklar anv\u00e4nds f\u00f6r att integrera Rocket Forms Pro med externa tj\u00e4nster och WordPress.
-        </Text>
+        <Text style={styles.infoText}>{t('settings', 'apiKeysInfo')}</Text>
 
-        {/* Create new key */}
         {!showCreate ? (
           <Button
             mode="contained"
@@ -185,13 +171,13 @@ export default function ApiKeysScreen() {
             buttonColor="#e8622c"
             icon="plus"
           >
-            Generera ny nyckel
+            {t('settings', 'generateNewKey')}
           </Button>
         ) : (
           <View style={styles.createCard}>
-            <Text style={styles.createTitle}>Ny API-nyckel</Text>
+            <Text style={styles.createTitle}>{t('settings', 'newApiKey')}</Text>
             <TextInput
-              label="Namn (valfritt)"
+              label={t('settings', 'nameOptional')}
               value={keyName}
               onChangeText={setKeyName}
               style={styles.input}
@@ -206,34 +192,31 @@ export default function ApiKeysScreen() {
                 textColor="#888"
                 style={styles.cancelButton}
               >
-                Avbryt
+                {t('settings', 'cancel')}
               </Button>
               <Button
                 mode="contained"
-                onPress={handleCreate}
+                onPress={() => createMutation.mutate(keyName.trim())}
                 loading={createMutation.isPending}
                 disabled={createMutation.isPending}
                 buttonColor="#e8622c"
                 style={styles.generateButton}
               >
-                Generera
+                {t('settings', 'generate')}
               </Button>
             </View>
           </View>
         )}
 
-        {/* Key list */}
         {(!keys || keys.length === 0) ? (
           <View style={styles.emptyState}>
             <MaterialCommunityIcons name="key-outline" size={64} color="#2d2d44" />
-            <Text style={styles.emptyTitle}>Inga API-nycklar</Text>
-            <Text style={styles.emptyDesc}>
-              Skapa din f\u00f6rsta API-nyckel f\u00f6r att komma ig\u00e5ng med integrationer.
-            </Text>
+            <Text style={styles.emptyTitle}>{t('settings', 'noApiKeys')}</Text>
+            <Text style={styles.emptyDesc}>{t('settings', 'createFirstKey')}</Text>
           </View>
         ) : (
           <View style={styles.keysList}>
-            <Text style={styles.sectionLabel}>Dina nycklar</Text>
+            <Text style={styles.sectionLabel}>{t('settings', 'yourKeys')}</Text>
             {keys.map((key) => (
               <View key={key.id} style={styles.keyCard}>
                 <View style={styles.keyHeader}>
@@ -242,28 +225,22 @@ export default function ApiKeysScreen() {
                     {key.name && <Text style={styles.keyName}>{key.name}</Text>}
                   </View>
                   <Chip
-                    style={[
-                      styles.statusChip,
-                      { backgroundColor: key.is_active ? '#16432a' : '#442020' },
-                    ]}
-                    textStyle={{
-                      color: key.is_active ? '#22c55e' : '#ef4444',
-                      fontSize: 11,
-                    }}
+                    style={[styles.statusChip, { backgroundColor: key.is_active ? '#16432a' : '#442020' }]}
+                    textStyle={{ color: key.is_active ? '#22c55e' : '#ef4444', fontSize: 11 }}
                   >
-                    {key.is_active ? 'Aktiv' : 'Revokerad'}
+                    {key.is_active ? t('settings', 'active') : t('settings', 'revoked')}
                   </Chip>
                 </View>
 
                 <View style={styles.keyMeta}>
                   <Text style={styles.keyMetaText}>
-                    Skapad: {format(new Date(key.created_at), 'd MMM yyyy', { locale: sv })}
+                    {t('settings', 'created')}: {format(new Date(key.created_at), 'd MMM yyyy', { locale: dateLocale })}
                   </Text>
                   <Text style={styles.keyMetaText}>
-                    Senast anv\u00e4nd:{' '}
+                    {t('settings', 'lastUsed')}:{' '}
                     {key.last_used_at
-                      ? format(new Date(key.last_used_at), 'd MMM yyyy', { locale: sv })
-                      : 'Aldrig'}
+                      ? format(new Date(key.last_used_at), 'd MMM yyyy', { locale: dateLocale })
+                      : t('settings', 'never')}
                   </Text>
                 </View>
 
@@ -276,7 +253,7 @@ export default function ApiKeysScreen() {
                     icon="close-circle-outline"
                     loading={revokeMutation.isPending}
                   >
-                    Revokera
+                    {t('settings', 'revoke')}
                   </Button>
                 )}
               </View>
@@ -296,12 +273,7 @@ const styles = StyleSheet.create({
   errorText: { color: '#ef4444', marginTop: 12, fontSize: 16 },
   infoText: { color: '#888', fontSize: 13, marginBottom: 16, lineHeight: 20 },
   createButton: { borderRadius: 12, marginBottom: 24 },
-  createCard: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-  },
+  createCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16, marginBottom: 24 },
   createTitle: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 12 },
   input: { backgroundColor: '#2d2d44', marginBottom: 12, borderRadius: 8 },
   createActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
@@ -312,17 +284,8 @@ const styles = StyleSheet.create({
   emptyDesc: { color: '#666', fontSize: 14, marginTop: 8, textAlign: 'center' },
   keysList: { gap: 12 },
   sectionLabel: { color: '#888', fontSize: 13, marginBottom: 4 },
-  keyCard: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: 16,
-    padding: 16,
-  },
-  keyHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
+  keyCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16 },
+  keyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   keyInfo: { flex: 1 },
   keyPrefix: { color: '#fff', fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
   keyName: { color: '#aaa', fontSize: 13, marginTop: 2 },

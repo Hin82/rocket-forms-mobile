@@ -11,8 +11,8 @@ export const LANGUAGES = [
   { code: 'da', name: 'Dansk', flag: '\ud83c\udde9\ud83c\uddf0' },
   { code: 'fi', name: 'Suomi', flag: '\ud83c\uddeb\ud83c\uddee' },
   { code: 'de', name: 'Deutsch', flag: '\ud83c\udde9\ud83c\uddea' },
-  { code: 'fr', name: 'Fran\u00e7ais', flag: '\ud83c\uddeb\ud83c\uddf7' },
-  { code: 'es', name: 'Espa\u00f1ol', flag: '\ud83c\uddea\ud83c\uddf8' },
+  { code: 'fr', name: 'Français', flag: '\ud83c\uddeb\ud83c\uddf7' },
+  { code: 'es', name: 'Español', flag: '\ud83c\uddea\ud83c\uddf8' },
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]['code'];
@@ -27,10 +27,10 @@ const LanguageContext = createContext<LanguageState | undefined>(undefined);
 async function loadLanguage(): Promise<LanguageCode> {
   try {
     if (Platform.OS === 'web') {
-      return (localStorage.getItem(LANGUAGE_STORAGE_KEY) as LanguageCode) ?? 'sv';
+      return (localStorage.getItem(LANGUAGE_STORAGE_KEY) as LanguageCode) ?? 'en';
     }
     const stored = await SecureStore.getItemAsync(LANGUAGE_STORAGE_KEY);
-    return (stored as LanguageCode) ?? 'sv';
+    return (stored as LanguageCode) ?? 'en';
   } catch {
     return 'sv';
   }
@@ -45,7 +45,7 @@ async function saveLanguage(code: LanguageCode): Promise<void> {
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<LanguageCode>('sv');
+  const [language, setLanguageState] = useState<LanguageCode>('en');
 
   useEffect(() => {
     loadLanguage().then(setLanguageState);

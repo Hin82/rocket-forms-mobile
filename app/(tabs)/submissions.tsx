@@ -4,17 +4,21 @@ import { Text, Card, ActivityIndicator } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSubmissions } from '@/src/hooks/useSubmissions';
+import { useTranslation } from '@/src/translations';
+import { useLanguage } from '@/src/contexts/LanguageContext';
 
 export default function SubmissionsScreen() {
   const { data: submissions, isLoading, refetch, isRefetching } = useSubmissions();
   const router = useRouter();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
 
-  // Extract first 2-3 meaningful values from form_data for preview
   const getPreview = (formData: Record<string, any>): string => {
     const values = Object.values(formData || {})
       .filter(v => typeof v === 'string' && v.trim().length > 0)
       .slice(0, 3);
-    return values.join(' | ') || 'Inga värden';
+    return values.join(' | ') || t('forms', 'noValues');
   };
 
   if (isLoading) {
@@ -36,11 +40,11 @@ export default function SubmissionsScreen() {
               <Card.Content>
                 <View style={styles.header}>
                   <Text variant="titleSmall" style={styles.formName} numberOfLines={1}>
-                    {item.form_name || 'Formulär'}
+                    {item.form_name || t('nav', 'form')}
                   </Text>
                   <Text variant="bodySmall" style={styles.date}>
-                    {new Date(item.submitted_at).toLocaleDateString('sv-SE')}{' '}
-                    {new Date(item.submitted_at).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(item.submitted_at).toLocaleDateString(dateLocale)}{' '}
+                    {new Date(item.submitted_at).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                   </Text>
                 </View>
                 <Text variant="bodySmall" style={styles.preview} numberOfLines={1}>
@@ -57,7 +61,7 @@ export default function SubmissionsScreen() {
         ListEmptyComponent={
           <View style={styles.centered}>
             <MaterialCommunityIcons name="inbox-outline" size={64} color="#555" />
-            <Text variant="bodyLarge" style={styles.emptyText}>Inga inskickningar ännu</Text>
+            <Text variant="bodyLarge" style={styles.emptyText}>{t('forms', 'noSubmissions')}</Text>
           </View>
         }
       />

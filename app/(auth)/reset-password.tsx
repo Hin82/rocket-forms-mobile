@@ -4,6 +4,7 @@ import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useTranslation } from '@/src/translations';
 
 export default function ResetPasswordScreen() {
   const [email, setEmail] = useState('');
@@ -12,16 +13,17 @@ export default function ResetPasswordScreen() {
   const [sent, setSent] = useState(false);
   const { resetPassword } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleReset = async () => {
-    if (!email.trim()) { setError('Ange din e-postadress'); return; }
+    if (!email.trim()) { setError(t('auth', 'enterEmail')); return; }
     setLoading(true);
     setError('');
     try {
       await resetPassword(email.trim());
       setSent(true);
     } catch (err: any) {
-      setError(err.message || 'Något gick fel');
+      setError(err.message || t('auth', 'somethingWentWrong'));
     } finally {
       setLoading(false);
     }
@@ -31,24 +33,24 @@ export default function ResetPasswordScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text variant="headlineMedium" style={styles.title}>
-          {sent ? 'E-post skickad!' : 'Återställ lösenord'}
+          {sent ? t('auth', 'emailSent') : t('auth', 'resetPassword')}
         </Text>
         {sent ? (
           <>
-            <Text style={styles.text}>Kolla din inkorg för en återställningslänk.</Text>
+            <Text style={styles.text}>{t('auth', 'checkInbox')}</Text>
             <Button mode="contained" onPress={() => router.replace('/(auth)/login')} style={styles.button}>
-              Till inloggning
+              {t('auth', 'toLogin')}
             </Button>
           </>
         ) : (
           <View style={styles.form}>
-            <TextInput label="E-postadress" value={email} onChangeText={setEmail}
+            <TextInput label={t('auth', 'email')} value={email} onChangeText={setEmail}
               autoCapitalize="none" keyboardType="email-address" mode="outlined" />
             {error ? <HelperText type="error" visible>{error}</HelperText> : null}
             <Button mode="contained" onPress={handleReset} loading={loading} style={styles.button}>
-              Skicka återställningslänk
+              {t('auth', 'sendResetLink')}
             </Button>
-            <Button mode="text" onPress={() => router.back()}>Tillbaka</Button>
+            <Button mode="text" onPress={() => router.back()}>{t('auth', 'back')}</Button>
           </View>
         )}
       </View>

@@ -4,14 +4,18 @@ import { Text, FAB, Searchbar, Chip, ActivityIndicator, Card, Badge } from 'reac
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useForms, useFormGroups, Form } from '@/src/hooks/useForms';
+import { useTranslation } from '@/src/translations';
+import { useLanguage } from '@/src/contexts/LanguageContext';
 
 export default function FormsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const { data: forms, isLoading, refetch, isRefetching } = useForms();
   const { data: groups } = useFormGroups();
   const router = useRouter();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
 
-  // Group forms by folder
   const sections = React.useMemo(() => {
     if (!forms) return [];
 
@@ -32,19 +36,17 @@ export default function FormsScreen() {
     });
 
     const result = [];
-    // Named groups first
     for (const [name, data] of Object.entries(grouped)) {
       if (name !== 'ungrouped' && data.length > 0) {
         result.push({ title: name, data, isGroup: true });
       }
     }
-    // Ungrouped at the end
     if (grouped.ungrouped.length > 0) {
-      result.push({ title: 'Alla formulär', data: grouped.ungrouped, isGroup: false });
+      result.push({ title: t('forms', 'allForms'), data: grouped.ungrouped, isGroup: false });
     }
 
     return result;
-  }, [forms, searchQuery]);
+  }, [forms, searchQuery, t]);
 
   const renderFormCard = useCallback(({ item }: { item: Form }) => (
     <Pressable onPress={() => router.push(`/form/${item.id}`)}>
@@ -55,7 +57,7 @@ export default function FormsScreen() {
               {item.name}
             </Text>
             <Text variant="bodySmall" style={styles.formDate}>
-              {new Date(item.updated_at || item.created_at).toLocaleDateString('sv-SE')}
+              {new Date(item.updated_at || item.created_at).toLocaleDateString(dateLocale)}
             </Text>
           </View>
           <View style={styles.cardRight}>
@@ -67,7 +69,7 @@ export default function FormsScreen() {
         </Card.Content>
       </Card>
     </Pressable>
-  ), [router]);
+  ), [router, dateLocale]);
 
   if (isLoading) {
     return (
@@ -80,7 +82,7 @@ export default function FormsScreen() {
   return (
     <View style={styles.container}>
       <Searchbar
-        placeholder="Sök formulär..."
+        placeholder={t('forms', 'searchPlaceholder')}
         onChangeText={setSearchQuery}
         value={searchQuery}
         style={styles.searchbar}
@@ -104,14 +106,14 @@ export default function FormsScreen() {
         ListEmptyComponent={
           <View style={styles.centered}>
             <MaterialCommunityIcons name="file-document-outline" size={64} color="#555" />
-            <Text variant="bodyLarge" style={styles.emptyText}>Inga formulär ännu</Text>
+            <Text variant="bodyLarge" style={styles.emptyText}>{t('forms', 'noForms')}</Text>
           </View>
         }
       />
 
       <FAB
         icon="plus"
-        label="Nytt"
+        label={t('forms', 'new')}
         onPress={() => router.push('/create')}
         style={styles.fab}
         color="#fff"
