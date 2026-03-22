@@ -42,7 +42,7 @@ export default function SettingsScreen() {
       <View style={styles.profileSection}>
         {avatarSeed && avatarSeed !== 'default' ? (
           <Image
-            source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}` }}
+            source={{ uri: `https://api.dicebear.com/7.x/avataaars/png?seed=${avatarSeed}` }}
             style={styles.avatarImage}
           />
         ) : (

@@ -13,7 +13,7 @@ const AVATAR_OPTIONS = [
 ];
 
 function getAvatarUrl(seed: string) {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
+  return `https://api.dicebear.com/7.x/avataaars/png?seed=${seed}`;
 }
 
 export default function ProfileScreen() {
