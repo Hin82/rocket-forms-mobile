@@ -10,6 +10,7 @@ import {
   ImageBackground,
   Image,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { FormField, FormSettings } from '../../hooks/useFormEditor';
@@ -384,16 +385,17 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
           </View>
         );
       }
-      // PDF or other document — show as a preview card with link
+      // PDF — render inline with WebView
       return (
-        <View style={[styles.documentPreview, { borderColor: textColor + '22' }]}>
-          <MaterialCommunityIcons name="file-pdf-box" size={40} color="#e8622c" />
-          <Text style={{ color: textColor, marginTop: 8, fontWeight: '600' }}>
-            {field.title || field.label || 'PDF-dokument'}
-          </Text>
-          <Text style={{ color: textColor + '88', fontSize: 12, marginTop: 4 }}>
-            Dokumentet visas i publicerat formulär
-          </Text>
+        <View style={[styles.documentWebView, { alignItems: field.documentAlignment === 'right' ? 'flex-end' : field.documentAlignment === 'center' ? 'center' : 'flex-start' }]}>
+          <WebView
+            source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(docUrl)}` }}
+            style={styles.pdfWebView}
+            scrollEnabled={true}
+            nestedScrollEnabled={true}
+            startInLoadingState={true}
+            javaScriptEnabled={true}
+          />
         </View>
       );
     }
@@ -686,6 +688,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center' as const,
     backgroundColor: 'rgba(0,0,0,0.03)',
+  },
+  documentWebView: {
+    width: '100%' as any,
+    borderRadius: 8,
+    overflow: 'hidden' as const,
+  },
+  pdfWebView: {
+    width: '100%',
+    height: 500,
+    borderRadius: 8,
+    backgroundColor: 'transparent',
   },
 
   addressStack: { gap: 10 },
