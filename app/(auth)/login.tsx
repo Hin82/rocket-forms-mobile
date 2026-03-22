@@ -94,15 +94,16 @@ export default function LoginScreen() {
     try {
       const result = await signIn(email.trim(), password);
 
-      // Save or clear credentials based on remember me
-      if (rememberMe) {
-        await saveCredentials(email.trim(), password);
-      } else {
-        await clearCredentials();
-      }
-
       if (result.mfaRequired && result.factorId) {
+        // Defer credential save until MFA verification completes
         router.push({ pathname: '/(auth)/verify-mfa', params: { factorId: result.factorId } });
+      } else {
+        // Full auth success — save or clear credentials
+        if (rememberMe) {
+          await saveCredentials(email.trim(), password);
+        } else {
+          await clearCredentials();
+        }
       }
     } catch (err: any) {
       setError(err.message === 'Invalid login credentials'
