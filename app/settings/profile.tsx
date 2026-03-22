@@ -64,8 +64,8 @@ export default function ProfileScreen() {
         .from('profiles')
         .update({ avatar_seed: seed })
         .eq('id', user!.id);
-    } catch {
-      // Silently fail - will be saved with next profile save
+    } catch (err: any) {
+      console.warn('Avatar save failed, will retry on profile save:', err?.message);
     }
   };
 
