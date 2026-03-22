@@ -149,7 +149,11 @@ export default function EmailSetupScreen() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => Alert.alert(t('settings', 'testSent'), t('settings', 'testEmailSent')),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-configs'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-emails'] });
+      Alert.alert(t('settings', 'testSent'), t('settings', 'testEmailSent'));
+    },
     onError: (err: Error) => Alert.alert(t('settings', 'testFailed'), err.message || t('settings', 'couldNotSendTest2')),
   });
 
