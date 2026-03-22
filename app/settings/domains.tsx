@@ -41,27 +41,28 @@ export default function DomainsScreen() {
   const { data: tier, isLoading: tierLoading } = useQuery({
     queryKey: ['subscription-tier', user?.id],
     queryFn: async () => {
-      const { data: membership } = await supabase
-        .from('company_memberships')
-        .select('company_id')
+      // Same query as web app: check user_subscription_tiers first
+      const { data: tierData } = await supabase
+        .from('user_subscription_tiers')
+        .select('tier')
         .eq('user_id', user!.id)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (!membership) return 'free';
+      if (tierData) return tierData.tier;
 
-      const { data, error } = await supabase
-        .from('companies')
+      // Fallback to subscribers table
+      const { data: subData } = await supabase
+        .from('subscribers')
         .select('subscription_tier')
-        .eq('id', membership.company_id)
-        .single();
-      if (error) throw error;
-      return (data?.subscription_tier as string) || 'free';
+        .eq('email', user!.email)
+        .maybeSingle();
+
+      return subData?.subscription_tier || 'free';
     },
     enabled: !!user,
   });
 
-  const isPremium = tier === 'premium' || tier === 'enterprise';
+  const isPremium = tier === 'premium' || tier === 'enterprise' || tier === 'complimentary' || tier === 'superadmin';
 
   const { data: domains, isLoading, error } = useQuery({
     queryKey: ['custom-domains', user?.id],
