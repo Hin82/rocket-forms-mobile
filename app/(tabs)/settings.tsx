@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking, Image } from 'react-native';
 import { Text, List, Divider, Button, Avatar } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
@@ -158,7 +159,7 @@ export default function SettingsScreen() {
         />
         <List.Item
           title={t('settings', 'version')}
-          description="1.0.0"
+          description={Constants.expoConfig?.version ?? '1.0.0'}
           left={props => <List.Icon {...props} icon="information-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
