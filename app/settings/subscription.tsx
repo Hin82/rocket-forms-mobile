@@ -100,8 +100,8 @@ export default function SubscriptionScreen() {
     enabled: !!user,
   });
 
-  const tier = currentTier || 'free';
-  const tierInfo = TIERS[tier];
+  const tier: Tier = (currentTier && currentTier in TIERS) ? currentTier : 'free';
+  const tierInfo = TIERS[tier] ?? TIERS['free'];
   const currentIndex = TIER_ORDER.indexOf(tier);
 
   if (isLoading) {
