@@ -29,32 +29,30 @@ export default function LoginScreen() {
   const currentLang = LANGUAGES.find(l => l.code === language);
 
   useEffect(() => {
-    loadSavedCredentials();
-  }, []);
-
-  const loadSavedCredentials = async () => {
-    try {
-      if (Platform.OS === 'web') {
-        const saved = localStorage.getItem(REMEMBER_KEY);
-        if (saved === 'true') {
-          setEmail(localStorage.getItem(SAVED_EMAIL_KEY) || '');
-          setPassword(localStorage.getItem(SAVED_PASS_KEY) || '');
-          setRememberMe(true);
+    (async () => {
+      try {
+        if (Platform.OS === 'web') {
+          const saved = localStorage.getItem(REMEMBER_KEY);
+          if (saved === 'true') {
+            setEmail(localStorage.getItem(SAVED_EMAIL_KEY) || '');
+            setPassword(localStorage.getItem(SAVED_PASS_KEY) || '');
+            setRememberMe(true);
+          }
+        } else {
+          const saved = await SecureStore.getItemAsync(REMEMBER_KEY);
+          if (saved === 'true') {
+            const savedEmail = await SecureStore.getItemAsync(SAVED_EMAIL_KEY);
+            const savedPass = await SecureStore.getItemAsync(SAVED_PASS_KEY);
+            if (savedEmail) setEmail(savedEmail);
+            if (savedPass) setPassword(savedPass);
+            setRememberMe(true);
+          }
         }
-      } else {
-        const saved = await SecureStore.getItemAsync(REMEMBER_KEY);
-        if (saved === 'true') {
-          const savedEmail = await SecureStore.getItemAsync(SAVED_EMAIL_KEY);
-          const savedPass = await SecureStore.getItemAsync(SAVED_PASS_KEY);
-          if (savedEmail) setEmail(savedEmail);
-          if (savedPass) setPassword(savedPass);
-          setRememberMe(true);
-        }
+      } catch {
+        // Credential load failed - user can type manually
       }
-    } catch {
-      // Silently fail
-    }
-  };
+    })();
+  }, []);
 
   const saveCredentials = async (emailToSave: string, passwordToSave: string) => {
     try {
