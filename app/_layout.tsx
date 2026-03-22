@@ -9,6 +9,8 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/src/contexts/AuthContext';
+import { LanguageProvider } from '@/src/contexts/LanguageContext';
+import { CompanyProvider } from '@/src/contexts/CompanyContext';
 import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
 
@@ -63,24 +65,60 @@ function RootLayoutNav() {
       <PaperProvider theme={paperTheme}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <AuthProvider>
-            <AuthGuard>
-              <Stack>
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="form/[id]/index"
-                  options={{ title: 'Formulär', headerBackTitle: 'Tillbaka' }}
-                />
-                <Stack.Screen
-                  name="form/[id]/submissions"
-                  options={{ title: 'Inskickade', headerBackTitle: 'Tillbaka' }}
-                />
-                <Stack.Screen
-                  name="form/[id]/submission/[submissionId]"
-                  options={{ title: 'Inskickning', headerBackTitle: 'Tillbaka' }}
-                />
-              </Stack>
-            </AuthGuard>
+            <LanguageProvider>
+              <CompanyProvider>
+                <AuthGuard>
+                  <Stack>
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen
+                      name="form/[id]/index"
+                      options={{ title: 'Formul\u00e4r', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="form/[id]/submissions"
+                      options={{ title: 'Inskickade', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="form/[id]/submission/[submissionId]"
+                      options={{ title: 'Inskickning', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/profile"
+                      options={{ title: 'Profil', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/company"
+                      options={{ title: 'F\u00f6retag', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/language"
+                      options={{ title: 'Spr\u00e5k', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/notifications-preferences"
+                      options={{ title: 'Notis-inst\u00e4llningar', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/subscription"
+                      options={{ title: 'Prenumeration', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/api-keys"
+                      options={{ title: 'API-nycklar', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/domains"
+                      options={{ title: 'Dom\u00e4ner', headerBackTitle: 'Tillbaka' }}
+                    />
+                    <Stack.Screen
+                      name="settings/email-setup"
+                      options={{ title: 'E-postkonfiguration', headerBackTitle: 'Tillbaka' }}
+                    />
+                  </Stack>
+                </AuthGuard>
+              </CompanyProvider>
+            </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
       </PaperProvider>

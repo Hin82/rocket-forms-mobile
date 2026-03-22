@@ -385,16 +385,17 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
           </View>
         );
       }
-      // PDF — render inline with WebView
+      // PDF — render directly in WebView (iOS renders PDFs natively)
       return (
         <View style={[styles.documentWebView, { alignItems: field.documentAlignment === 'right' ? 'flex-end' : field.documentAlignment === 'center' ? 'center' : 'flex-start' }]}>
           <WebView
-            source={{ uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(docUrl)}` }}
+            source={{ uri: docUrl }}
             style={styles.pdfWebView}
             scrollEnabled={true}
             nestedScrollEnabled={true}
             startInLoadingState={true}
-            javaScriptEnabled={true}
+            originWhitelist={['*']}
+            allowFileAccess={true}
           />
         </View>
       );
