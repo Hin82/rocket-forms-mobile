@@ -4,7 +4,7 @@ import { PaperProvider } from 'react-native-paper';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -57,7 +57,7 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
-function NavigationStack() {
+function TranslatedStack() {
   const { t } = useTranslation();
   const back = t('nav', 'back');
 
@@ -93,7 +93,7 @@ function RootLayoutNav() {
             <LanguageProvider>
               <CompanyProvider>
                 <AuthGuard>
-                  <NavigationStack />
+                  <TranslatedStack />
                 </AuthGuard>
               </CompanyProvider>
             </LanguageProvider>
