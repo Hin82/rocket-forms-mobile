@@ -10,6 +10,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/src/contexts/AuthContext';
 import { LanguageProvider } from '@/src/contexts/LanguageContext';
+import { useTranslation } from '@/src/translations';
 import { CompanyProvider } from '@/src/contexts/CompanyContext';
 import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
@@ -56,6 +57,29 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+function NavigationStack() {
+  const { t } = useTranslation();
+  const back = t('nav', 'back');
+
+  return (
+    <Stack>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="form/[id]/index" options={{ title: t('nav', 'form'), headerBackTitle: back }} />
+      <Stack.Screen name="form/[id]/submissions" options={{ title: t('nav', 'submissions'), headerBackTitle: back }} />
+      <Stack.Screen name="form/[id]/submission/[submissionId]" options={{ title: t('nav', 'submissionDetail'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/profile" options={{ title: t('settings', 'profile'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/company" options={{ title: t('settings', 'company'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/language" options={{ title: t('settings', 'language'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/notifications-preferences" options={{ title: t('settings', 'notificationSettings'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/subscription" options={{ title: t('settings', 'subscription'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/api-keys" options={{ title: t('settings', 'apiKeys'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/domains" options={{ title: t('settings', 'domains'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/email-setup" options={{ title: t('settings', 'emailConfig'), headerBackTitle: back }} />
+    </Stack>
+  );
+}
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
@@ -68,54 +92,7 @@ function RootLayoutNav() {
             <LanguageProvider>
               <CompanyProvider>
                 <AuthGuard>
-                  <Stack>
-                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen
-                      name="form/[id]/index"
-                      options={{ title: 'Formulär', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="form/[id]/submissions"
-                      options={{ title: 'Inskickade', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="form/[id]/submission/[submissionId]"
-                      options={{ title: 'Inskickning', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/profile"
-                      options={{ title: 'Profil', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/company"
-                      options={{ title: 'Företag', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/language"
-                      options={{ title: 'Språk', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/notifications-preferences"
-                      options={{ title: 'Notis-inställningar', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/subscription"
-                      options={{ title: 'Prenumeration', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/api-keys"
-                      options={{ title: 'API-nycklar', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/domains"
-                      options={{ title: 'Domäner', headerBackTitle: 'Tillbaka' }}
-                    />
-                    <Stack.Screen
-                      name="settings/email-setup"
-                      options={{ title: 'E-postkonfiguration', headerBackTitle: 'Tillbaka' }}
-                    />
-                  </Stack>
+                  <NavigationStack />
                 </AuthGuard>
               </CompanyProvider>
             </LanguageProvider>
