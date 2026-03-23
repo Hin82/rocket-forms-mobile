@@ -20,11 +20,12 @@ export default function SettingsScreen() {
   const { data: avatarSeed } = useQuery({
     queryKey: ['avatar-seed', user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('avatar_seed')
         .eq('id', user!.id)
-        .single();
+        .maybeSingle();
+      if (error && error.code !== 'PGRST116') throw error;
       return data?.avatar_seed || 'default';
     },
     enabled: !!user,
@@ -47,7 +48,7 @@ export default function SettingsScreen() {
             style={styles.avatarImage}
           />
         ) : (
-          <Avatar.Icon size={64} icon="account" style={styles.avatar} />
+          <Avatar.Icon size={80} icon="account" style={styles.avatar} />
         )}
         <Text variant="titleMedium" style={styles.email}>{user?.email}</Text>
       </View>
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121220' },
   profileSection: { alignItems: 'center', paddingVertical: 32 },
   avatar: { backgroundColor: '#2d2d44' },
-  avatarImage: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#2d2d44' },
+  avatarImage: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#2d2d44' },
   email: { color: '#fff', marginTop: 12 },
   divider: { backgroundColor: '#2d2d44' },
   subheader: { color: '#888' },
