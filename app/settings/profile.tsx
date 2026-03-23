@@ -13,7 +13,7 @@ const AVATAR_OPTIONS = [
 ];
 
 function getAvatarUrl(seed: string) {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
+  return `https://api.dicebear.com/7.x/avataaars/png?seed=${seed}`;
 }
 
 export default function ProfileScreen() {
@@ -60,12 +60,15 @@ export default function ProfileScreen() {
   const handleSelectAvatar = async (seed: string) => {
     setAvatarSeed(seed);
     try {
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ avatar_seed: seed })
         .eq('id', user!.id);
-    } catch {
-      // Silently fail - will be saved with next profile save
+      if (error) {
+        console.warn(`Avatar save failed for user ${user!.id} seed=${seed}:`, error.message);
+      }
+    } catch (err: any) {
+      console.warn('Avatar save threw unexpectedly:', err?.message);
     }
   };
 

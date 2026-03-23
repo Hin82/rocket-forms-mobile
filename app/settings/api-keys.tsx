@@ -9,9 +9,10 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { format } from 'date-fns';
-import { sv } from 'date-fns/locale';
-import { enUS } from 'date-fns/locale';
+import { sv, nb, da, fi, de, fr, es, enUS, type Locale } from 'date-fns/locale';
 import { useTranslation } from '@/src/translations';
+
+const DATE_LOCALES: Record<string, Locale> = { sv, no: nb, da, fi, de, fr, es, en: enUS };
 
 interface ApiKey {
   id: string;
@@ -44,9 +45,7 @@ function generateRandomHex(bytes: number): string {
   if (typeof globalThis.crypto?.getRandomValues === 'function') {
     globalThis.crypto.getRandomValues(array);
   } else {
-    for (let i = 0; i < bytes; i++) {
-      array[i] = Math.floor(Math.random() * 256);
-    }
+    throw new Error('Secure random number generator not available. Cannot generate API keys.');
   }
   return Array.from(array)
     .map((b) => b.toString(16).padStart(2, '0'))
@@ -59,7 +58,7 @@ export default function ApiKeysScreen() {
   const [keyName, setKeyName] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const { t, language } = useTranslation();
-  const dateLocale = language === 'sv' ? sv : enUS;
+  const dateLocale = DATE_LOCALES[language] || enUS;
 
   const { data: keys, isLoading, error } = useQuery({
     queryKey: ['api-keys', user?.id],
@@ -78,14 +77,14 @@ export default function ApiKeysScreen() {
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
       const rawKey = 'rfp_' + generateRandomHex(32);
-      const prefix = rawKey.substring(0, 8);
+      const prefix = rawKey.substring(0, 12);
       const hash = await sha256(rawKey);
 
       const { error } = await supabase.from('wp_api_keys').insert({
         user_id: user!.id,
         key_hash: hash,
         key_prefix: prefix,
-        name: name || null,
+        name: name || t('settings', 'defaultApiKeyName'),
         is_active: true,
       });
       if (error) throw error;
@@ -221,7 +220,7 @@ export default function ApiKeysScreen() {
               <View key={key.id} style={styles.keyCard}>
                 <View style={styles.keyHeader}>
                   <View style={styles.keyInfo}>
-                    <Text style={styles.keyPrefix}>{key.key_prefix}...****</Text>
+                    <Text style={styles.keyPrefix}>{key.key_prefix}…</Text>
                     {key.name && <Text style={styles.keyName}>{key.name}</Text>}
                   </View>
                   <Chip

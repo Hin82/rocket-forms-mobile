@@ -5,31 +5,42 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
 
+// Match web app's notification_preferences table exactly
 interface NotificationPrefs {
   email_notifications: boolean;
   push_notifications: boolean;
   in_app_notifications: boolean;
   form_submissions: boolean;
   system_alerts: boolean;
-  webhook_errors: boolean;
-  daily_summary: boolean;
+  webhook_failures: boolean;  // web app uses "webhook_failures", not "webhook_errors"
+  daily_digest: boolean;      // web app uses "daily_digest", not "daily_summary"
   weekly_report: boolean;
+  team_announcements: boolean;
+  form_activities: boolean;
+  mentions: boolean;
+  team_invitations: boolean;
 }
 
 const defaultPrefs: NotificationPrefs = {
   email_notifications: true,
-  push_notifications: false,
+  push_notifications: true,
   in_app_notifications: true,
   form_submissions: true,
   system_alerts: true,
-  webhook_errors: false,
-  daily_summary: false,
+  webhook_failures: true,
+  daily_digest: false,
   weekly_report: false,
+  team_announcements: true,
+  form_activities: true,
+  mentions: true,
+  team_invitations: true,
 };
 
 export default function NotificationsPreferencesScreen() {
+  const { user } = useAuth();
   const [prefs, setPrefs] = useState<NotificationPrefs>(defaultPrefs);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,12 +52,35 @@ export default function NotificationsPreferencesScreen() {
 
   const loadPreferences = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-      const saved = user?.user_metadata?.notification_preferences;
-      if (saved) {
-        setPrefs({ ...defaultPrefs, ...saved });
+      // Read from notification_preferences table (same as web app)
+      const { data, error } = await supabase
+        .from('notification_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data) {
+        setPrefs({
+          email_notifications: data.email_notifications ?? defaultPrefs.email_notifications,
+          push_notifications: data.push_notifications ?? defaultPrefs.push_notifications,
+          in_app_notifications: data.in_app_notifications ?? defaultPrefs.in_app_notifications,
+          form_submissions: data.form_submissions ?? defaultPrefs.form_submissions,
+          system_alerts: data.system_alerts ?? defaultPrefs.system_alerts,
+          webhook_failures: data.webhook_failures ?? defaultPrefs.webhook_failures,
+          daily_digest: data.daily_digest ?? defaultPrefs.daily_digest,
+          weekly_report: data.weekly_report ?? defaultPrefs.weekly_report,
+          team_announcements: data.team_announcements ?? defaultPrefs.team_announcements,
+          form_activities: data.form_activities ?? defaultPrefs.form_activities,
+          mentions: data.mentions ?? defaultPrefs.mentions,
+          team_invitations: data.team_invitations ?? defaultPrefs.team_invitations,
+        });
       }
     } catch (err: any) {
       Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotLoadSettings'));
@@ -84,11 +118,19 @@ export default function NotificationsPreferencesScreen() {
   };
 
   const savePreferences = async (prefsToSave: NotificationPrefs) => {
+    if (!user) return;
     setSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: { notification_preferences: prefsToSave },
-      });
+
+      // Upsert to notification_preferences table (same as web app)
+      const { error } = await supabase
+        .from('notification_preferences')
+        .upsert({
+          user_id: user.id,
+          ...prefsToSave,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' });
+
       if (error) throw error;
     } catch (err: any) {
       Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotSaveSettings'));
@@ -158,6 +200,7 @@ export default function NotificationsPreferencesScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <Stack.Screen options={{ title: t('settings', 'notifications'), headerBackTitle: t('auth', 'back') }} />
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Channels */}
         <List.Section>
           <List.Subheader style={styles.subheader}>{t('settings', 'channels')}</List.Subheader>
           {renderToggle('email_notifications', t('settings', 'emailNotifications'), t('settings', 'receiveViaEmail'))}
@@ -167,18 +210,31 @@ export default function NotificationsPreferencesScreen() {
 
         <Divider style={styles.divider} />
 
+        {/* Events */}
         <List.Section>
           <List.Subheader style={styles.subheader}>{t('settings', 'events')}</List.Subheader>
           {renderToggle('form_submissions', t('settings', 'formSubmissions'), t('settings', 'whenFormSubmitted'))}
           {renderToggle('system_alerts', t('settings', 'systemAlerts'), t('settings', 'importantMessages'))}
-          {renderToggle('webhook_errors', t('settings', 'webhookErrors'), t('settings', 'whenWebhookFails'))}
+          {renderToggle('webhook_failures', t('settings', 'webhookErrors'), t('settings', 'whenWebhookFails'))}
+          {renderToggle('form_activities', t('settings', 'formActivities'), t('settings', 'formActivitiesDesc'))}
+          {renderToggle('mentions', t('settings', 'mentionsTitle'), t('settings', 'mentionsDesc'))}
         </List.Section>
 
         <Divider style={styles.divider} />
 
+        {/* Team */}
+        <List.Section>
+          <List.Subheader style={styles.subheader}>{t('settings', 'teamSection')}</List.Subheader>
+          {renderToggle('team_announcements', t('settings', 'teamAnnouncements'), t('settings', 'teamAnnouncementsDesc'))}
+          {renderToggle('team_invitations', t('settings', 'teamInvitations'), t('settings', 'teamInvitationsDesc'))}
+        </List.Section>
+
+        <Divider style={styles.divider} />
+
+        {/* Summaries */}
         <List.Section>
           <List.Subheader style={styles.subheader}>{t('settings', 'summaries')}</List.Subheader>
-          {renderToggle('daily_summary', t('settings', 'dailySummary'), t('settings', 'dailyOverview'))}
+          {renderToggle('daily_digest', t('settings', 'dailySummary'), t('settings', 'dailyOverview'))}
           {renderToggle('weekly_report', t('settings', 'weeklyReport'), t('settings', 'weeklySummary'))}
         </List.Section>
 
