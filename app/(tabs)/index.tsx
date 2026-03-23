@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   emptyText: { color: '#888', marginTop: 16 },
   fab: {
     position: 'absolute',
-    right: 16,
+    left: 16,
     bottom: 16,
     backgroundColor: '#e8622c',
     borderRadius: 16,
