@@ -221,7 +221,7 @@ export default function SupportChat() {
                 try {
                   await Linking.openURL('mailto:support@rocketformspro.com');
                 } catch {
-                  Alert.alert(t('settings', 'error'), 'Could not open email client');
+                  Alert.alert(t('settings', 'error'), t('chat', 'couldNotOpenEmail'));
                 }
               }}
               accessibilityRole="link"
