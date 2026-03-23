@@ -58,14 +58,6 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
-function AuthenticatedChat() {
-  const { user } = useAuth();
-  const segments = useSegments();
-  const inAuthGroup = segments[0] === '(auth)';
-  if (!user || inAuthGroup) return null;
-  return <SupportChat />;
-}
-
 function TranslatedStack() {
   const { t } = useTranslation();
   const back = t('nav', 'back');
@@ -90,6 +82,13 @@ function TranslatedStack() {
   );
 }
 
+const ChatWrapper = () => {
+  const { user } = useAuth();
+  const segments = useSegments();
+  if (!user || segments[0] === '(auth)') return null;
+  return <SupportChat />;
+};
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
@@ -103,7 +102,7 @@ function RootLayoutNav() {
               <CompanyProvider>
                 <AuthGuard>
                   <TranslatedStack />
-                  <AuthenticatedChat />
+                  <ChatWrapper />
                 </AuthGuard>
               </CompanyProvider>
             </LanguageProvider>
