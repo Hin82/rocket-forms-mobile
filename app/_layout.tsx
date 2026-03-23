@@ -64,7 +64,12 @@ function TranslatedStack() {
   const back = t('nav', 'back');
 
   return (
-    <Stack screenOptions={{ headerRight: () => <HeaderLogo />, headerRightContainerStyle: { paddingRight: 16 } }}>
+    <Stack screenOptions={{
+      headerStyle: { backgroundColor: '#1a1a2e' },
+      headerTintColor: '#ffffff',
+      headerRight: () => <HeaderLogo />,
+      headerRightContainerStyle: { paddingRight: 16 },
+    }}>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="create" options={{ title: t('create', 'newForm'), headerBackTitle: back }} />
