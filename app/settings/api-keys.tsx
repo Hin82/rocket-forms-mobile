@@ -84,7 +84,7 @@ export default function ApiKeysScreen() {
         user_id: user!.id,
         key_hash: hash,
         key_prefix: prefix,
-        name: name || 'WordPress Plugin',
+        name: name || t('settings', 'defaultApiKeyName'),
         is_active: true,
       });
       if (error) throw error;

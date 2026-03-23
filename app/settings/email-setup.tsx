@@ -337,11 +337,11 @@ export default function EmailSetupScreen() {
 
             {provider === 'microsoft365' && (
               <>
-                <TextInput label="Tenant ID" value={tenantId} onChangeText={setTenantId}
+                <TextInput label={t('settings', 'tenantId')} value={tenantId} onChangeText={setTenantId}
                   style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
-                <TextInput label="Client ID" value={clientId} onChangeText={setClientId}
+                <TextInput label={t('settings', 'clientId')} value={clientId} onChangeText={setClientId}
                   style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
-                <TextInput label="Client Secret" value={clientSecret} onChangeText={setClientSecret}
+                <TextInput label={t('settings', 'clientSecret')} value={clientSecret} onChangeText={setClientSecret}
                   secureTextEntry style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
               </>
             )}
@@ -358,7 +358,13 @@ export default function EmailSetupScreen() {
               <Button mode="outlined" onPress={resetForm} textColor="#888" style={styles.cancelButton}>
                 {t('settings', 'cancel')}
               </Button>
-              <Button mode="contained" onPress={() => createMutation.mutate()} loading={createMutation.isPending}
+              <Button mode="contained" onPress={() => {
+                  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail.trim())) {
+                    Alert.alert(t('settings', 'error'), t('settings', 'invalidEmail'));
+                    return;
+                  }
+                  createMutation.mutate();
+                }} loading={createMutation.isPending}
                 disabled={!fromEmail.trim() || createMutation.isPending} buttonColor="#e8622c" style={styles.submitButton}>
                 {t('settings', 'save')}
               </Button>

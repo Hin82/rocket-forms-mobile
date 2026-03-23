@@ -241,6 +241,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       couldNotLoadEmailConfigs: 'Could not load email configurations',
       tested: 'Tested',
       brevoNote: 'Brevo is the built-in email service. No additional configuration needed.',
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Please enter a valid email address.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 forms, basic fields, limited storage',
@@ -606,6 +609,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       couldNotLoadEmailConfigs: 'Kunde inte hämta e-postkonfigurationer',
       tested: 'Testad',
       brevoNote: 'Brevo är den inbyggda e-posttjänsten. Ingen ytterligare konfiguration krävs.',
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Ange en giltig e-postadress.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 formulär, grundfält, begränsad lagring',
@@ -866,6 +872,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       configureEmail: 'Konfigurer e-post for å sende varsler og bekreftelser fra skjemaene dine.',
       recentEmails: 'Nylige e-poster', couldNotLoadEmailConfigs: 'Kunne ikke hente e-postkonfigurasjoner',
       tested: 'Testet', brevoNote: 'Brevo er den innebygde e-posttjenesten. Ingen ekstra konfigurasjon nødvendig.',
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Vennligst oppgi en gyldig e-postadresse.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 skjemaer, grunnleggende felt, begrenset lagring',
@@ -1033,6 +1042,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       configureEmail: 'Konfigurer e-mail for at sende notifikationer og bekræftelser fra dine formularer.',
       recentEmails: 'Seneste e-mails', couldNotLoadEmailConfigs: 'Kunne ikke hente e-mailkonfigurationer',
       tested: 'Testet', brevoNote: 'Brevo er den indbyggede e-mailtjeneste. Ingen yderligere konfiguration nødvendig.',
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Indtast venligst en gyldig e-mailadresse.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 formularer, grundlæggende felter, begrænset lagerplads',
@@ -1185,6 +1197,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       configureEmail: 'Määritä sähköposti lähettääksesi ilmoituksia ja vahvistuksia lomakkeistasi.',
       recentEmails: 'Viimeaikaiset sähköpostit', couldNotLoadEmailConfigs: 'Sähköpostikonfiguraatioita ei voitu hakea',
       tested: 'Testattu', brevoNote: 'Brevo on sisäänrakennettu sähköpostipalvelu. Lisäkonfiguraatiota ei tarvita.',
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Anna kelvollinen sähköpostiosoite.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 lomaketta, peruskentät, rajattu tallennustila', freeFeature1: '2 lomaketta', freeFeature2: 'Peruskentätyypit', freeFeature3: 'Rajattu tallennustila (100 Mt)', freeFeature4: 'Rocketforms-brändäys',
@@ -1325,6 +1340,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       configureEmail: 'Konfigurieren Sie E-Mail, um Benachrichtigungen und Bestätigungen von Ihren Formularen zu senden.',
       recentEmails: 'Neueste E-Mails', couldNotLoadEmailConfigs: 'E-Mail-Konfigurationen konnten nicht geladen werden',
       tested: 'Getestet', brevoNote: 'Brevo ist der integrierte E-Mail-Dienst. Keine zusätzliche Konfiguration erforderlich.',
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 Formulare, Grundfelder, begrenzter Speicher', freeFeature1: '2 Formulare', freeFeature2: 'Grundlegende Feldtypen', freeFeature3: 'Begrenzter Speicher (100 MB)', freeFeature4: 'Rocketforms-Branding',
@@ -1465,6 +1483,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       configureEmail: "Configurez l'e-mail pour envoyer des notifications et confirmations depuis vos formulaires.",
       recentEmails: 'E-mails récents', couldNotLoadEmailConfigs: 'Impossible de charger les configurations e-mail',
       tested: 'Testé', brevoNote: "Brevo est le service e-mail intégré. Aucune configuration supplémentaire n'est nécessaire.",
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Veuillez entrer une adresse e-mail valide.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 formulaires, champs de base, stockage limité', freeFeature1: '2 formulaires', freeFeature2: 'Types de champs de base', freeFeature3: 'Stockage limité (100 Mo)', freeFeature4: 'Branding Rocketforms',
@@ -1605,6 +1626,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       configureEmail: 'Configura el correo para enviar notificaciones y confirmaciones desde tus formularios.',
       recentEmails: 'Correos recientes', couldNotLoadEmailConfigs: 'No se pudieron cargar las configuraciones de correo',
       tested: 'Probado', brevoNote: 'Brevo es el servicio de correo integrado. No se necesita configuración adicional.',
+      tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
+      invalidEmail: 'Por favor, introduce una dirección de correo válida.',
+      defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
       freeDesc: '2 formularios, campos básicos, almacenamiento limitado', freeFeature1: '2 formularios', freeFeature2: 'Tipos de campos básicos', freeFeature3: 'Almacenamiento limitado (100 MB)', freeFeature4: 'Marca Rocketforms',
