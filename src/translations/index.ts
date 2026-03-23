@@ -66,6 +66,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       firstName: 'First name',
       lastName: 'Last name',
       phone: 'Phone',
+      personalInfo: 'Personal Information',
+      personalInfoDesc: 'Update your personal details',
+      addressInfo: 'Address Information',
+      addressInfoDesc: 'Update your address and location details',
+      streetAddress: 'Street Address',
+      city: 'City',
+      postalCode: 'Postal Code',
+      country: 'Country',
       save: 'Save',
       saveChanges: 'Save changes',
       saved: 'Saved',
@@ -380,6 +388,13 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFields: 'No fields yet',
       tapToAddFields: 'Tap + to add fields',
     },
+    chat: {
+      title: 'AI Support Assistant',
+      placeholder: 'Type your message...',
+      welcomeMessage: "Hi! I'm your AI support assistant. I can help you with form building, troubleshooting, and any questions about the platform. How can I assist you today?",
+      errorResponse: 'Sorry, something went wrong. Please try again.',
+      urgentSupport: 'For urgent issues, email us at support@rocketformspro.com',
+    },
   },
   sv: {
     auth: {
@@ -443,6 +458,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       firstName: 'Förnamn',
       lastName: 'Efternamn',
       phone: 'Telefon',
+      personalInfo: 'Personuppgifter',
+      personalInfoDesc: 'Uppdatera dina personliga uppgifter',
+      addressInfo: 'Adressinformation',
+      addressInfoDesc: 'Uppdatera din adress och platsuppgifter',
+      streetAddress: 'Gatuadress',
+      city: 'Stad',
+      postalCode: 'Postnummer',
+      country: 'Land',
       save: 'Spara',
       saveChanges: 'Spara ändringar',
       saved: 'Sparat',
@@ -747,6 +770,13 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFields: 'Inga fält ännu',
       tapToAddFields: 'Tryck på + för att lägga till fält',
     },
+    chat: {
+      title: 'AI Supportassistent',
+      placeholder: 'Skriv ditt meddelande...',
+      welcomeMessage: 'Hej! Jag är din AI-supportassistent. Jag kan hjälpa dig med formulärbyggande, felsökning och frågor om plattformen. Hur kan jag hjälpa dig idag?',
+      errorResponse: 'Något gick fel. Försök igen.',
+      urgentSupport: 'För brådskande ärenden, maila support@rocketformspro.com',
+    },
   },
   // ── Norwegian ──
   no: {
@@ -794,6 +824,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       openWebApp: 'Åpne webapp', version: 'Versjon', signOut: 'Logg ut',
       signOutConfirm: 'Vil du logge ut?', cancel: 'Avbryt',
       firstName: 'Fornavn', lastName: 'Etternavn', phone: 'Telefon',
+      personalInfo: 'Personlig informasjon', personalInfoDesc: 'Oppdater dine personlige opplysninger',
+      addressInfo: 'Adresseinformasjon', addressInfoDesc: 'Oppdater adressen og stedsopplysninger',
+      streetAddress: 'Gateadresse', city: 'By', postalCode: 'Postnummer', country: 'Land',
       save: 'Lagre', saveChanges: 'Lagre endringer', saved: 'Lagret',
       profileUpdated: 'Profilen din er oppdatert.', error: 'Feil',
       couldNotLoadProfile: 'Kunne ikke laste profil', couldNotSaveProfile: 'Kunne ikke lagre profil',
@@ -920,6 +953,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     create: { newForm: 'Nytt skjema', nameYourForm: 'Gi skjemaet ditt et navn', formName: 'Skjemanavn', folderOptional: 'Mappe (valgfritt)', nextAddFields: 'Neste — Legg til felt', cancel: 'Avbryt', tapToAdd: 'Trykk på felttyper for å legge til ({count} felt lagt til)', createForm: 'Opprett skjema', back: 'Tilbake', error: 'Feil', couldNotCreate: 'Kunne ikke opprette skjema', textField: 'Tekstfelt', emailField: 'E-post', phoneField: 'Telefon', nameField: 'Navn', textArea: 'Tekstområde', dropdown: 'Nedtrekksliste', radioButtons: 'Radioknapper', checkboxes: 'Avkrysningsbokser', dateField: 'Dato', fileUpload: 'Filopplasting', signatureField: 'Underskrift', ratingField: 'Vurdering', option: 'Alternativ' },
     notifications: { markAllRead: 'Merk alle som lest', noNotifications: 'Ingen varsler' },
     editor: { deleteField: 'Slett felt', deleteFieldConfirm: 'Slette "{label}"?', cancel: 'Avbryt', delete: 'Slett', copy: 'Kopier', copyLabel: '(kopi)', save: 'Lagre', unsaved: 'Ulagret', loadingForm: 'Laster skjemaet...', couldNotLoadForm: 'Kunne ikke laste skjemaet', goBack: 'Gå tilbake', noFields: 'Ingen felt ennå', tapToAddFields: 'Trykk på + for å legge til felt' },
+    chat: { title: 'AI Supportassistent', placeholder: 'Skriv meldingen din...', welcomeMessage: 'Hei! Jeg er din AI-supportassistent. Jeg kan hjelpe deg med skjemabygging, feilsøking og spørsmål om plattformen. Hvordan kan jeg hjelpe deg i dag?', errorResponse: 'Noe gikk galt. Prøv igjen.', urgentSupport: 'For hastesaker, send e-post til support@rocketformspro.com' },
   },
   // ── Danish ──
   da: {
@@ -967,6 +1001,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       openWebApp: 'Åbn webapp', version: 'Version', signOut: 'Log ud',
       signOutConfirm: 'Vil du logge ud?', cancel: 'Annuller',
       firstName: 'Fornavn', lastName: 'Efternavn', phone: 'Telefon',
+      personalInfo: 'Personlige oplysninger', personalInfoDesc: 'Opdater dine personlige oplysninger',
+      addressInfo: 'Adresseoplysninger', addressInfoDesc: 'Opdater din adresse og placeringsoplysninger',
+      streetAddress: 'Gadeadresse', city: 'By', postalCode: 'Postnummer', country: 'Land',
       save: 'Gem', saveChanges: 'Gem ændringer', saved: 'Gemt',
       profileUpdated: 'Din profil er opdateret.', error: 'Fejl',
       couldNotLoadProfile: 'Kunne ikke indlæse profil', couldNotSaveProfile: 'Kunne ikke gemme profil',
@@ -1092,6 +1129,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     create: { newForm: 'Ny formular', nameYourForm: 'Giv din formular et navn', formName: 'Formularnavn', folderOptional: 'Mappe (valgfrit)', nextAddFields: 'Næste — Tilføj felter', cancel: 'Annuller', tapToAdd: 'Tryk på felttyper for at tilføje ({count} felter tilføjet)', createForm: 'Opret formular', back: 'Tilbage', error: 'Fejl', couldNotCreate: 'Kunne ikke oprette formular', textField: 'Tekstfelt', emailField: 'E-mail', phoneField: 'Telefon', nameField: 'Navn', textArea: 'Tekstområde', dropdown: 'Dropdown', radioButtons: 'Radioknapper', checkboxes: 'Afkrydsningsfelter', dateField: 'Dato', fileUpload: 'Filupload', signatureField: 'Underskrift', ratingField: 'Bedømmelse', option: 'Mulighed' },
     notifications: { markAllRead: 'Markér alle som læst', noNotifications: 'Ingen notifikationer' },
     editor: { deleteField: 'Slet felt', deleteFieldConfirm: 'Slet "{label}"?', cancel: 'Annuller', delete: 'Slet', copy: 'Kopiér', copyLabel: '(kopi)', save: 'Gem', unsaved: 'Ikke gemt', loadingForm: 'Indlæser formularen...', couldNotLoadForm: 'Kunne ikke indlæse formularen', goBack: 'Gå tilbage', noFields: 'Ingen felter endnu', tapToAddFields: 'Tryk på + for at tilføje felter' },
+    chat: { title: 'AI Supportassistent', placeholder: 'Skriv din besked...', welcomeMessage: 'Hej! Jeg er din AI-supportassistent. Jeg kan hjælpe dig med formularopbygning, fejlfinding og spørgsmål om platformen. Hvordan kan jeg hjælpe dig i dag?', errorResponse: 'Noget gik galt. Prøv igen.', urgentSupport: 'For hastesager, send e-mail til support@rocketformspro.com' },
   },
   // ── Finnish ──
   fi: {
@@ -1124,6 +1162,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       openWebApp: 'Avaa verkkosovellus', version: 'Versio', signOut: 'Kirjaudu ulos',
       signOutConfirm: 'Haluatko kirjautua ulos?', cancel: 'Peruuta',
       firstName: 'Etunimi', lastName: 'Sukunimi', phone: 'Puhelin',
+      personalInfo: 'Henkilötiedot', personalInfoDesc: 'Päivitä henkilötietosi',
+      addressInfo: 'Osoitetiedot', addressInfoDesc: 'Päivitä osoite- ja sijaintitietosi',
+      streetAddress: 'Katuosoite', city: 'Kaupunki', postalCode: 'Postinumero', country: 'Maa',
       save: 'Tallenna', saveChanges: 'Tallenna muutokset', saved: 'Tallennettu',
       profileUpdated: 'Profiilisi on päivitetty.', error: 'Virhe',
       couldNotLoadProfile: 'Profiilia ei voitu ladata', couldNotSaveProfile: 'Profiilia ei voitu tallentaa',
@@ -1237,6 +1278,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     create: { newForm: 'Uusi lomake', nameYourForm: 'Anna lomakkeellesi nimi', formName: 'Lomakkeen nimi', folderOptional: 'Kansio (valinnainen)', nextAddFields: 'Seuraava — Lisää kenttiä', cancel: 'Peruuta', tapToAdd: 'Napauta kenttätyyppejä lisätäksesi ({count} kenttää lisätty)', createForm: 'Luo lomake', back: 'Takaisin', error: 'Virhe', couldNotCreate: 'Lomaketta ei voitu luoda', textField: 'Tekstikenttä', emailField: 'Sähköposti', phoneField: 'Puhelin', nameField: 'Nimi', textArea: 'Tekstialue', dropdown: 'Pudotusvalikko', radioButtons: 'Valintanapit', checkboxes: 'Valintaruudut', dateField: 'Päivämäärä', fileUpload: 'Tiedoston lataus', signatureField: 'Allekirjoitus', ratingField: 'Arviointi', option: 'Vaihtoehto' },
     notifications: { markAllRead: 'Merkitse kaikki luetuiksi', noNotifications: 'Ei ilmoituksia' },
     editor: { deleteField: 'Poista kenttä', deleteFieldConfirm: 'Poista "{label}"?', cancel: 'Peruuta', delete: 'Poista', copy: 'Kopioi', copyLabel: '(kopio)', save: 'Tallenna', unsaved: 'Tallentamaton', loadingForm: 'Ladataan lomaketta...', couldNotLoadForm: 'Lomaketta ei voitu ladata', goBack: 'Palaa takaisin', noFields: 'Ei kenttiä vielä', tapToAddFields: 'Napauta + lisätäksesi kenttiä' },
+    chat: { title: 'AI-tukiassistentti', placeholder: 'Kirjoita viestisi...', welcomeMessage: 'Hei! Olen AI-tukiassistenttisi. Voin auttaa lomakkeiden rakentamisessa, vianmäärityksessä ja alustan käyttöön liittyvissä kysymyksissä. Miten voin auttaa sinua tänään?', errorResponse: 'Jokin meni pieleen. Yritä uudelleen.', urgentSupport: 'Kiireellisissä asioissa, lähetä sähköpostia osoitteeseen support@rocketformspro.com' },
   },
   // ── German ──
   de: {
@@ -1269,6 +1311,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       openWebApp: 'Web-App öffnen', version: 'Version', signOut: 'Abmelden',
       signOutConfirm: 'Möchten Sie sich abmelden?', cancel: 'Abbrechen',
       firstName: 'Vorname', lastName: 'Nachname', phone: 'Telefon',
+      personalInfo: 'Persönliche Informationen', personalInfoDesc: 'Aktualisieren Sie Ihre persönlichen Daten',
+      addressInfo: 'Adressinformationen', addressInfoDesc: 'Aktualisieren Sie Ihre Adress- und Standortdaten',
+      streetAddress: 'Straße', city: 'Stadt', postalCode: 'Postleitzahl', country: 'Land',
       save: 'Speichern', saveChanges: 'Änderungen speichern', saved: 'Gespeichert',
       profileUpdated: 'Ihr Profil wurde aktualisiert.', error: 'Fehler',
       couldNotLoadProfile: 'Profil konnte nicht geladen werden', couldNotSaveProfile: 'Profil konnte nicht gespeichert werden',
@@ -1382,6 +1427,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     create: { newForm: 'Neues Formular', nameYourForm: 'Geben Sie Ihrem Formular einen Namen', formName: 'Formularname', folderOptional: 'Ordner (optional)', nextAddFields: 'Weiter — Felder hinzufügen', cancel: 'Abbrechen', tapToAdd: 'Tippen Sie auf Feldtypen zum Hinzufügen ({count} Felder hinzugefügt)', createForm: 'Formular erstellen', back: 'Zurück', error: 'Fehler', couldNotCreate: 'Formular konnte nicht erstellt werden', textField: 'Textfeld', emailField: 'E-Mail', phoneField: 'Telefon', nameField: 'Name', textArea: 'Textbereich', dropdown: 'Dropdown', radioButtons: 'Optionsfelder', checkboxes: 'Kontrollkästchen', dateField: 'Datum', fileUpload: 'Datei-Upload', signatureField: 'Unterschrift', ratingField: 'Bewertung', option: 'Option' },
     notifications: { markAllRead: 'Alle als gelesen markieren', noNotifications: 'Keine Benachrichtigungen' },
     editor: { deleteField: 'Feld löschen', deleteFieldConfirm: '"{label}" löschen?', cancel: 'Abbrechen', delete: 'Löschen', copy: 'Kopieren', copyLabel: '(Kopie)', save: 'Speichern', unsaved: 'Ungespeichert', loadingForm: 'Formular wird geladen...', couldNotLoadForm: 'Formular konnte nicht geladen werden', goBack: 'Zurück gehen', noFields: 'Noch keine Felder', tapToAddFields: 'Tippen Sie auf + um Felder hinzuzufügen' },
+    chat: { title: 'KI-Supportassistent', placeholder: 'Nachricht eingeben...', welcomeMessage: 'Hallo! Ich bin Ihr KI-Supportassistent. Ich kann Ihnen bei der Formularerstellung, Fehlerbehebung und Fragen zur Plattform helfen. Wie kann ich Ihnen heute helfen?', errorResponse: 'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.', urgentSupport: 'Für dringende Angelegenheiten, senden Sie eine E-Mail an support@rocketformspro.com' },
   },
   // ── French ──
   fr: {
@@ -1414,6 +1460,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       openWebApp: "Ouvrir l'application web", version: 'Version', signOut: 'Se déconnecter',
       signOutConfirm: 'Voulez-vous vous déconnecter ?', cancel: 'Annuler',
       firstName: 'Prénom', lastName: 'Nom', phone: 'Téléphone',
+      personalInfo: 'Informations personnelles', personalInfoDesc: 'Mettez à jour vos informations personnelles',
+      addressInfo: "Informations d'adresse", addressInfoDesc: 'Mettez à jour votre adresse et vos coordonnées',
+      streetAddress: 'Adresse', city: 'Ville', postalCode: 'Code postal', country: 'Pays',
       save: 'Enregistrer', saveChanges: 'Enregistrer les modifications', saved: 'Enregistré',
       profileUpdated: 'Votre profil a été mis à jour.', error: 'Erreur',
       couldNotLoadProfile: 'Impossible de charger le profil', couldNotSaveProfile: 'Impossible de sauvegarder le profil',
@@ -1527,6 +1576,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     create: { newForm: 'Nouveau formulaire', nameYourForm: 'Donnez un nom à votre formulaire', formName: 'Nom du formulaire', folderOptional: 'Dossier (optionnel)', nextAddFields: 'Suivant — Ajouter des champs', cancel: 'Annuler', tapToAdd: 'Appuyez sur les types de champs pour ajouter ({count} champs ajoutés)', createForm: 'Créer le formulaire', back: 'Retour', error: 'Erreur', couldNotCreate: 'Impossible de créer le formulaire', textField: 'Champ texte', emailField: 'E-mail', phoneField: 'Téléphone', nameField: 'Nom', textArea: 'Zone de texte', dropdown: 'Liste déroulante', radioButtons: 'Boutons radio', checkboxes: 'Cases à cocher', dateField: 'Date', fileUpload: 'Téléchargement de fichier', signatureField: 'Signature', ratingField: 'Évaluation', option: 'Option' },
     notifications: { markAllRead: 'Tout marquer comme lu', noNotifications: 'Aucune notification' },
     editor: { deleteField: 'Supprimer le champ', deleteFieldConfirm: 'Supprimer "{label}" ?', cancel: 'Annuler', delete: 'Supprimer', copy: 'Copier', copyLabel: '(copie)', save: 'Enregistrer', unsaved: 'Non enregistré', loadingForm: 'Chargement du formulaire...', couldNotLoadForm: 'Impossible de charger le formulaire', goBack: 'Retour', noFields: 'Aucun champ pour le moment', tapToAddFields: 'Appuyez sur + pour ajouter des champs' },
+    chat: { title: "Assistant IA", placeholder: 'Tapez votre message...', welcomeMessage: "Bonjour ! Je suis votre assistant IA. Je peux vous aider avec la création de formulaires, le dépannage et toutes vos questions sur la plateforme. Comment puis-je vous aider aujourd'hui ?", errorResponse: "Une erreur s'est produite. Veuillez réessayer.", urgentSupport: 'Pour les urgences, envoyez un e-mail à support@rocketformspro.com' },
   },
   // ── Spanish ──
   es: {
@@ -1559,6 +1609,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       openWebApp: 'Abrir aplicación web', version: 'Versión', signOut: 'Cerrar sesión',
       signOutConfirm: '¿Quieres cerrar sesión?', cancel: 'Cancelar',
       firstName: 'Nombre', lastName: 'Apellido', phone: 'Teléfono',
+      personalInfo: 'Información personal', personalInfoDesc: 'Actualiza tus datos personales',
+      addressInfo: 'Información de dirección', addressInfoDesc: 'Actualiza tu dirección y datos de ubicación',
+      streetAddress: 'Dirección', city: 'Ciudad', postalCode: 'Código postal', country: 'País',
       save: 'Guardar', saveChanges: 'Guardar cambios', saved: 'Guardado',
       profileUpdated: 'Tu perfil ha sido actualizado.', error: 'Error',
       couldNotLoadProfile: 'No se pudo cargar el perfil', couldNotSaveProfile: 'No se pudo guardar el perfil',
@@ -1672,6 +1725,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     create: { newForm: 'Nuevo formulario', nameYourForm: 'Dale un nombre a tu formulario', formName: 'Nombre del formulario', folderOptional: 'Carpeta (opcional)', nextAddFields: 'Siguiente — Agregar campos', cancel: 'Cancelar', tapToAdd: 'Toca los tipos de campo para agregar ({count} campos agregados)', createForm: 'Crear formulario', back: 'Volver', error: 'Error', couldNotCreate: 'No se pudo crear el formulario', textField: 'Campo de texto', emailField: 'Correo', phoneField: 'Teléfono', nameField: 'Nombre', textArea: 'Área de texto', dropdown: 'Desplegable', radioButtons: 'Botones de radio', checkboxes: 'Casillas de verificación', dateField: 'Fecha', fileUpload: 'Carga de archivo', signatureField: 'Firma', ratingField: 'Calificación', option: 'Opción' },
     notifications: { markAllRead: 'Marcar todo como leído', noNotifications: 'Sin notificaciones' },
     editor: { deleteField: 'Eliminar campo', deleteFieldConfirm: '¿Eliminar "{label}"?', cancel: 'Cancelar', delete: 'Eliminar', copy: 'Copiar', copyLabel: '(copia)', save: 'Guardar', unsaved: 'Sin guardar', loadingForm: 'Cargando formulario...', couldNotLoadForm: 'No se pudo cargar el formulario', goBack: 'Volver', noFields: 'Aún no hay campos', tapToAddFields: 'Toca + para agregar campos' },
+    chat: { title: 'Asistente IA', placeholder: 'Escribe tu mensaje...', welcomeMessage: '¡Hola! Soy tu asistente de soporte IA. Puedo ayudarte con la creación de formularios, resolución de problemas y cualquier pregunta sobre la plataforma. ¿Cómo puedo ayudarte hoy?', errorResponse: 'Algo salió mal. Inténtalo de nuevo.', urgentSupport: 'Para asuntos urgentes, envía un correo a support@rocketformspro.com' },
   },
 };
 
