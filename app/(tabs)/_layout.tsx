@@ -3,10 +3,11 @@ import { Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from '@/src/translations';
 
+const LOGO_SIZE = 30;
 const HeaderLogo = () => (
   <Image
     source={require('../../assets/images/logo.png')}
-    style={{ width: 32, height: 32, borderRadius: 16 }}
+    style={{ width: LOGO_SIZE, height: LOGO_SIZE, borderRadius: LOGO_SIZE / 2 }}
     resizeMode="contain"
   />
 );

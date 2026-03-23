@@ -59,10 +59,11 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
-const StackHeaderLogo = () => (
+const LOGO_SIZE = 30;
+const HeaderLogo = () => (
   <Image
     source={require('../assets/images/logo.png')}
-    style={{ width: 28, height: 28, borderRadius: 14, marginRight: 8 }}
+    style={{ width: LOGO_SIZE, height: LOGO_SIZE, borderRadius: LOGO_SIZE / 2 }}
     resizeMode="contain"
   />
 );
@@ -72,7 +73,7 @@ function TranslatedStack() {
   const back = t('nav', 'back');
 
   return (
-    <Stack screenOptions={{ headerRight: () => <StackHeaderLogo />, headerRightContainerStyle: { paddingRight: 16 } }}>
+    <Stack screenOptions={{ headerRight: () => <HeaderLogo />, headerRightContainerStyle: { paddingRight: 16 } }}>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="create" options={{ title: t('create', 'newForm'), headerBackTitle: back }} />

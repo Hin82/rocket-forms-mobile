@@ -33,7 +33,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     loadProfile();
-  }, []);
+  }, [user?.id]);
 
   const loadProfile = async () => {
     try {
@@ -70,8 +70,7 @@ export default function ProfileScreen() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ avatar_seed: seed })
-        .eq('id', user!.id);
+        .upsert({ id: user!.id, avatar_seed: seed });
       if (error) {
         console.warn(`Avatar save failed for user ${user!.id} seed=${seed}:`, error.message);
       }
@@ -88,7 +87,7 @@ export default function ProfileScreen() {
         .from('profiles')
         .upsert({
           id: user!.id,
-          email: user!.email,
+          email: user?.email ?? null,
           first_name: firstName.trim(),
           last_name: lastName.trim(),
           phone: phone.trim(),

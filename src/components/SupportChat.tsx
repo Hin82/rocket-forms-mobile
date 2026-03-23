@@ -34,7 +34,6 @@ export default function SupportChat() {
 
   useEffect(() => {
     if (open && messages.length === 0) {
-      // Welcome message
       setMessages([{
         id: 'welcome',
         message: t('chat', 'welcomeMessage'),
@@ -42,7 +41,7 @@ export default function SupportChat() {
         created_at: new Date().toISOString(),
       }]);
     }
-  }, [open]);
+  }, [open, t, messages.length]);
 
   const toggleChat = useCallback(() => {
     if (open) {
@@ -64,7 +63,7 @@ export default function SupportChat() {
     if (!text || sending || !user) return;
 
     const userMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: Crypto.randomUUID(),
       message: text,
       sender: 'user',
       created_at: new Date().toISOString(),
@@ -90,10 +89,10 @@ export default function SupportChat() {
         throw error;
       }
 
-      console.log('ai-support-chat response:', JSON.stringify(data));
+      if (__DEV__) console.log('ai-support-chat response:', JSON.stringify(data));
 
       const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: Crypto.randomUUID(),
         message: data?.message || t('chat', 'errorResponse'),
         sender: 'assistant',
         created_at: new Date().toISOString(),
@@ -101,10 +100,10 @@ export default function SupportChat() {
 
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
-      console.warn('Chat send failed:', err?.message || err);
+      console.warn('Chat send failed:', err);
       const errorMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        message: err?.message || t('chat', 'errorResponse'),
+        id: Crypto.randomUUID(),
+        message: t('chat', 'errorResponse'),
         sender: 'assistant',
         created_at: new Date().toISOString(),
       };
@@ -140,7 +139,7 @@ export default function SupportChat() {
     <Portal>
       {/* FAB */}
       <Animated.View style={[styles.fabContainer, { transform: [{ scale: fabAnim }] }]}>
-        <Pressable onPress={toggleChat} style={styles.fab}>
+        <Pressable onPress={toggleChat} style={styles.fab} accessibilityLabel="Open chat" accessibilityRole="button">
           <MaterialCommunityIcons name="message-outline" size={26} color="#fff" />
         </Pressable>
       </Animated.View>
@@ -198,6 +197,8 @@ export default function SupportChat() {
                 onPress={sendMessage}
                 disabled={!input.trim() || sending}
                 style={[styles.sendButton, (!input.trim() || sending) && styles.sendButtonDisabled]}
+                accessibilityLabel="Send message"
+                accessibilityRole="button"
               >
                 <MaterialCommunityIcons name="send" size={20} color="#fff" />
               </Pressable>
