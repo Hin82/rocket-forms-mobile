@@ -21,6 +21,7 @@
     "expo": "~55.0.8",
     "expo-clipboard": "^55.0.9",
     "expo-constants": "~55.0.9",
+    "expo-crypto": "~55.0.10",
     "expo-document-picker": "^55.0.9",
     "expo-font": "~55.0.4",
     "expo-haptics": "^55.0.9",
