@@ -42,21 +42,23 @@ export default function DomainsScreen() {
     queryKey: ['subscription-tier', user?.id],
     queryFn: async () => {
       // Same query as web app: check user_subscription_tiers first
-      const { data: tierData } = await supabase
+      const { data: tierData, error: tierError } = await supabase
         .from('user_subscription_tiers')
         .select('tier')
         .eq('user_id', user!.id)
         .maybeSingle();
 
+      if (tierError && tierError.code !== 'PGRST116') throw tierError;
       if (tierData) return tierData.tier;
 
       // Fallback to subscribers table
-      const { data: subData } = await supabase
+      const { data: subData, error: subError } = await supabase
         .from('subscribers')
         .select('subscription_tier')
         .eq('email', user!.email)
         .maybeSingle();
 
+      if (subError && subError.code !== 'PGRST116') throw subError;
       return subData?.subscription_tier || 'free';
     },
     enabled: !!user,

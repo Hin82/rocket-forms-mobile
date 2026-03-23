@@ -10,8 +10,10 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { format } from 'date-fns';
-import { sv, enUS } from 'date-fns/locale';
+import { sv, nb, da, fi, de, fr, es, enUS } from 'date-fns/locale';
 import { useTranslation } from '@/src/translations';
+
+const DATE_LOCALES: Record<string, Locale> = { sv, no: nb, da, fi, de, fr, es, en: enUS };
 
 // Match web app provider types exactly
 type ProviderType = 'brevo' | 'smtp' | 'microsoft365' | 'google';
@@ -40,12 +42,7 @@ interface RecentEmail {
   created_at: string;
 }
 
-const PROVIDER_LABELS: Record<ProviderType, string> = {
-  brevo: 'Brevo',
-  smtp: 'Custom SMTP',
-  microsoft365: 'Microsoft 365',
-  google: 'Google / Gmail',
-};
+// Provider labels are brand names - not translated
 
 const PROVIDER_ICONS: Record<ProviderType, string> = {
   brevo: 'email-fast-outline',
@@ -58,7 +55,14 @@ export default function EmailSetupScreen() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { t, language } = useTranslation();
-  const dateLocale = language === 'sv' ? sv : enUS;
+  const dateLocale = DATE_LOCALES[language] || enUS;
+
+  const PROVIDER_LABELS: Record<ProviderType, string> = {
+    brevo: 'Brevo',
+    smtp: 'Custom SMTP',
+    microsoft365: 'Microsoft 365',
+    google: 'Google / Gmail',
+  };
 
   const [showAdd, setShowAdd] = useState(false);
   const [provider, setProvider] = useState<ProviderType>('brevo');
@@ -109,6 +113,19 @@ export default function EmailSetupScreen() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      // Validate provider-specific fields
+      if (provider === 'smtp' || provider === 'google') {
+        if (!smtpHost.trim()) throw new Error(t('settings', 'smtpHost') + ' is required');
+        const port = parseInt(smtpPort);
+        if (isNaN(port) || port < 1 || port > 65535) throw new Error('Invalid port number');
+        if (!smtpUsername.trim()) throw new Error(t('settings', 'username') + ' is required');
+        if (!smtpPassword.trim()) throw new Error(t('settings', 'smtpPassword') + ' is required');
+      } else if (provider === 'microsoft365') {
+        if (!tenantId.trim()) throw new Error('Tenant ID is required');
+        if (!clientId.trim()) throw new Error('Client ID is required');
+        if (!clientSecret.trim()) throw new Error('Client Secret is required');
+      }
+
       const insertData: Record<string, any> = {
         user_id: user!.id,
         provider_type: provider,
@@ -118,14 +135,14 @@ export default function EmailSetupScreen() {
       };
 
       if (provider === 'smtp' || provider === 'google') {
-        insertData.smtp_host = smtpHost;
-        insertData.smtp_port = parseInt(smtpPort) || 587;
-        insertData.smtp_username = smtpUsername;
+        insertData.smtp_host = smtpHost.trim();
+        insertData.smtp_port = parseInt(smtpPort);
+        insertData.smtp_username = smtpUsername.trim();
         insertData.smtp_password_encrypted = smtpPassword;
         insertData.smtp_encryption = smtpEncryption;
       } else if (provider === 'microsoft365') {
-        insertData.oauth_tenant_id = tenantId;
-        insertData.oauth_client_id = clientId;
+        insertData.oauth_tenant_id = tenantId.trim();
+        insertData.oauth_client_id = clientId.trim();
         insertData.oauth_client_secret_encrypted = clientSecret;
         insertData.graph_user_principal_name = fromEmail;
       }
@@ -245,7 +262,7 @@ export default function EmailSetupScreen() {
                 </View>
                 {config.last_test_at && (
                   <Text style={styles.lastTest}>
-                    {config.last_test_success ? '✓' : '✗'} Testad {format(new Date(config.last_test_at), 'd MMM HH:mm', { locale: dateLocale })}
+                    {config.last_test_success ? '✓' : '✗'} {t('settings', 'tested')} {format(new Date(config.last_test_at), 'd MMM HH:mm', { locale: dateLocale })}
                   </Text>
                 )}
                 <View style={styles.configActions}>
@@ -292,7 +309,7 @@ export default function EmailSetupScreen() {
             {provider === 'brevo' && (
               <View style={styles.providerNote}>
                 <MaterialCommunityIcons name="information-outline" size={18} color="#3b82f6" />
-                <Text style={styles.providerNoteText}>Brevo is the built-in email service. No additional configuration needed.</Text>
+                <Text style={styles.providerNoteText}>{t('settings', 'brevoNote')}</Text>
               </View>
             )}
 

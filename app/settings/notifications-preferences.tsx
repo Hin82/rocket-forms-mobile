@@ -52,7 +52,10 @@ export default function NotificationsPreferencesScreen() {
 
   const loadPreferences = async () => {
     try {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       // Read from notification_preferences table (same as web app)
       const { data, error } = await supabase
@@ -115,9 +118,9 @@ export default function NotificationsPreferencesScreen() {
   };
 
   const savePreferences = async (prefsToSave: NotificationPrefs) => {
+    if (!user) return;
     setSaving(true);
     try {
-      if (!user) return;
 
       // Upsert to notification_preferences table (same as web app)
       const { error } = await supabase

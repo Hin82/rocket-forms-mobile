@@ -60,12 +60,15 @@ export default function ProfileScreen() {
   const handleSelectAvatar = async (seed: string) => {
     setAvatarSeed(seed);
     try {
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ avatar_seed: seed })
         .eq('id', user!.id);
+      if (error) {
+        console.warn(`Avatar save failed for user ${user!.id} seed=${seed}:`, error.message);
+      }
     } catch (err: any) {
-      console.warn('Avatar save failed, will retry on profile save:', err?.message);
+      console.warn('Avatar save threw unexpectedly:', err?.message);
     }
   };
 

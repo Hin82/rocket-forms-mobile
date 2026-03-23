@@ -75,7 +75,10 @@ export default function FormDetailScreen() {
               queryClient.invalidateQueries({ queryKey: ['forms'] });
               router.back();
             } catch (err: any) {
-              Alert.alert(t('settings', 'error'), err.message || t('forms', 'couldNotDelete'));
+              const msg = err.code === '23503'
+                ? t('forms', 'couldNotDelete') // FK constraint - related data exists
+                : (err.message || t('forms', 'couldNotDelete'));
+              Alert.alert(t('settings', 'error'), msg);
             }
           },
         },

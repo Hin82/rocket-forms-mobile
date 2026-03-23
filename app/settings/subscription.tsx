@@ -28,62 +28,24 @@ const TIER_COLORS: Record<string, string> = {
   superadmin: '#f59e0b',
 };
 
-// Same display names as web app
-function getTierDisplayName(tier: string): string {
-  const names: Record<string, string> = {
-    free: 'Gratis',
-    pro: 'Pro',
-    premium: 'Premium',
-    enterprise: 'Enterprise',
-    complimentary: 'Complimentary',
-    superadmin: 'Super Admin',
-  };
-  return names[tier] || tier;
+// Tier display names use translation keys
+function getTierDisplayName(t: (section: string, key: string) => string, tier: string): string {
+  const key = `tier_${tier}`;
+  return t('tiers', key) || tier;
 }
 
-// Same features as web app (AccountSubscription.tsx)
-function getFeatures(tier: string): string[] {
-  const features: Record<string, string[]> = {
-    free: [
-      'Upp till 2 formulär',
-      'Grundläggande fälttyper',
-      'Begränsad lagring',
-    ],
-    pro: [
-      'Upp till 10 formulär',
-      'Alla fälttyper',
-      'Standardlagring',
-      'E-postnotifikationer',
-    ],
-    premium: [
-      'Obegränsade formulär',
-      'Alla premium-fälttyper',
-      'Utökad lagring',
-      'E-postnotifikationer',
-      'Anpassade domäner',
-      'Avancerad analys',
-    ],
-    enterprise: [
-      'Obegränsade formulär',
-      'Alla premium-fälttyper',
-      'Obegränsad lagring',
-      'E-postnotifikationer',
-      'Anpassade domäner',
-      'Avancerad analys',
-      'Prioriterad support',
-      'SLA-garanti',
-    ],
-    complimentary: [
-      'Obegränsade formulär',
-      'Alla premium-fälttyper',
-      'Utökad lagring',
-      'E-postnotifikationer',
-      'Anpassade domäner',
-      'Avancerad analys',
-      'Gratis tillgång (admin-beviljad)',
-    ],
+// Features per tier use translation keys
+function getFeatures(t: (section: string, key: string) => string, tier: string): string[] {
+  const featureKeys: Record<string, string[]> = {
+    free: ['upTo2Forms', 'basicFieldTypes', 'limitedStorage'],
+    pro: ['upTo10Forms', 'allFieldTypes', 'standardStorage', 'emailNotifications'],
+    premium: ['unlimitedForms', 'allPremiumFieldTypes', 'extendedStorage', 'emailNotifications', 'customDomains', 'advancedAnalytics'],
+    enterprise: ['unlimitedForms', 'allPremiumFieldTypes', 'unlimitedStorage', 'emailNotifications', 'customDomains', 'advancedAnalytics', 'prioritySupport', 'slaGuarantee'],
+    complimentary: ['unlimitedForms', 'allPremiumFieldTypes', 'extendedStorage', 'emailNotifications', 'customDomains', 'advancedAnalytics', 'freeAccessAdmin'],
+    superadmin: ['unlimitedForms', 'allPremiumFieldTypes', 'unlimitedStorage', 'emailNotifications', 'customDomains', 'advancedAnalytics', 'prioritySupport', 'slaGuarantee', 'superAdminAccess'],
   };
-  return features[tier] || features.free;
+  const keys = featureKeys[tier] || featureKeys.free;
+  return keys.map(k => t('tiers', k));
 }
 
 export default function SubscriptionScreen() {
@@ -116,11 +78,13 @@ export default function SubscriptionScreen() {
         effectivePrice = customPrice !== null ? customPrice : (STANDARD_PRICES[tier] ?? 0);
       } else {
         // Fallback: check subscribers table (legacy)
-        const { data: subData } = await supabase
+        const { data: subData, error: subError } = await supabase
           .from('subscribers')
           .select('subscription_tier, custom_monthly_price, billing_override_reason')
           .eq('email', user!.email)
           .maybeSingle();
+
+        if (subError && subError.code !== 'PGRST116') throw subError;
 
         if (subData) {
           tier = subData.subscription_tier || 'free';
@@ -169,20 +133,20 @@ export default function SubscriptionScreen() {
         <View style={styles.planCard}>
           <View style={styles.planHeader}>
             <View>
-              <Text style={styles.planLabel}>Aktuell plan</Text>
-              <Text style={styles.planSublabel}>Din nuvarande prenumerationsnivå</Text>
+              <Text style={styles.planLabel}>{t('tiers', 'currentPlan')}</Text>
+              <Text style={styles.planSublabel}>{t('tiers', 'currentPlanDesc')}</Text>
             </View>
             <Chip style={[styles.tierBadge, { backgroundColor: tierColor }]} textStyle={styles.tierBadgeText}>
-              {getTierDisplayName(tier)}
+              {getTierDisplayName(t, tier)}
             </Chip>
           </View>
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Månadskostnad</Text>
+            <Text style={styles.priceLabel}>{t('tiers', 'monthlyCost')}</Text>
             <Text style={styles.priceValue}>
               {subscription?.effectivePrice !== undefined
                 ? `${subscription.effectivePrice.toFixed(2)} SEK`
-                : 'Gratis'}
+                : t('tiers', 'tier_free')}
             </Text>
           </View>
 
@@ -191,7 +155,7 @@ export default function SubscriptionScreen() {
             <View style={styles.infoBox}>
               <MaterialCommunityIcons name="information-outline" size={20} color="#3b82f6" />
               <View style={styles.infoBoxText}>
-                <Text style={styles.infoBoxTitle}>Speciell prenumeration</Text>
+                <Text style={styles.infoBoxTitle}>{t('tiers', 'specialSubscription')}</Text>
                 <Text style={styles.infoBoxDesc}>{subscription.overrideReason}</Text>
               </View>
             </View>
@@ -202,9 +166,9 @@ export default function SubscriptionScreen() {
             <View style={styles.complimentaryBox}>
               <MaterialCommunityIcons name="check-circle" size={20} color="#22c55e" />
               <View style={styles.infoBoxText}>
-                <Text style={styles.complimentaryTitle}>Complimentary Access</Text>
+                <Text style={styles.complimentaryTitle}>{t('tiers', 'complimentaryAccess')}</Text>
                 <Text style={styles.complimentaryDesc}>
-                  Du har beviljats kostnadsfri tillgång till alla premium-funktioner. Ingen betalning krävs.
+                  {t('tiers', 'complimentaryDesc')}
                 </Text>
               </View>
             </View>
@@ -213,10 +177,10 @@ export default function SubscriptionScreen() {
 
         {/* Features card - matches web app */}
         <View style={styles.featuresCard}>
-          <Text style={styles.featuresTitle}>Inkluderade funktioner</Text>
-          <Text style={styles.featuresSublabel}>Vad som ingår i din nuvarande plan</Text>
+          <Text style={styles.featuresTitle}>{t('tiers', 'includedFeatures')}</Text>
+          <Text style={styles.featuresSublabel}>{t('tiers', 'includedFeaturesDesc')}</Text>
           <View style={styles.featuresList}>
-            {getFeatures(tier).map((feature, index) => (
+            {getFeatures(t, tier).map((feature, index) => (
               <View key={index} style={styles.featureRow}>
                 <MaterialCommunityIcons name="check-circle" size={20} color="#22c55e" />
                 <Text style={styles.featureText}>{feature}</Text>

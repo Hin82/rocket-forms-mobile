@@ -35,7 +35,7 @@ export default function LoginScreen() {
           const saved = localStorage.getItem(REMEMBER_KEY);
           if (saved === 'true') {
             setEmail(localStorage.getItem(SAVED_EMAIL_KEY) || '');
-            setPassword(localStorage.getItem(SAVED_PASS_KEY) || '');
+            // Password not stored in localStorage for security
             setRememberMe(true);
           }
         } else {
@@ -57,8 +57,8 @@ export default function LoginScreen() {
   const saveCredentials = async (emailToSave: string, passwordToSave: string) => {
     try {
       if (Platform.OS === 'web') {
+        // Only save email on web (no plaintext password in localStorage)
         localStorage.setItem(SAVED_EMAIL_KEY, emailToSave);
-        localStorage.setItem(SAVED_PASS_KEY, passwordToSave);
         localStorage.setItem(REMEMBER_KEY, 'true');
       } else {
         await SecureStore.setItemAsync(SAVED_EMAIL_KEY, emailToSave);
@@ -72,7 +72,6 @@ export default function LoginScreen() {
     try {
       if (Platform.OS === 'web') {
         localStorage.removeItem(SAVED_EMAIL_KEY);
-        localStorage.removeItem(SAVED_PASS_KEY);
         localStorage.removeItem(REMEMBER_KEY);
       } else {
         await SecureStore.deleteItemAsync(SAVED_EMAIL_KEY);
@@ -194,7 +193,6 @@ export default function LoginScreen() {
           <Pressable onPress={() => setRememberMe(!rememberMe)} style={styles.rememberRow}>
             <Checkbox
               status={rememberMe ? 'checked' : 'unchecked'}
-              onPress={() => setRememberMe(!rememberMe)}
               color="#e8622c"
               uncheckedColor="#666"
             />

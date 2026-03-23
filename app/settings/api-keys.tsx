@@ -9,9 +9,10 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { format } from 'date-fns';
-import { sv } from 'date-fns/locale';
-import { enUS } from 'date-fns/locale';
+import { sv, nb, da, fi, de, fr, es, enUS } from 'date-fns/locale';
 import { useTranslation } from '@/src/translations';
+
+const DATE_LOCALES: Record<string, Locale> = { sv, no: nb, da, fi, de, fr, es, en: enUS };
 
 interface ApiKey {
   id: string;
@@ -57,7 +58,7 @@ export default function ApiKeysScreen() {
   const [keyName, setKeyName] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const { t, language } = useTranslation();
-  const dateLocale = language === 'sv' ? sv : enUS;
+  const dateLocale = DATE_LOCALES[language] || enUS;
 
   const { data: keys, isLoading, error } = useQuery({
     queryKey: ['api-keys', user?.id],
