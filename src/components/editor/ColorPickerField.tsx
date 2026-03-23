@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, TextInput as RNTextInput } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from '../../translations';
 
 interface ColorPickerFieldProps {
   value: string;
@@ -27,6 +28,7 @@ function isLight(hex: string): boolean {
 
 export default function ColorPickerField({ value, onChange, label }: ColorPickerFieldProps) {
   const [customHex, setCustomHex] = useState(value || '#ffffff');
+  const { t } = useTranslation();
 
   const handleCustomChange = (text: string) => {
     let hex = text;
@@ -72,7 +74,7 @@ export default function ColorPickerField({ value, onChange, label }: ColorPicker
 
       {/* Custom hex input */}
       <View style={styles.hexRow}>
-        <Text style={styles.hexLabel}>Hex-kod:</Text>
+        <Text style={styles.hexLabel}>{t('formEditor', 'hexCode')}</Text>
         <RNTextInput
           value={customHex}
           onChangeText={handleCustomChange}

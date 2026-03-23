@@ -6,6 +6,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../lib/supabase';
 import ColorPickerField from './ColorPickerField';
+import { useTranslation } from '@/src/translations';
 import type { FormSettings } from '../../hooks/useFormEditor';
 
 interface FormGroup {
@@ -51,14 +52,6 @@ const FONT_FAMILIES = [
   'Open Sans', 'Lato', 'Nunito', 'Raleway', 'Playfair Display',
 ];
 
-const BG_SIZES = [
-  { value: 'cover', label: 'Cover' },
-  { value: 'contain', label: 'Contain' },
-  { value: 'stretch', label: 'Stracka' },
-  { value: 'repeat', label: 'Repetera' },
-  { value: 'no-repeat', label: 'Ingen rep.' },
-];
-
 const BG_POSITIONS = [
   { value: 'top left', label: '↖' },
   { value: 'top center', label: '↑' },
@@ -71,31 +64,41 @@ const BG_POSITIONS = [
   { value: 'bottom right', label: '↘' },
 ];
 
-const BG_ATTACHMENTS = [
-  { value: 'scroll', label: 'Scroll' },
-  { value: 'fixed', label: 'Fast' },
-  { value: 'local', label: 'Lokal' },
-];
-
-const ANIMATED_BACKGROUNDS = [
-  { value: 'none', label: 'Ingen' },
-  { value: 'floating-shapes', label: 'Flytande former' },
-  { value: 'wave-pattern', label: 'Vagmonster' },
-  { value: 'particle-field', label: 'Partiklar' },
-  { value: 'geometric-grid', label: 'Geometriskt rutnot' },
-];
-
 const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
   ({ formName, settings, formGroupId, notificationEmail, senderName, groups, onUpdateName, onUpdateSettings, onUpdateFormMeta, onClose }, ref) => {
     const snapPoints = useMemo(() => ['80%', '95%'], []);
+    const { t } = useTranslation();
 
     const [name, setName] = useState(formName);
     const [email, setEmail] = useState(notificationEmail || '');
     const [sender, setSender] = useState(senderName || '');
 
+    // Translated option arrays
+    const bgSizes = useMemo(() => [
+      { value: 'cover', label: 'Cover' },
+      { value: 'contain', label: 'Contain' },
+      { value: 'stretch', label: t('formSettings', 'bgStretch') },
+      { value: 'repeat', label: t('formSettings', 'bgRepeat') },
+      { value: 'no-repeat', label: t('formSettings', 'bgNoRepeat') },
+    ], [t]);
+
+    const bgAttachments = useMemo(() => [
+      { value: 'scroll', label: 'Scroll' },
+      { value: 'fixed', label: t('formSettings', 'bgFixed') },
+      { value: 'local', label: t('formSettings', 'bgLocal') },
+    ], [t]);
+
+    const animatedBackgrounds = useMemo(() => [
+      { value: 'none', label: t('formSettings', 'animNone') },
+      { value: 'floating-shapes', label: t('formSettings', 'animFloatingShapes') },
+      { value: 'wave-pattern', label: t('formSettings', 'animWavePattern') },
+      { value: 'particle-field', label: t('formSettings', 'animParticles') },
+      { value: 'geometric-grid', label: t('formSettings', 'animGeometricGrid') },
+    ], [t]);
+
     // Collapsible sections
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-      grundlaggande: true,
+      basic: true,
     });
 
     useEffect(() => { setName(formName); }, [formName]);
@@ -145,19 +148,19 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
         handleIndicatorStyle={styles.handle}
       >
         <View style={styles.header}>
-          <Text variant="titleMedium" style={styles.headerText}>Formularinstallningar</Text>
+          <Text variant="titleMedium" style={styles.headerText}>{t('formSettings', 'title')}</Text>
         </View>
         <BottomSheetScrollView contentContainerStyle={styles.scroll}>
 
-          {/* ============ GRUNDLAGGANDE ============ */}
+          {/* ============ BASIC ============ */}
           <CollapsibleSection
-            title="Grundlaggande"
-            sectionKey="grundlaggande"
-            expanded={expandedSections.grundlaggande}
+            title={t('formSettings', 'basic')}
+            sectionKey="basic"
+            expanded={expandedSections.basic}
             onToggle={toggleSection}
           >
             <TextInput
-              label="Formularnamn"
+              label={t('formSettings', 'formName')}
               value={name}
               onChangeText={setName}
               onBlur={handleNameBlur}
@@ -169,7 +172,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
               theme={{ colors: { onSurfaceVariant: '#888' } }}
             />
             <TextInput
-              label="Notifieringse-post"
+              label={t('formSettings', 'notificationEmail')}
               value={email}
               onChangeText={setEmail}
               onBlur={handleEmailBlur}
@@ -182,7 +185,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
               theme={{ colors: { onSurfaceVariant: '#888' } }}
             />
             <TextInput
-              label="Avsandarnamn"
+              label={t('formSettings', 'senderName')}
               value={sender}
               onChangeText={setSender}
               onBlur={handleSenderBlur}
@@ -195,13 +198,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             />
 
             {/* Category / Group */}
-            <Text style={styles.subLabel}>Kategori / Grupp</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'categoryGroup')}</Text>
             <View style={styles.chipGrid}>
               <TouchableOpacity
                 style={[styles.chip, !formGroupId && styles.chipActive]}
                 onPress={() => onUpdateFormMeta({ form_group_id: null, group_name: null })}
               >
-                <Text style={styles.chipText}>Ingen grupp</Text>
+                <Text style={styles.chipText}>{t('formSettings', 'noGroup')}</Text>
               </TouchableOpacity>
               {groups.map(g => (
                 <TouchableOpacity
@@ -215,7 +218,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             </View>
 
             {/* Default language */}
-            <Text style={styles.subLabel}>Standardsprak</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'defaultLanguage')}</Text>
             <View style={styles.chipGrid}>
               {LANGUAGES.map(lang => (
                 <TouchableOpacity
@@ -230,26 +233,26 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             </View>
           </CollapsibleSection>
 
-          {/* ============ UTSEENDE & BAKGRUND ============ */}
+          {/* ============ APPEARANCE & BACKGROUND ============ */}
           <CollapsibleSection
-            title="Utseende & Bakgrund"
-            sectionKey="utseende"
-            expanded={expandedSections.utseende}
+            title={t('formSettings', 'appearanceBackground')}
+            sectionKey="appearance"
+            expanded={expandedSections.appearance}
             onToggle={toggleSection}
           >
             <ColorPickerField
-              label="Bakgrundsfarg"
+              label={t('formSettings', 'backgroundColor')}
               value={settings.backgroundColor}
               onChange={(c) => onUpdateSettings({ backgroundColor: c })}
             />
             <ColorPickerField
-              label="Textfarg"
+              label={t('formSettings', 'textColor')}
               value={settings.textColor}
               onChange={(c) => onUpdateSettings({ textColor: c })}
             />
 
             <TextInput
-              label="Bakgrundsbild URL"
+              label={t('formSettings', 'backgroundImageUrl')}
               value={settings.backgroundImage || ''}
               onChangeText={(v) => onUpdateSettings({ backgroundImage: v || undefined })}
               mode="outlined"
@@ -262,9 +265,9 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             />
 
             {/* Background size */}
-            <Text style={styles.subLabel}>Bakgrundsstorlek</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'backgroundSize')}</Text>
             <View style={styles.chipGrid}>
-              {BG_SIZES.map(s => (
+              {bgSizes.map(s => (
                 <TouchableOpacity
                   key={s.value}
                   style={[styles.chip, settings.backgroundSize === s.value && styles.chipActive]}
@@ -276,7 +279,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             </View>
 
             {/* Background position */}
-            <Text style={styles.subLabel}>Bakgrundsposition</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'backgroundPosition')}</Text>
             <View style={styles.positionGrid}>
               {BG_POSITIONS.map(p => (
                 <TouchableOpacity
@@ -290,9 +293,9 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             </View>
 
             {/* Background attachment */}
-            <Text style={styles.subLabel}>Bakgrundsrullning</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'backgroundScroll')}</Text>
             <View style={styles.chipGrid}>
-              {BG_ATTACHMENTS.map(a => (
+              {bgAttachments.map(a => (
                 <TouchableOpacity
                   key={a.value}
                   style={[styles.chip, settings.backgroundAttachment === a.value && styles.chipActive]}
@@ -304,9 +307,9 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             </View>
 
             {/* Animated background */}
-            <Text style={styles.subLabel}>Animerad bakgrund</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'animatedBackground')}</Text>
             <View style={styles.chipGrid}>
-              {ANIMATED_BACKGROUNDS.map(a => (
+              {animatedBackgrounds.map(a => (
                 <TouchableOpacity
                   key={a.value}
                   style={[styles.chip, (settings.animatedBackground || 'none') === a.value && styles.chipActive]}
@@ -319,7 +322,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
 
             {/* Form padding */}
             <TextInput
-              label="Formularpadding (px)"
+              label={t('formSettings', 'formPadding')}
               value={String(settings.formPadding ?? '')}
               onChangeText={(v) => onUpdateSettings({ formPadding: v ? parseInt(v, 10) || 0 : undefined })}
               mode="outlined"
@@ -333,7 +336,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
 
             {/* Form border radius */}
             <TextInput
-              label="Hornradie (px)"
+              label={t('formSettings', 'borderRadius')}
               value={String(settings.borderRadius ?? '')}
               onChangeText={(v) => onUpdateSettings({ borderRadius: v ? parseInt(v, 10) || 0 : undefined })}
               mode="outlined"
@@ -348,7 +351,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
 
           {/* ============ LOGO ============ */}
           <CollapsibleSection
-            title="Logotyp"
+            title={t('formSettings', 'logo')}
             sectionKey="logo"
             expanded={expandedSections.logo}
             onToggle={toggleSection}
@@ -357,16 +360,16 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
               <View style={styles.logoPreview}>
                 <Image source={{ uri: settings.logoUrl }} style={styles.logoImage} resizeMode="contain" />
                 <Button mode="text" textColor="#cc3333" onPress={() => onUpdateSettings({ logoUrl: undefined, logo: undefined })}>
-                  Ta bort
+                  {t('formSettings', 'removeLogo')}
                 </Button>
               </View>
             ) : null}
             <Button mode="outlined" icon="image-plus" textColor="#e8622c" style={styles.uploadBtn} onPress={handlePickLogo}>
-              Valj logotyp
+              {t('formSettings', 'pickLogo')}
             </Button>
 
             {/* Logo alignment */}
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Logotypjustering</Text>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>{t('formSettings', 'logoAlignment')}</Text>
             <View style={styles.segmentedRow}>
               {(['left', 'center', 'right'] as const).map(align => (
                 <TouchableOpacity
@@ -385,7 +388,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
 
             {/* Logo size */}
             <TextInput
-              label="Logotypstorlek (px)"
+              label={t('formSettings', 'logoSize')}
               value={String(settings.logoSize ?? '120')}
               onChangeText={(v) => onUpdateSettings({ logoSize: v ? parseInt(v, 10) || 120 : 120 })}
               mode="outlined"
@@ -398,15 +401,15 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             />
           </CollapsibleSection>
 
-          {/* ============ TITEL ============ */}
+          {/* ============ TITLE ============ */}
           <CollapsibleSection
-            title="Titel"
-            sectionKey="titel"
-            expanded={expandedSections.titel}
+            title={t('formSettings', 'titleSection')}
+            sectionKey="title"
+            expanded={expandedSections.title}
             onToggle={toggleSection}
           >
             {/* Font size */}
-            <Text style={styles.subLabel}>Teckenstorlek</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'fontSize')}</Text>
             <View style={styles.chipGrid}>
               {FONT_SIZES.map(fs => (
                 <TouchableOpacity
@@ -420,7 +423,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             </View>
 
             {/* Font family */}
-            <Text style={styles.subLabel}>Typsnitt</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'fontFamily')}</Text>
             <View style={styles.chipGrid}>
               {FONT_FAMILIES.map(ff => (
                 <TouchableOpacity
@@ -435,13 +438,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
 
             {/* Title color */}
             <ColorPickerField
-              label="Titelfarg"
+              label={t('formSettings', 'titleColor')}
               value={settings.titleColor || settings.textColor || '#000000'}
               onChange={(c) => onUpdateSettings({ titleColor: c })}
             />
 
             {/* Title alignment */}
-            <Text style={styles.subLabel}>Titeljustering</Text>
+            <Text style={styles.subLabel}>{t('formSettings', 'titleAlignment')}</Text>
             <View style={styles.segmentedRow}>
               {(['left', 'center', 'right'] as const).map(align => (
                 <TouchableOpacity
@@ -459,15 +462,15 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             </View>
           </CollapsibleSection>
 
-          {/* ============ INSKICKNING ============ */}
+          {/* ============ SUBMISSION ============ */}
           <CollapsibleSection
-            title="Inskickning"
-            sectionKey="inskickning"
-            expanded={expandedSections.inskickning}
+            title={t('formSettings', 'submission')}
+            sectionKey="submission"
+            expanded={expandedSections.submission}
             onToggle={toggleSection}
           >
             <TextInput
-              label="Skicka-knapptext"
+              label={t('formSettings', 'submitButtonText')}
               value={settings.submitButtonText}
               onChangeText={(v) => onUpdateSettings({ submitButtonText: v })}
               mode="outlined"
@@ -478,7 +481,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
               theme={{ colors: { onSurfaceVariant: '#888' } }}
             />
             <TextInput
-              label="Tackmeddelande"
+              label={t('formSettings', 'thankYouMessage')}
               value={settings.successMessage}
               onChangeText={(v) => onUpdateSettings({ successMessage: v })}
               mode="outlined"
@@ -491,7 +494,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
               theme={{ colors: { onSurfaceVariant: '#888' } }}
             />
             <TextInput
-              label="Omdirigerings-URL"
+              label={t('formSettings', 'redirectUrl')}
               value={settings.redirectUrl || ''}
               onChangeText={(v) => onUpdateSettings({ redirectUrl: v || undefined })}
               mode="outlined"
@@ -505,31 +508,31 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             />
 
             <ToggleRow
-              label="Tillaet flera inskickningar"
+              label={t('formSettings', 'allowMultipleSubmissions')}
               value={settings.allowMultipleSubmissions}
               onToggle={(v) => onUpdateSettings({ allowMultipleSubmissions: v })}
             />
             <ToggleRow
-              label="Krav autentisering"
+              label={t('formSettings', 'requireAuthentication')}
               value={settings.requireAuthentication}
               onToggle={(v) => onUpdateSettings({ requireAuthentication: v })}
             />
             <ToggleRow
-              label="Visa framdriftsindikator"
+              label={t('formSettings', 'showProgressBar')}
               value={settings.showProgressBar}
               onToggle={(v) => onUpdateSettings({ showProgressBar: v })}
             />
           </CollapsibleSection>
 
-          {/* ============ E-POST ============ */}
+          {/* ============ EMAIL ============ */}
           <CollapsibleSection
-            title="E-post"
-            sectionKey="epost"
-            expanded={expandedSections.epost}
+            title={t('formSettings', 'emailSection')}
+            sectionKey="email"
+            expanded={expandedSections.email}
             onToggle={toggleSection}
           >
             <TextInput
-              label="E-postamne"
+              label={t('formSettings', 'emailSubject')}
               value={settings.emailSubject || ''}
               onChangeText={(v) => onUpdateSettings({ emailSubject: v || undefined })}
               mode="outlined"
@@ -540,7 +543,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
               theme={{ colors: { onSurfaceVariant: '#888' } }}
             />
             <TextInput
-              label="E-postmottagare"
+              label={t('formSettings', 'emailRecipient')}
               value={settings.emailRecipient || ''}
               onChangeText={(v) => onUpdateSettings({ emailRecipient: v || undefined })}
               mode="outlined"
@@ -554,20 +557,20 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             />
           </CollapsibleSection>
 
-          {/* ============ BEHORIGHETER ============ */}
+          {/* ============ PERMISSIONS ============ */}
           <CollapsibleSection
-            title="Behorigheter"
-            sectionKey="behorigheter"
-            expanded={expandedSections.behorigheter}
+            title={t('formSettings', 'permissions')}
+            sectionKey="permissions"
+            expanded={expandedSections.permissions}
             onToggle={toggleSection}
           >
             <ToggleRow
-              label="Visare kan se"
+              label={t('formSettings', 'viewersCanSee')}
               value={settings.viewersCanSee ?? true}
               onToggle={(v) => onUpdateSettings({ viewersCanSee: v })}
             />
             <ToggleRow
-              label="Visare kan redigera"
+              label={t('formSettings', 'viewersCanEdit')}
               value={settings.viewersCanEdit ?? false}
               onToggle={(v) => onUpdateSettings({ viewersCanEdit: v })}
             />

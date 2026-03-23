@@ -4,6 +4,7 @@ import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { FieldType } from '../../hooks/useFormEditor';
+import { useTranslation } from '../../translations';
 
 interface FieldPaletteProps {
   onAddField: (type: FieldType) => void;
@@ -12,75 +13,76 @@ interface FieldPaletteProps {
 
 interface PaletteItem {
   type: FieldType;
-  label: string;
+  labelKey: string;
   icon: string;
 }
 
 interface PaletteCategory {
-  title: string;
+  titleKey: string;
   items: PaletteItem[];
 }
 
 const CATEGORIES: PaletteCategory[] = [
   {
-    title: 'Grundlaggande',
+    titleKey: 'basic',
     items: [
-      { type: 'text', label: 'Textfalt', icon: 'form-textbox' },
-      { type: 'email', label: 'E-post', icon: 'email-outline' },
-      { type: 'phone', label: 'Telefon', icon: 'phone-outline' },
-      { type: 'name', label: 'Namn', icon: 'account-outline' },
-      { type: 'number', label: 'Nummer', icon: 'numeric' },
-      { type: 'textarea', label: 'Textruta', icon: 'text-box-outline' },
-      { type: 'select', label: 'Rullgardinsmeny', icon: 'form-dropdown' },
-      { type: 'radio', label: 'Radioknapp', icon: 'radiobox-marked' },
-      { type: 'checkbox', label: 'Kryssruta', icon: 'checkbox-marked-outline' },
-      { type: 'yesno', label: 'Ja / Nej', icon: 'toggle-switch-outline' },
+      { type: 'text', labelKey: 'text', icon: 'form-textbox' },
+      { type: 'email', labelKey: 'email', icon: 'email-outline' },
+      { type: 'phone', labelKey: 'phone', icon: 'phone-outline' },
+      { type: 'name', labelKey: 'name', icon: 'account-outline' },
+      { type: 'number', labelKey: 'number', icon: 'numeric' },
+      { type: 'textarea', labelKey: 'textarea', icon: 'text-box-outline' },
+      { type: 'select', labelKey: 'select', icon: 'form-dropdown' },
+      { type: 'radio', labelKey: 'radio', icon: 'radiobox-marked' },
+      { type: 'checkbox', labelKey: 'checkbox', icon: 'checkbox-marked-outline' },
+      { type: 'yesno', labelKey: 'yesno', icon: 'toggle-switch-outline' },
     ],
   },
   {
-    title: 'Avancerade',
+    titleKey: 'advanced',
     items: [
-      { type: 'date', label: 'Datum', icon: 'calendar' },
-      { type: 'time', label: 'Tid', icon: 'clock-outline' },
-      { type: 'datetime', label: 'Datum & tid', icon: 'calendar-clock' },
-      { type: 'file', label: 'Filuppladdning', icon: 'file-upload-outline' },
-      { type: 'image', label: 'Bild', icon: 'image-outline' },
-      { type: 'signature', label: 'Signatur', icon: 'draw' },
-      { type: 'rating', label: 'Betyg', icon: 'star-outline' },
-      { type: 'nps', label: 'NPS', icon: 'chart-bar' },
-      { type: 'likert', label: 'Likert-skala', icon: 'format-list-numbered' },
-      { type: 'ranking', label: 'Rangordning', icon: 'sort-numeric-ascending' },
-      { type: 'slider', label: 'Slider', icon: 'tune-vertical' },
-      { type: 'currency', label: 'Valuta', icon: 'currency-usd' },
-      { type: 'address', label: 'Adress', icon: 'map-marker-outline' },
-      { type: 'color', label: 'Fargvaljare', icon: 'palette-outline' },
-      { type: 'url', label: 'URL', icon: 'link-variant' },
-      { type: 'hidden', label: 'Dolt falt', icon: 'eye-off-outline' },
-      { type: 'matrix', label: 'Matris', icon: 'grid' },
-      { type: 'multi-text-row', label: 'Flerradigt textfalt', icon: 'table-row' },
+      { type: 'date', labelKey: 'date', icon: 'calendar' },
+      { type: 'time', labelKey: 'time', icon: 'clock-outline' },
+      { type: 'datetime', labelKey: 'datetime', icon: 'calendar-clock' },
+      { type: 'file', labelKey: 'file', icon: 'file-upload-outline' },
+      { type: 'image', labelKey: 'image', icon: 'image-outline' },
+      { type: 'signature', labelKey: 'signature', icon: 'draw' },
+      { type: 'rating', labelKey: 'rating', icon: 'star-outline' },
+      { type: 'nps', labelKey: 'nps', icon: 'chart-bar' },
+      { type: 'likert', labelKey: 'likert', icon: 'format-list-numbered' },
+      { type: 'ranking', labelKey: 'ranking', icon: 'sort-numeric-ascending' },
+      { type: 'slider', labelKey: 'slider', icon: 'tune-vertical' },
+      { type: 'currency', labelKey: 'currency', icon: 'currency-usd' },
+      { type: 'address', labelKey: 'address', icon: 'map-marker-outline' },
+      { type: 'color', labelKey: 'color', icon: 'palette-outline' },
+      { type: 'url', labelKey: 'url', icon: 'link-variant' },
+      { type: 'hidden', labelKey: 'hidden', icon: 'eye-off-outline' },
+      { type: 'matrix', labelKey: 'matrix', icon: 'grid' },
+      { type: 'multi-text-row', labelKey: 'multiTextRow', icon: 'table-row' },
     ],
   },
   {
-    title: 'Layout',
+    titleKey: 'layout',
     items: [
-      { type: 'separator', label: 'Avdelare', icon: 'minus' },
-      { type: 'page-break', label: 'Sidbrytning', icon: 'book-open-page-variant-outline' },
-      { type: 'html-block', label: 'HTML-block', icon: 'code-tags' },
-      { type: 'text-display', label: 'Textvisning', icon: 'format-text' },
-      { type: 'document', label: 'Dokument', icon: 'file-document-outline' },
+      { type: 'separator', labelKey: 'separator', icon: 'minus' },
+      { type: 'page-break', labelKey: 'pageBreak', icon: 'book-open-page-variant-outline' },
+      { type: 'html-block', labelKey: 'htmlBlock', icon: 'code-tags' },
+      { type: 'text-display', labelKey: 'textDisplay', icon: 'format-text' },
+      { type: 'document', labelKey: 'document', icon: 'file-document-outline' },
     ],
   },
   {
-    title: 'Svenska',
+    titleKey: 'swedish',
     items: [
-      { type: 'personnummer', label: 'Personnummer', icon: 'card-account-details-outline' },
-      { type: 'organisationsnummer', label: 'Org.nummer', icon: 'domain' },
+      { type: 'personnummer', labelKey: 'personnummer', icon: 'card-account-details-outline' },
+      { type: 'organisationsnummer', labelKey: 'organisationsnummer', icon: 'domain' },
     ],
   },
 ];
 
 const FieldPalette = forwardRef<BottomSheet, FieldPaletteProps>(({ onAddField, onClose }, ref) => {
   const snapPoints = useMemo(() => ['70%', '90%'], []);
+  const { t } = useTranslation();
 
   const handleAdd = useCallback((type: FieldType) => {
     onAddField(type);
@@ -98,12 +100,12 @@ const FieldPalette = forwardRef<BottomSheet, FieldPaletteProps>(({ onAddField, o
       handleIndicatorStyle={styles.handle}
     >
       <View style={styles.header}>
-        <Text variant="titleMedium" style={styles.headerText}>Lagg till falt</Text>
+        <Text variant="titleMedium" style={styles.headerText}>{t('fieldPalette', 'addField')}</Text>
       </View>
       <BottomSheetScrollView contentContainerStyle={styles.scroll}>
         {CATEGORIES.map(cat => (
-          <View key={cat.title} style={styles.category}>
-            <Text variant="labelLarge" style={styles.categoryTitle}>{cat.title}</Text>
+          <View key={cat.titleKey} style={styles.category}>
+            <Text variant="labelLarge" style={styles.categoryTitle}>{t('fieldPalette', cat.titleKey)}</Text>
             <View style={styles.grid}>
               {cat.items.map(item => (
                 <TouchableOpacity
@@ -117,7 +119,7 @@ const FieldPalette = forwardRef<BottomSheet, FieldPaletteProps>(({ onAddField, o
                     size={26}
                     color="#e8622c"
                   />
-                  <Text style={styles.tileLabel} numberOfLines={2}>{item.label}</Text>
+                  <Text style={styles.tileLabel} numberOfLines={2}>{t('fieldTypes', item.labelKey)}</Text>
                 </TouchableOpacity>
               ))}
             </View>

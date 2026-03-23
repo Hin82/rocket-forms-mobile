@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import { useTranslation } from '../../translations';
 
 interface ShareSheetProps {
   visible: boolean;
@@ -20,6 +21,7 @@ export default function ShareSheet({
   formName,
 }: ShareSheetProps) {
   const snapPoints = useMemo(() => ['75%'], []);
+  const { t } = useTranslation();
   const formUrl = `https://rocketformspro.com/form/${formId}`;
   const embedCode = `<iframe src="${formUrl}" width="100%" height="600" frameborder="0" style="border:none;"></iframe>`;
 
@@ -37,13 +39,13 @@ export default function ShareSheet({
     try {
       await Share.share({
         title: formName,
-        message: `Fyll i formular: ${formName}\n${formUrl}`,
+        message: `${t('share', 'fillForm')} ${formName}\n${formUrl}`,
         url: formUrl,
       });
     } catch {
       // User cancelled
     }
-  }, [formUrl, formName]);
+  }, [formUrl, formName, t]);
 
   if (!visible) return null;
 
@@ -57,10 +59,10 @@ export default function ShareSheet({
       handleIndicatorStyle={styles.handleIndicator}
     >
       <BottomSheetScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Dela formular</Text>
+        <Text style={styles.title}>{t('share', 'shareForm')}</Text>
 
         {/* Public URL */}
-        <Text style={styles.sectionLabel}>Publik lank</Text>
+        <Text style={styles.sectionLabel}>{t('share', 'publicLink')}</Text>
         <View style={styles.urlBox}>
           <Text style={styles.urlText} numberOfLines={2} selectable>
             {formUrl}
@@ -69,24 +71,24 @@ export default function ShareSheet({
         <View style={styles.btnRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={handleCopyLink}>
             <MaterialCommunityIcons name="content-copy" size={20} color="#fff" />
-            <Text style={styles.actionBtnText}>Kopiera lank</Text>
+            <Text style={styles.actionBtnText}>{t('share', 'copyLink')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={handleNativeShare}>
             <MaterialCommunityIcons name="share-variant" size={20} color="#fff" />
-            <Text style={styles.actionBtnText}>Dela</Text>
+            <Text style={styles.actionBtnText}>{t('share', 'share')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* QR Code */}
-        <Text style={styles.sectionLabel}>QR-kod</Text>
+        <Text style={styles.sectionLabel}>{t('share', 'qrCode')}</Text>
         <View style={styles.qrPlaceholder}>
           <MaterialCommunityIcons name="qrcode" size={48} color="#555" />
           <Text style={styles.qrUrl} numberOfLines={1}>{formUrl}</Text>
-          <Text style={styles.qrNote}>QR-kodgenerering kommer i nasta version</Text>
+          <Text style={styles.qrNote}>{t('share', 'qrComingSoon')}</Text>
         </View>
 
         {/* Embed */}
-        <Text style={styles.sectionLabel}>Inbaddningskod</Text>
+        <Text style={styles.sectionLabel}>{t('share', 'embedCode')}</Text>
         <View style={styles.embedBox}>
           <Text style={styles.embedCode} numberOfLines={4} selectable>
             {embedCode}
@@ -94,7 +96,7 @@ export default function ShareSheet({
         </View>
         <TouchableOpacity style={styles.copyEmbedBtn} onPress={handleCopyEmbed}>
           <MaterialCommunityIcons name="content-copy" size={18} color="#e8622c" />
-          <Text style={styles.copyEmbedText}>Kopiera inbaddningskod</Text>
+          <Text style={styles.copyEmbedText}>{t('share', 'copyEmbedCode')}</Text>
         </TouchableOpacity>
       </BottomSheetScrollView>
     </BottomSheet>
