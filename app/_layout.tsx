@@ -14,6 +14,7 @@ import { useTranslation } from '@/src/translations';
 import { CompanyProvider } from '@/src/contexts/CompanyContext';
 import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
+import SupportChat from '@/src/components/SupportChat';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -57,6 +58,14 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+function AuthenticatedChat() {
+  const { user } = useAuth();
+  const segments = useSegments();
+  const inAuthGroup = segments[0] === '(auth)';
+  if (!user || inAuthGroup) return null;
+  return <SupportChat />;
+}
+
 function TranslatedStack() {
   const { t } = useTranslation();
   const back = t('nav', 'back');
@@ -94,6 +103,7 @@ function RootLayoutNav() {
               <CompanyProvider>
                 <AuthGuard>
                   <TranslatedStack />
+                  <AuthenticatedChat />
                 </AuthGuard>
               </CompanyProvider>
             </LanguageProvider>
