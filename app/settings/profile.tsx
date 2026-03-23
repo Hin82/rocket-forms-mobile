@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+
 const AVATAR_OPTIONS = [
   'Alex', 'Sarah', 'David', 'Emma', 'Michael', 'Lisa', 'James', 'Sophie',
   'Ryan', 'Olivia', 'Daniel', 'Emily', 'Matthew', 'Jessica', 'Chris', 'Anna',
@@ -22,33 +23,40 @@ export default function ProfileScreen() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [country, setCountry] = useState('');
   const [avatarSeed, setAvatarSeed] = useState('default');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadProfile();
-  }, []);
+  }, [user?.id]);
 
   const loadProfile = async () => {
     try {
-      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-      if (authError) throw authError;
+      if (!user) return;
 
-      const meta = currentUser?.user_metadata ?? {};
-      setFirstName(meta.first_name ?? '');
-      setLastName(meta.last_name ?? '');
-      setPhone(meta.phone ?? '');
-
-      // Load avatar_seed from profiles table (same as web app)
-      const { data: profile } = await supabase
+      // Load from profiles table (same as web app)
+      const { data: profile, error } = await supabase
         .from('profiles')
-        .select('avatar_seed')
-        .eq('id', currentUser!.id)
-        .single();
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
 
-      if (profile?.avatar_seed) {
-        setAvatarSeed(profile.avatar_seed);
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (profile) {
+        setFirstName(profile.first_name ?? '');
+        setLastName(profile.last_name ?? '');
+        setPhone(profile.phone ?? '');
+        setAddress(profile.address ?? '');
+        setCity(profile.city ?? '');
+        setPostalCode(profile.postal_code ?? '');
+        setCountry(profile.country ?? '');
+        if (profile.avatar_seed) setAvatarSeed(profile.avatar_seed);
       }
     } catch (err: any) {
       Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotLoadProfile'));
@@ -62,8 +70,7 @@ export default function ProfileScreen() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ avatar_seed: seed })
-        .eq('id', user!.id);
+        .upsert({ id: user!.id, avatar_seed: seed });
       if (error) {
         console.warn(`Avatar save failed for user ${user!.id} seed=${seed}:`, error.message);
       }
@@ -75,20 +82,23 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
+      // Upsert to profiles table (same as web app)
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user!.id,
+          email: user?.email ?? null,
           first_name: firstName.trim(),
           last_name: lastName.trim(),
           phone: phone.trim(),
-        },
-      });
+          address: address.trim(),
+          city: city.trim(),
+          postal_code: postalCode.trim(),
+          country: country.trim(),
+          avatar_seed: avatarSeed,
+          updated_at: new Date().toISOString(),
+        });
       if (error) throw error;
-
-      // Also save avatar_seed to profiles
-      await supabase
-        .from('profiles')
-        .update({ avatar_seed: avatarSeed })
-        .eq('id', user!.id);
 
       Alert.alert(t('settings', 'saved'), t('settings', 'profileUpdated'));
     } catch (err: any) {
@@ -108,6 +118,14 @@ export default function ProfileScreen() {
       </SafeAreaView>
     );
   }
+
+  const inputProps = {
+    mode: 'outlined' as const,
+    textColor: '#fff',
+    outlineColor: '#2d2d44',
+    activeOutlineColor: '#e8622c',
+    theme: { colors: { onSurfaceVariant: '#888' } },
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -145,50 +163,92 @@ export default function ProfileScreen() {
           ))}
         </View>
 
+        {/* Personal information */}
         <View style={styles.card}>
-          <TextInput
-            label={t('settings', 'firstName')}
-            value={firstName}
-            onChangeText={setFirstName}
-            mode="outlined"
-            style={styles.input}
-            textColor="#fff"
-            outlineColor="#2d2d44"
-            activeOutlineColor="#e8622c"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
-          />
-          <TextInput
-            label={t('settings', 'lastName')}
-            value={lastName}
-            onChangeText={setLastName}
-            mode="outlined"
-            style={styles.input}
-            textColor="#fff"
-            outlineColor="#2d2d44"
-            activeOutlineColor="#e8622c"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
-          />
+          <View style={styles.sectionHeader}>
+            <MaterialCommunityIcons name="account-outline" size={20} color="#e8622c" />
+            <Text style={styles.sectionTitle}>{t('settings', 'personalInfo')}</Text>
+          </View>
+          <Text style={styles.sectionSubtitle}>{t('settings', 'personalInfoDesc')}</Text>
+
+          <View style={styles.row}>
+            <TextInput
+              label={t('settings', 'firstName')}
+              value={firstName}
+              onChangeText={setFirstName}
+              style={[styles.input, styles.halfInput]}
+              {...inputProps}
+            />
+            <TextInput
+              label={t('settings', 'lastName')}
+              value={lastName}
+              onChangeText={setLastName}
+              style={[styles.input, styles.halfInput]}
+              {...inputProps}
+            />
+          </View>
           <TextInput
             label={t('auth', 'email')}
             value={user?.email ?? ''}
-            mode="outlined"
             style={styles.input}
             textColor="#666"
             outlineColor="#2d2d44"
             disabled
+            mode="outlined"
             theme={{ colors: { onSurfaceVariant: '#888' } }}
+            left={<TextInput.Icon icon="email-outline" />}
           />
           <TextInput
             label={t('settings', 'phone')}
             value={phone}
             onChangeText={setPhone}
-            mode="outlined"
             style={styles.input}
-            textColor="#fff"
-            outlineColor="#2d2d44"
-            activeOutlineColor="#e8622c"
             keyboardType="phone-pad"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            left={<TextInput.Icon icon="phone-outline" />}
+            {...inputProps}
+          />
+        </View>
+
+        {/* Address information */}
+        <View style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <MaterialCommunityIcons name="map-marker-outline" size={20} color="#e8622c" />
+            <Text style={styles.sectionTitle}>{t('settings', 'addressInfo')}</Text>
+          </View>
+          <Text style={styles.sectionSubtitle}>{t('settings', 'addressInfoDesc')}</Text>
+
+          <TextInput
+            label={t('settings', 'streetAddress')}
+            value={address}
+            onChangeText={setAddress}
+            style={styles.input}
+            multiline
+            numberOfLines={2}
+            {...inputProps}
+          />
+          <View style={styles.row}>
+            <TextInput
+              label={t('settings', 'city')}
+              value={city}
+              onChangeText={setCity}
+              style={[styles.input, styles.halfInput]}
+              {...inputProps}
+            />
+            <TextInput
+              label={t('settings', 'postalCode')}
+              value={postalCode}
+              onChangeText={setPostalCode}
+              style={[styles.input, styles.halfInput]}
+              keyboardType="number-pad"
+              {...inputProps}
+            />
+          </View>
+          <TextInput
+            label={t('settings', 'country')}
+            value={country}
+            onChangeText={setCountry}
+            style={styles.input}
+            {...inputProps}
           />
         </View>
 
@@ -221,6 +281,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    paddingBottom: 40,
   },
   avatarSection: {
     alignItems: 'center',
@@ -277,12 +338,35 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     gap: 12,
+    marginBottom: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sectionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  sectionSubtitle: {
+    color: '#888',
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
   },
   input: {
     backgroundColor: '#1e1e2e',
   },
+  halfInput: {
+    flex: 1,
+  },
   saveButton: {
-    marginTop: 24,
+    marginTop: 8,
     borderRadius: 12,
     paddingVertical: 4,
   },

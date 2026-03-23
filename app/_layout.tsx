@@ -14,6 +14,8 @@ import { useTranslation } from '@/src/translations';
 import { CompanyProvider } from '@/src/contexts/CompanyContext';
 import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
+import SupportChat from '@/src/components/SupportChat';
+import HeaderLogo from '@/src/components/HeaderLogo';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -62,7 +64,7 @@ function TranslatedStack() {
   const back = t('nav', 'back');
 
   return (
-    <Stack>
+    <Stack screenOptions={{ headerRight: () => <HeaderLogo />, headerRightContainerStyle: { paddingRight: 16 } }}>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="create" options={{ title: t('create', 'newForm'), headerBackTitle: back }} />
@@ -81,6 +83,13 @@ function TranslatedStack() {
   );
 }
 
+const ChatWrapper = () => {
+  const { user } = useAuth();
+  const segments = useSegments();
+  if (!user || segments[0] === '(auth)') return null;
+  return <SupportChat />;
+};
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
@@ -94,6 +103,7 @@ function RootLayoutNav() {
               <CompanyProvider>
                 <AuthGuard>
                   <TranslatedStack />
+                  <ChatWrapper />
                 </AuthGuard>
               </CompanyProvider>
             </LanguageProvider>

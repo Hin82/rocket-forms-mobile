@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from '@/src/translations';
+import HeaderLogo from '@/src/components/HeaderLogo';
 
 export default function TabLayout() {
   const { t } = useTranslation();
@@ -18,6 +19,8 @@ export default function TabLayout() {
           backgroundColor: '#1a1a2e',
         },
         headerTintColor: '#ffffff',
+        headerRight: () => <HeaderLogo />,
+        headerRightContainerStyle: { paddingRight: 16 },
       }}
     >
       <Tabs.Screen
