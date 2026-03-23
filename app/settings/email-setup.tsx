@@ -114,22 +114,25 @@ export default function EmailSetupScreen() {
   const createMutation = useMutation({
     mutationFn: async () => {
       // Validate provider-specific fields
+      const req = (label: string) => t('settings', 'fieldRequired', { field: label });
       if (provider === 'smtp' || provider === 'google') {
-        if (!smtpHost.trim()) throw new Error(t('settings', 'smtpHost') + ' is required');
+        if (!smtpHost.trim()) throw new Error(req(t('settings', 'smtpHost')));
         const port = parseInt(smtpPort);
-        if (isNaN(port) || port < 1 || port > 65535) throw new Error('Invalid port number');
-        if (!smtpUsername.trim()) throw new Error(t('settings', 'username') + ' is required');
-        if (!smtpPassword.trim()) throw new Error(t('settings', 'smtpPassword') + ' is required');
+        if (isNaN(port) || port < 1 || port > 65535) throw new Error(t('settings', 'invalidPort'));
+        if (!smtpUsername.trim()) throw new Error(req(t('settings', 'username')));
+        if (!smtpPassword.trim()) throw new Error(req(t('settings', 'smtpPassword')));
       } else if (provider === 'microsoft365') {
-        if (!tenantId.trim()) throw new Error('Tenant ID is required');
-        if (!clientId.trim()) throw new Error('Client ID is required');
-        if (!clientSecret.trim()) throw new Error('Client Secret is required');
+        if (!tenantId.trim()) throw new Error(req(t('settings', 'tenantId')));
+        if (!clientId.trim()) throw new Error(req(t('settings', 'clientId')));
+        if (!clientSecret.trim()) throw new Error(req(t('settings', 'clientSecret')));
       }
+
+      const normalizedEmail = fromEmail.trim().toLowerCase();
 
       const insertData: Record<string, any> = {
         user_id: user!.id,
         provider_type: provider,
-        from_email: fromEmail,
+        from_email: normalizedEmail,
         from_name: fromName || null,
         is_active: true,
       };
@@ -144,7 +147,7 @@ export default function EmailSetupScreen() {
         insertData.oauth_tenant_id = tenantId.trim();
         insertData.oauth_client_id = clientId.trim();
         insertData.oauth_client_secret_encrypted = clientSecret;
-        insertData.graph_user_principal_name = fromEmail;
+        insertData.graph_user_principal_name = normalizedEmail;
       }
 
       const { error } = await supabase.from('email_configurations').insert(insertData);

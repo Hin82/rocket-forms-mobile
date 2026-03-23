@@ -243,6 +243,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       brevoNote: 'Brevo is the built-in email service. No additional configuration needed.',
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Please enter a valid email address.',
+      fieldRequired: '{field} is required.',
+      invalidPort: 'Invalid port number.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
@@ -611,6 +613,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       brevoNote: 'Brevo är den inbyggda e-posttjänsten. Ingen ytterligare konfiguration krävs.',
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Ange en giltig e-postadress.',
+      fieldRequired: '{field} krävs.',
+      invalidPort: 'Ogiltigt portnummer.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
@@ -874,6 +878,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       tested: 'Testet', brevoNote: 'Brevo er den innebygde e-posttjenesten. Ingen ekstra konfigurasjon nødvendig.',
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Vennligst oppgi en gyldig e-postadresse.',
+      fieldRequired: '{field} er påkrevd.',
+      invalidPort: 'Ugyldig portnummer.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
@@ -1044,6 +1050,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       tested: 'Testet', brevoNote: 'Brevo er den indbyggede e-mailtjeneste. Ingen yderligere konfiguration nødvendig.',
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Indtast venligst en gyldig e-mailadresse.',
+      fieldRequired: '{field} er påkrævet.',
+      invalidPort: 'Ugyldigt portnummer.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
@@ -1199,6 +1207,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       tested: 'Testattu', brevoNote: 'Brevo on sisäänrakennettu sähköpostipalvelu. Lisäkonfiguraatiota ei tarvita.',
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Anna kelvollinen sähköpostiosoite.',
+      fieldRequired: '{field} on pakollinen.',
+      invalidPort: 'Virheellinen porttinumero.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
@@ -1342,6 +1352,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       tested: 'Getestet', brevoNote: 'Brevo ist der integrierte E-Mail-Dienst. Keine zusätzliche Konfiguration erforderlich.',
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+      fieldRequired: '{field} ist erforderlich.',
+      invalidPort: 'Ungültige Portnummer.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
@@ -1485,6 +1497,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       tested: 'Testé', brevoNote: "Brevo est le service e-mail intégré. Aucune configuration supplémentaire n'est nécessaire.",
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Veuillez entrer une adresse e-mail valide.',
+      fieldRequired: '{field} est requis.',
+      invalidPort: 'Numéro de port invalide.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
@@ -1628,6 +1642,8 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       tested: 'Probado', brevoNote: 'Brevo es el servicio de correo integrado. No se necesita configuración adicional.',
       tenantId: 'Tenant ID', clientId: 'Client ID', clientSecret: 'Client Secret',
       invalidEmail: 'Por favor, introduce una dirección de correo válida.',
+      fieldRequired: '{field} es obligatorio.',
+      invalidPort: 'Número de puerto inválido.',
       defaultApiKeyName: 'WordPress Plugin',
     },
     tiers: {
