@@ -1,6 +1,15 @@
 import { Tabs } from 'expo-router';
+import { Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from '@/src/translations';
+
+const HeaderLogo = () => (
+  <Image
+    source={require('../../assets/images/logo.png')}
+    style={{ width: 32, height: 32, borderRadius: 16 }}
+    resizeMode="contain"
+  />
+);
 
 export default function TabLayout() {
   const { t } = useTranslation();
@@ -18,6 +27,8 @@ export default function TabLayout() {
           backgroundColor: '#1a1a2e',
         },
         headerTintColor: '#ffffff',
+        headerRight: () => <HeaderLogo />,
+        headerRightContainerStyle: { paddingRight: 16 },
       }}
     >
       <Tabs.Screen

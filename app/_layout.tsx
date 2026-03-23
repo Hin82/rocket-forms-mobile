@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
+import { Image } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -58,12 +59,20 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+const StackHeaderLogo = () => (
+  <Image
+    source={require('../assets/images/logo.png')}
+    style={{ width: 28, height: 28, borderRadius: 14, marginRight: 8 }}
+    resizeMode="contain"
+  />
+);
+
 function TranslatedStack() {
   const { t } = useTranslation();
   const back = t('nav', 'back');
 
   return (
-    <Stack>
+    <Stack screenOptions={{ headerRight: () => <StackHeaderLogo />, headerRightContainerStyle: { paddingRight: 16 } }}>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="create" options={{ title: t('create', 'newForm'), headerBackTitle: back }} />

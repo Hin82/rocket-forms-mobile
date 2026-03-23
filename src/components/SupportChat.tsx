@@ -85,7 +85,12 @@ export default function SupportChat() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.warn('ai-support-chat error:', JSON.stringify(error));
+        throw error;
+      }
+
+      console.log('ai-support-chat response:', JSON.stringify(data));
 
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -96,9 +101,10 @@ export default function SupportChat() {
 
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
+      console.warn('Chat send failed:', err?.message || err);
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        message: t('chat', 'errorResponse'),
+        message: err?.message || t('chat', 'errorResponse'),
         sender: 'assistant',
         created_at: new Date().toISOString(),
       };
