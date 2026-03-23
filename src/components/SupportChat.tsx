@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View, StyleSheet, Pressable, TextInput, FlatList, KeyboardAvoidingView,
-  Platform, Animated, Dimensions, Linking,
+  Platform, Animated, Dimensions, Linking, Alert,
 } from 'react-native';
 import { Text, Portal, IconButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -74,13 +74,24 @@ export default function SupportChat() {
     setSending(true);
 
     try {
+      // Fetch display name from profiles (same source as web app)
+      let userName = user.email?.split('@')[0] || 'User';
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (profile?.first_name || profile?.last_name) {
+        userName = [profile.first_name, profile.last_name].filter(Boolean).join(' ');
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-support-chat', {
         body: {
           message: text,
           sessionId,
           userId: user.id,
           userEmail: user.email,
-          userName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          userName,
         },
       });
 
@@ -139,7 +150,7 @@ export default function SupportChat() {
     <Portal>
       {/* FAB */}
       <Animated.View style={[styles.fabContainer, { transform: [{ scale: fabAnim }] }]}>
-        <Pressable onPress={toggleChat} style={styles.fab} accessibilityLabel="Open chat" accessibilityRole="button">
+        <Pressable onPress={toggleChat} style={styles.fab} accessibilityLabel={t('chat', 'openChat')} accessibilityRole="button">
           <MaterialCommunityIcons name="message-outline" size={26} color="#fff" />
         </Pressable>
       </Animated.View>
@@ -166,7 +177,7 @@ export default function SupportChat() {
                 </View>
                 <Text style={styles.headerTitle}>{t('chat', 'title')}</Text>
               </View>
-              <IconButton icon="close" iconColor="#888" size={20} onPress={toggleChat} />
+              <IconButton icon="close" iconColor="#888" size={20} onPress={toggleChat} accessibilityLabel={t('chat', 'closeChat')} accessibilityRole="button" />
             </View>
 
             {/* Messages */}
@@ -197,7 +208,7 @@ export default function SupportChat() {
                 onPress={sendMessage}
                 disabled={!input.trim() || sending}
                 style={[styles.sendButton, (!input.trim() || sending) && styles.sendButtonDisabled]}
-                accessibilityLabel="Send message"
+                accessibilityLabel={t('chat', 'send')}
                 accessibilityRole="button"
               >
                 <MaterialCommunityIcons name="send" size={20} color="#fff" />
@@ -205,7 +216,17 @@ export default function SupportChat() {
             </View>
 
             {/* Footer */}
-            <Pressable onPress={() => Linking.openURL('mailto:support@rocketformspro.com')}>
+            <Pressable
+              onPress={async () => {
+                try {
+                  await Linking.openURL('mailto:support@rocketformspro.com');
+                } catch {
+                  Alert.alert(t('settings', 'error'), 'Could not open email client');
+                }
+              }}
+              accessibilityRole="link"
+              accessibilityLabel="support@rocketformspro.com"
+            >
               <Text style={styles.footerText}>
                 {t('chat', 'urgentSupport')}
               </Text>
