@@ -5,7 +5,6 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
-import { Image } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -16,6 +15,7 @@ import { CompanyProvider } from '@/src/contexts/CompanyContext';
 import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
 import SupportChat from '@/src/components/SupportChat';
+import HeaderLogo from '@/src/components/HeaderLogo';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -58,15 +58,6 @@ export default function RootLayout() {
 
   return <RootLayoutNav />;
 }
-
-const LOGO_SIZE = 30;
-const HeaderLogo = () => (
-  <Image
-    source={require('../assets/images/logo.png')}
-    style={{ width: LOGO_SIZE, height: LOGO_SIZE, borderRadius: LOGO_SIZE / 2 }}
-    resizeMode="contain"
-  />
-);
 
 function TranslatedStack() {
   const { t } = useTranslation();

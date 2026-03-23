@@ -1,17 +1,7 @@
 import { Tabs } from 'expo-router';
-import { Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from '@/src/translations';
-
-const LOGO_SIZE = 30;
-const HeaderLogo = () => (
-  <Image
-    source={require('../../assets/images/logo.png')}
-    style={{ width: LOGO_SIZE, height: LOGO_SIZE, borderRadius: LOGO_SIZE / 2 }}
-    resizeMode="contain"
-    accessible={false}
-  />
-);
+import HeaderLogo from '@/src/components/HeaderLogo';
 
 export default function TabLayout() {
   const { t } = useTranslation();
