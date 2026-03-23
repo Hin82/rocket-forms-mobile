@@ -74,6 +74,7 @@ function TranslatedStack() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="create" options={{ title: t('create', 'newForm'), headerBackTitle: back }} />
       <Stack.Screen name="form/[id]/index" options={{ title: t('nav', 'form'), headerBackTitle: back }} />
+      <Stack.Screen name="form/[id]/edit" options={{ title: t('nav', 'editForm'), headerBackTitle: back }} />
       <Stack.Screen name="form/[id]/submissions" options={{ title: t('nav', 'submissions'), headerBackTitle: back }} />
       <Stack.Screen name="form/[id]/submission/[submissionId]" options={{ title: t('nav', 'submissionDetail'), headerBackTitle: back }} />
       <Stack.Screen name="settings/profile" options={{ title: t('settings', 'profile'), headerBackTitle: back }} />
