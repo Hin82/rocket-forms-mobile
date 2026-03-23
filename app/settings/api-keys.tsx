@@ -9,7 +9,7 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { format } from 'date-fns';
-import { sv, nb, da, fi, de, fr, es, enUS } from 'date-fns/locale';
+import { sv, nb, da, fi, de, fr, es, enUS, type Locale } from 'date-fns/locale';
 import { useTranslation } from '@/src/translations';
 
 const DATE_LOCALES: Record<string, Locale> = { sv, no: nb, da, fi, de, fr, es, en: enUS };
