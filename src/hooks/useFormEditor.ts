@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../translations';
 
 // ---- Types mirroring the web app ----
 
@@ -284,25 +285,27 @@ export interface FormData {
   company_id: string | null;
 }
 
-const DEFAULT_SETTINGS: FormSettings = {
-  backgroundColor: '#ffffff',
-  textColor: '#000000',
-  submitButtonText: 'Skicka',
-  successMessage: 'Tack for ditt svar!',
-  emailNotifications: false,
-  allowMultipleSubmissions: true,
-  showProgressBar: false,
-  requireAuthentication: false,
-  collectAnalytics: false,
-  borderRadius: 8,
-  padding: '2rem',
-  titleStyle: {
-    fontSize: '4xl',
-    fontFamily: 'inherit',
-    color: '#111827',
-    textAlign: 'center',
-  },
-};
+function getDefaultSettings(t: (section: string, key: string) => string): FormSettings {
+  return {
+    backgroundColor: '#ffffff',
+    textColor: '#000000',
+    submitButtonText: t('formEditor', 'defaultSubmitButton'),
+    successMessage: t('formEditor', 'defaultSuccessMessage'),
+    emailNotifications: false,
+    allowMultipleSubmissions: true,
+    showProgressBar: false,
+    requireAuthentication: false,
+    collectAnalytics: false,
+    borderRadius: 8,
+    padding: '2rem',
+    titleStyle: {
+      fontSize: '4xl',
+      fontFamily: 'inherit',
+      color: '#111827',
+      textAlign: 'center',
+    },
+  };
+}
 
 function generateId(): string {
   return 'f' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
@@ -311,6 +314,8 @@ function generateId(): string {
 export function useFormEditor(formId: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const DEFAULT_SETTINGS = getDefaultSettings(t);
 
   const [form, setForm] = useState<FormData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -402,17 +407,18 @@ export function useFormEditor(formId: string) {
   }, []);
 
   const addField = useCallback((type: FieldType) => {
+    const fieldTypeKey = getFieldTypeKey(type);
     const newField: FormField = {
       id: generateId(),
       type,
-      label: getDefaultLabel(type),
+      label: t('fieldTypes', fieldTypeKey),
       required: false,
     };
     // Add default options for choice fields
     if (['select', 'radio', 'checkbox'].includes(type)) {
       newField.options = [
-        { id: generateId(), label: 'Alternativ 1', value: 'alternativ_1' },
-        { id: generateId(), label: 'Alternativ 2', value: 'alternativ_2' },
+        { id: generateId(), label: `${t('formEditor', 'option')} 1`, value: 'option_1' },
+        { id: generateId(), label: `${t('formEditor', 'option')} 2`, value: 'option_2' },
       ];
     }
     if (type === 'rating') newField.ratingScale = 5;
@@ -422,17 +428,23 @@ export function useFormEditor(formId: string) {
       newField.step = 1;
     }
     if (type === 'likert') {
-      newField.likertOptions = ['Instammer inte alls', 'Instammer delvis', 'Neutral', 'Instammer till stor del', 'Instammer helt'];
+      newField.likertOptions = [
+        t('formEditor', 'likertStronglyDisagree'),
+        t('formEditor', 'likertDisagree'),
+        t('formEditor', 'likertNeutral'),
+        t('formEditor', 'likertAgree'),
+        t('formEditor', 'likertStronglyAgree'),
+      ];
     }
     if (type === 'currency') newField.currency = 'SEK';
     if (type === 'matrix') {
       newField.matrixRows = [
-        { id: generateId(), label: 'Rad 1' },
-        { id: generateId(), label: 'Rad 2' },
+        { id: generateId(), label: `${t('formEditor', 'row')} 1` },
+        { id: generateId(), label: `${t('formEditor', 'row')} 2` },
       ];
       newField.matrixColumns = [
-        { id: generateId(), label: 'Kolumn 1' },
-        { id: generateId(), label: 'Kolumn 2' },
+        { id: generateId(), label: `${t('formEditor', 'column')} 1` },
+        { id: generateId(), label: `${t('formEditor', 'column')} 2` },
       ];
       newField.matrixInputType = 'radio';
     }
@@ -442,7 +454,7 @@ export function useFormEditor(formId: string) {
     });
     setDirty(true);
     return newField;
-  }, []);
+  }, [t]);
 
   const updateField = useCallback((fieldId: string, updates: Partial<FormField>) => {
     setForm(prev => {
@@ -482,7 +494,7 @@ export function useFormEditor(formId: string) {
       // Deep copy the field and assign a new ID
       const duplicated: FormField = JSON.parse(JSON.stringify(sourceField));
       duplicated.id = generateId();
-      duplicated.label = `${sourceField.label} (kopia)`;
+      duplicated.label = `${sourceField.label} (${t('formEditor', 'copy')})`;
       // Re-generate IDs for nested objects that carry their own IDs
       if (duplicated.options) {
         duplicated.options = duplicated.options.map((opt: FieldOption) => ({ ...opt, id: generateId() }));
@@ -522,45 +534,13 @@ export function useFormEditor(formId: string) {
   };
 }
 
-function getDefaultLabel(type: FieldType): string {
-  const labels: Record<FieldType, string> = {
-    text: 'Textfalt',
-    email: 'E-post',
-    number: 'Nummer',
-    url: 'URL',
-    phone: 'Telefon',
-    name: 'Namn',
-    textarea: 'Textruta',
-    select: 'Rullgardinsmeny',
-    radio: 'Radioknapp',
-    checkbox: 'Kryssruta',
-    yesno: 'Ja/Nej',
-    date: 'Datum',
-    time: 'Tid',
-    datetime: 'Datum & tid',
-    file: 'Filuppladdning',
-    image: 'Bild',
-    document: 'Dokument',
-    recaptcha: 'reCAPTCHA',
-    separator: 'Avdelare',
-    'text-display': 'Textvisning',
-    'multi-text-row': 'Flerradsfalt',
-    rating: 'Betyg',
-    nps: 'NPS',
-    likert: 'Likert-skala',
-    ranking: 'Rangordning',
-    hidden: 'Dolt falt',
-    'html-block': 'HTML-block',
-    'page-break': 'Sidbrytning',
-    signature: 'Signatur',
-    slider: 'Slider',
-    color: 'Fargvaljare',
-    currency: 'Valuta',
-    personnummer: 'Personnummer',
-    organisationsnummer: 'Organisationsnummer',
-    address: 'Adress',
-    matrix: 'Matris',
-    drawing: 'Ritning',
+/** Maps a FieldType to its corresponding translation key in the fieldTypes section. */
+function getFieldTypeKey(type: FieldType): string {
+  const keyMap: Record<string, string> = {
+    'text-display': 'textDisplay',
+    'multi-text-row': 'multiTextRow',
+    'html-block': 'htmlBlock',
+    'page-break': 'pageBreak',
   };
-  return labels[type] || type;
+  return keyMap[type] || type;
 }

@@ -192,9 +192,9 @@ export default function SubscriptionScreen() {
         {/* Upgrade card - only show if not enterprise/complimentary (same as web app) */}
         {tier !== 'enterprise' && tier !== 'complimentary' && tier !== 'superadmin' && (
           <View style={styles.upgradeCard}>
-            <Text style={styles.upgradeTitle}>Vill du uppgradera?</Text>
+            <Text style={styles.upgradeTitle}>{t('subscription', 'wantToUpgrade')}</Text>
             <Text style={styles.upgradeDesc}>
-              Uppgradera till en högre plan för att få tillgång till fler formulär, anpassade domäner och avancerade funktioner.
+              {t('subscription', 'upgradeDesc')}
             </Text>
             <Button
               mode="contained"
@@ -204,7 +204,7 @@ export default function SubscriptionScreen() {
               icon="arrow-right"
               contentStyle={{ flexDirection: 'row-reverse' }}
             >
-              Se priser och uppgradera
+              {t('subscription', 'viewPricing')}
             </Button>
           </View>
         )}
@@ -212,9 +212,9 @@ export default function SubscriptionScreen() {
         {/* Manage payment - only for paid tiers without custom pricing (same as web app) */}
         {tier && !['complimentary', 'free', 'superadmin'].includes(tier) && subscription?.customPrice === null && (
           <View style={styles.paymentCard}>
-            <Text style={styles.paymentTitle}>Hantera betalning</Text>
+            <Text style={styles.paymentTitle}>{t('subscription', 'managePaymentTitle')}</Text>
             <Text style={styles.paymentDesc}>
-              För att hantera din betalinformation, uppdatera din betalmetod eller säga upp din prenumeration, besök Stripe Customer Portal.
+              {t('subscription', 'managePaymentDesc')}
             </Text>
             <Button
               mode="outlined"
@@ -223,7 +223,7 @@ export default function SubscriptionScreen() {
               textColor="#e8622c"
               icon="credit-card-outline"
             >
-              Öppna Stripe Portal
+              {t('subscription', 'openStripePortal')}
             </Button>
           </View>
         )}

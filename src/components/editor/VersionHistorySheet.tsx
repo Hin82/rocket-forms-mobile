@@ -4,6 +4,7 @@ import { Text, ActivityIndicator } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { supabase } from '../../lib/supabase';
+import { useTranslation } from '../../translations';
 
 interface FormVersion {
   id: string;
@@ -53,6 +54,7 @@ export default function VersionHistorySheet({
   const [versions, setVersions] = useState<FormVersion[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!visible) return;
@@ -85,12 +87,12 @@ export default function VersionHistorySheet({
   const handleRestore = useCallback(
     (version: FormVersion) => {
       Alert.alert(
-        'Aterstall version',
-        `Vill du aterstalla till version ${version.version_number}? Nuvarande andringar skrivs over.`,
+        t('versionHistory', 'restoreTitle'),
+        t('versionHistory', 'restoreConfirm').replace('{version}', String(version.version_number)),
         [
-          { text: 'Avbryt', style: 'cancel' },
+          { text: t('versionHistory', 'cancel'), style: 'cancel' },
           {
-            text: 'Aterstall',
+            text: t('versionHistory', 'restore'),
             style: 'destructive',
             onPress: () => {
               onRestore(version.fields, version.settings);
@@ -100,7 +102,7 @@ export default function VersionHistorySheet({
         ],
       );
     },
-    [onRestore, onClose],
+    [onRestore, onClose, t],
   );
 
   if (!visible) return null;
@@ -118,12 +120,12 @@ export default function VersionHistorySheet({
       handleIndicatorStyle={styles.handleIndicator}
     >
       <BottomSheetScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Versionshistorik</Text>
+        <Text style={styles.title}>{t('versionHistory', 'title')}</Text>
 
         {loading ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color="#e8622c" />
-            <Text style={styles.loadingText}>Laddar versioner...</Text>
+            <Text style={styles.loadingText}>{t('versionHistory', 'loadingVersions')}</Text>
           </View>
         ) : error ? (
           <View style={styles.centered}>
@@ -133,9 +135,9 @@ export default function VersionHistorySheet({
         ) : versions.length === 0 ? (
           <View style={styles.centered}>
             <MaterialCommunityIcons name="history" size={48} color="#2d2d44" />
-            <Text style={styles.emptyTitle}>Inga versioner</Text>
+            <Text style={styles.emptyTitle}>{t('versionHistory', 'noVersions')}</Text>
             <Text style={styles.emptySubtitle}>
-              Versioner skapas automatiskt nar du sparar formularet
+              {t('versionHistory', 'versionsAutoCreated')}
             </Text>
           </View>
         ) : (
@@ -147,7 +149,7 @@ export default function VersionHistorySheet({
                   <View style={styles.versionInfo}>
                     <View style={styles.versionHeader}>
                       <Text style={styles.versionNumber}>
-                        Version {version.version_number}
+                        {t('versionHistory', 'version')} {version.version_number}
                       </Text>
                       <Text style={styles.versionTime}>
                         {formatTime(version.created_at)}
@@ -159,7 +161,7 @@ export default function VersionHistorySheet({
                       </Text>
                     ) : (
                       <Text style={styles.versionDescMuted}>
-                        {version.fields?.length || 0} falt
+                        {version.fields?.length || 0} {t('versionHistory', 'fields')}
                       </Text>
                     )}
                   </View>
@@ -168,7 +170,7 @@ export default function VersionHistorySheet({
                     onPress={() => handleRestore(version)}
                   >
                     <MaterialCommunityIcons name="restore" size={18} color="#e8622c" />
-                    <Text style={styles.restoreBtnText}>Aterstall</Text>
+                    <Text style={styles.restoreBtnText}>{t('versionHistory', 'restore')}</Text>
                   </TouchableOpacity>
                 </View>
               ))}

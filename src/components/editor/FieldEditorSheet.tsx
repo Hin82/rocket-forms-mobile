@@ -14,6 +14,8 @@ import {
 import Slider from '@react-native-community/slider';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { FormField, FieldOption, ConditionalLogic, Condition } from '../../hooks/useFormEditor';
+import { useTranslation } from '@/src/translations';
+import { LANGUAGES } from '@/src/contexts/LanguageContext';
 
 // ---- Constants ----
 
@@ -29,75 +31,44 @@ const COLORS = {
   danger: '#cc3333',
 };
 
-const LANGUAGES = [
-  { code: 'sv', name: 'Svenska' },
-  { code: 'en', name: 'Engelska' },
-  { code: 'no', name: 'Norska' },
-  { code: 'da', name: 'Danska' },
-  { code: 'fi', name: 'Finska' },
-  { code: 'de', name: 'Tyska' },
-  { code: 'fr', name: 'Franska' },
-  { code: 'es', name: 'Spanska' },
-];
-
 const CURRENCIES = ['SEK', 'NOK', 'DKK', 'EUR', 'USD', 'GBP', 'CHF'];
 
-const ACCEPTED_FILE_TYPES_OPTIONS = [
-  { label: 'Bilder', value: 'images' },
-  { label: 'Dokument', value: 'documents' },
-  { label: 'PDF', value: 'pdf' },
-  { label: 'Word', value: 'word' },
-  { label: 'Excel', value: 'excel' },
-  { label: 'Alla', value: 'all' },
-];
-
-const CONDITION_OPERATORS: Array<{ label: string; value: string }> = [
-  { label: 'Lika med', value: 'equals' },
-  { label: 'Inte lika med', value: 'not_equals' },
-  { label: 'Innehaller', value: 'contains' },
-  { label: 'Innehaller inte', value: 'not_contains' },
-  { label: 'Storre an', value: 'greater_than' },
-  { label: 'Mindre an', value: 'less_than' },
-  { label: 'Ar tom', value: 'is_empty' },
-  { label: 'Ar inte tom', value: 'is_not_empty' },
-];
-
-const FIELD_TYPE_LABELS: Record<string, string> = {
-  text: 'Text',
-  email: 'E-post',
-  number: 'Nummer',
-  url: 'URL',
-  phone: 'Telefon',
-  name: 'Namn',
-  textarea: 'Textomrade',
-  select: 'Dropdown',
-  radio: 'Radioknapp',
-  checkbox: 'Kryssruta',
-  yesno: 'Ja/Nej',
-  date: 'Datum',
-  time: 'Tid',
-  datetime: 'Datum & Tid',
-  file: 'Filuppladdning',
-  image: 'Bild',
-  document: 'Dokument',
-  separator: 'Avdelare',
-  'text-display': 'Textvisning',
-  rating: 'Betyg',
-  nps: 'NPS',
-  likert: 'Likert',
-  ranking: 'Ranking',
-  hidden: 'Dolt falt',
-  'html-block': 'HTML-block',
-  'page-break': 'Sidbrytning',
-  signature: 'Signatur',
-  slider: 'Slider',
-  color: 'Fargvaljare',
-  currency: 'Valuta',
-  personnummer: 'Personnummer',
-  organisationsnummer: 'Organisationsnummer',
-  address: 'Adress',
-  matrix: 'Matris',
-  drawing: 'Ritning',
+const FIELD_TYPE_KEY_MAP: Record<string, string> = {
+  text: 'text',
+  email: 'email',
+  number: 'number',
+  url: 'url',
+  phone: 'phone',
+  name: 'name',
+  textarea: 'textarea',
+  select: 'select',
+  radio: 'radio',
+  checkbox: 'checkbox',
+  yesno: 'yesno',
+  date: 'date',
+  time: 'time',
+  datetime: 'datetime',
+  file: 'file',
+  image: 'image',
+  document: 'document',
+  separator: 'separator',
+  'text-display': 'textDisplay',
+  rating: 'rating',
+  nps: 'nps',
+  likert: 'likert',
+  ranking: 'ranking',
+  hidden: 'hidden',
+  'html-block': 'htmlBlock',
+  'page-break': 'pageBreak',
+  signature: 'signature',
+  slider: 'slider',
+  color: 'color',
+  currency: 'currency',
+  personnummer: 'personnummer',
+  organisationsnummer: 'organisationsnummer',
+  address: 'address',
+  matrix: 'matrix',
+  drawing: 'drawing',
 };
 
 // ---- Interfaces ----
@@ -134,7 +105,33 @@ function hasPlaceholder(type: string): boolean {
 
 const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
   ({ field, allFields, onUpdate, onDelete, onDuplicate, onClose }, ref) => {
+    const { t } = useTranslation();
     const snapPoints = useMemo(() => ['80%', '95%'], []);
+
+    const acceptedFileTypesOptions = useMemo(() => [
+      { label: t('fieldEditor', 'fileTypeImages'), value: 'images' },
+      { label: t('fieldEditor', 'fileTypeDocuments'), value: 'documents' },
+      { label: t('fieldEditor', 'fileTypePdf'), value: 'pdf' },
+      { label: t('fieldEditor', 'fileTypeWord'), value: 'word' },
+      { label: t('fieldEditor', 'fileTypeExcel'), value: 'excel' },
+      { label: t('fieldEditor', 'fileTypeAll'), value: 'all' },
+    ], [t]);
+
+    const conditionOperators = useMemo(() => [
+      { label: t('fieldEditor', 'operatorEquals'), value: 'equals' },
+      { label: t('fieldEditor', 'operatorNotEquals'), value: 'not_equals' },
+      { label: t('fieldEditor', 'operatorContains'), value: 'contains' },
+      { label: t('fieldEditor', 'operatorNotContains'), value: 'not_contains' },
+      { label: t('fieldEditor', 'operatorGreaterThan'), value: 'greater_than' },
+      { label: t('fieldEditor', 'operatorLessThan'), value: 'less_than' },
+      { label: t('fieldEditor', 'operatorIsEmpty'), value: 'is_empty' },
+      { label: t('fieldEditor', 'operatorIsNotEmpty'), value: 'is_not_empty' },
+    ], [t]);
+
+    const getFieldTypeLabel = useCallback((type: string) => {
+      const key = FIELD_TYPE_KEY_MAP[type];
+      return key ? t('fieldTypes', key) : type;
+    }, [t]);
 
     const [localField, setLocalField] = useState<FormField | null>(field);
 
@@ -154,18 +151,22 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
 
     const handleDelete = useCallback(() => {
       if (!localField) return;
-      Alert.alert('Ta bort falt', `Vill du verkligen ta bort "${localField.label}"?`, [
-        { text: 'Avbryt', style: 'cancel' },
-        {
-          text: 'Ta bort',
-          style: 'destructive',
-          onPress: () => {
-            onDelete(localField.id);
-            onClose();
+      Alert.alert(
+        t('fieldEditor', 'deleteFieldTitle'),
+        t('fieldEditor', 'deleteFieldConfirm', { label: localField.label }),
+        [
+          { text: t('fieldEditor', 'deleteCancel'), style: 'cancel' },
+          {
+            text: t('fieldEditor', 'deleteConfirm'),
+            style: 'destructive',
+            onPress: () => {
+              onDelete(localField.id);
+              onClose();
+            },
           },
-        },
-      ]);
-    }, [localField, onDelete, onClose]);
+        ],
+      );
+    }, [localField, onDelete, onClose, t]);
 
     const handleDuplicate = useCallback(() => {
       if (!localField || !onDuplicate) return;
@@ -190,10 +191,10 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
         {/* Header */}
         <View style={styles.header}>
           <Text variant="titleMedium" style={styles.headerText}>
-            Redigera falt
+            {t('fieldEditor', 'editField')}
           </Text>
           <Chip style={styles.typeBadge} textStyle={styles.typeBadgeText}>
-            {FIELD_TYPE_LABELS[ft] || ft}
+            {getFieldTypeLabel(ft)}
           </Chip>
         </View>
 
@@ -201,40 +202,40 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* =============================== */}
           {/* COMMON SETTINGS                  */}
           {/* =============================== */}
-          <Section title="Grundinstallningar">
+          <Section title={t('fieldEditor', 'basicSettings')}>
             <Input
-              label="Etikett"
+              label={t('fieldEditor', 'label')}
               value={localField.label}
               onChangeText={(v) => update({ label: v })}
             />
             <Input
-              label="Beskrivning"
+              label={t('fieldEditor', 'description')}
               value={localField.description || ''}
               onChangeText={(v) => update({ description: v })}
               multiline
             />
             {hasPlaceholder(ft) && (
               <Input
-                label="Platshallartext"
+                label={t('fieldEditor', 'placeholder')}
                 value={localField.placeholder || ''}
                 onChangeText={(v) => update({ placeholder: v })}
               />
             )}
             <Input
-              label="Hjalptxt"
+              label={t('fieldEditor', 'helpText')}
               value={localField.helpText || ''}
               onChangeText={(v) => update({ helpText: v })}
             />
             {!isLayoutType(ft) && (
               <>
-                <Row label="Obligatoriskt">
+                <Row label={t('fieldEditor', 'required')}>
                   <Switch
                     value={!!localField.required}
                     onValueChange={(v) => update({ required: v })}
                     color={COLORS.accent}
                   />
                 </Row>
-                <Row label="Dolt falt">
+                <Row label={t('fieldEditor', 'hiddenField')}>
                   <Switch
                     value={!!localField.isHiddenField}
                     onValueChange={(v) => update({ isHiddenField: v })}
@@ -248,7 +249,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* =============================== */}
           {/* LANGUAGE TRANSLATIONS             */}
           {/* =============================== */}
-          <CollapsibleSection title="Sprakversioner (etiketter)">
+          <CollapsibleSection title={t('fieldEditor', 'languageVersions')}>
             {LANGUAGES.map((lang) => (
               <Input
                 key={lang.code}
@@ -265,10 +266,15 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* SELECT / RADIO / CHECKBOX        */}
           {/* =============================== */}
           {['select', 'radio', 'checkbox'].includes(ft) && (
-            <Section title="Alternativ">
+            <Section title={t('fieldEditor', 'options')}>
               <OptionsEditor
                 options={localField.options || []}
                 onChange={(opts) => update({ options: opts })}
+                addLabel={t('fieldEditor', 'addOption')}
+                optionLabelText={t('fieldEditor', 'optionLabel')}
+                optionValueText={t('fieldEditor', 'optionValue')}
+                optionDefaultLabel={t('fieldEditor', 'optionDefault')}
+                optionDefaultValue={t('fieldEditor', 'optionValueDefault')}
               />
             </Section>
           )}
@@ -277,8 +283,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* RATING                           */}
           {/* =============================== */}
           {ft === 'rating' && (
-            <Section title="Betygsinstallningar">
-              <Text style={styles.subLabel}>Skala</Text>
+            <Section title={t('fieldEditor', 'ratingSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'scale')}</Text>
               <SegmentedButtons
                 value={String(localField.ratingScale || 5)}
                 onValueChange={(v) => update({ ratingScale: parseInt(v, 10) })}
@@ -291,17 +297,17 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Text style={[styles.subLabel, { marginTop: 12 }]}>Ikon</Text>
+              <Text style={[styles.subLabel, { marginTop: 12 }]}>{t('fieldEditor', 'icon')}</Text>
               <SegmentedButtons
                 value={localField.ratingIcon || 'star'}
                 onValueChange={(v) =>
                   update({ ratingIcon: v as 'star' | 'heart' | 'thumbs' | 'number' })
                 }
                 buttons={[
-                  { value: 'star', label: 'Stjarna', icon: 'star' },
-                  { value: 'heart', label: 'Hjarta', icon: 'heart' },
-                  { value: 'thumbs', label: 'Tumme', icon: 'thumb-up' },
-                  { value: 'number', label: 'Nummer', icon: 'numeric' },
+                  { value: 'star', label: t('fieldEditor', 'iconStar'), icon: 'star' },
+                  { value: 'heart', label: t('fieldEditor', 'iconHeart'), icon: 'heart' },
+                  { value: 'thumbs', label: t('fieldEditor', 'iconThumb'), icon: 'thumb-up' },
+                  { value: 'number', label: t('fieldEditor', 'iconNumber'), icon: 'numeric' },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
@@ -313,29 +319,29 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* NPS                              */}
           {/* =============================== */}
           {ft === 'nps' && (
-            <Section title="NPS-installningar">
+            <Section title={t('fieldEditor', 'npsSettings')}>
               <Input
-                label="Huvudfraga"
+                label={t('fieldEditor', 'mainQuestion')}
                 value={localField.npsQuestion || ''}
                 onChangeText={(v) => update({ npsQuestion: v })}
               />
               <Input
-                label="Fraga for ambassadorer (9-10)"
+                label={t('fieldEditor', 'promoterQuestion')}
                 value={localField.npsPromoterQuestion || ''}
                 onChangeText={(v) => update({ npsPromoterQuestion: v })}
               />
               <Input
-                label="Fraga for passiva (7-8)"
+                label={t('fieldEditor', 'passiveQuestion')}
                 value={localField.npsPassiveQuestion || ''}
                 onChangeText={(v) => update({ npsPassiveQuestion: v })}
               />
               <Input
-                label="Fraga for kritiker (0-6)"
+                label={t('fieldEditor', 'detractorQuestion')}
                 value={localField.npsDetractorQuestion || ''}
                 onChangeText={(v) => update({ npsDetractorQuestion: v })}
               />
               <Input
-                label="Etikett for kommentarer"
+                label={t('fieldEditor', 'commentsLabel')}
                 value={localField.npsCommentsLabel || ''}
                 onChangeText={(v) => update({ npsCommentsLabel: v })}
               />
@@ -346,9 +352,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* SLIDER                           */}
           {/* =============================== */}
           {ft === 'slider' && (
-            <Section title="Slider-installningar">
+            <Section title={t('fieldEditor', 'sliderSettings')}>
               <Input
-                label="Min"
+                label={t('fieldEditor', 'min')}
                 value={String(localField.min ?? 0)}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -357,7 +363,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Max"
+                label={t('fieldEditor', 'max')}
                 value={String(localField.max ?? 100)}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -366,7 +372,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Steg"
+                label={t('fieldEditor', 'step')}
                 value={String(localField.step ?? 1)}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -375,16 +381,16 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Prefix"
+                label={t('fieldEditor', 'prefix')}
                 value={localField.prefix || ''}
                 onChangeText={(v) => update({ prefix: v })}
               />
               <Input
-                label="Suffix"
+                label={t('fieldEditor', 'suffix')}
                 value={localField.suffix || ''}
                 onChangeText={(v) => update({ suffix: v })}
               />
-              <Row label="Visa varde">
+              <Row label={t('fieldEditor', 'showValue')}>
                 <Switch
                   value={!!localField.showValue}
                   onValueChange={(v) => update({ showValue: v })}
@@ -398,8 +404,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* TEXTAREA                         */}
           {/* =============================== */}
           {ft === 'textarea' && (
-            <Section title="Textomrade-installningar">
-              <Row label="Aktivera riktexteditering">
+            <Section title={t('fieldEditor', 'textareaSettings')}>
+              <Row label={t('fieldEditor', 'enableRichText')}>
                 <Switch
                   value={!!localField.enableRichText}
                   onValueChange={(v) => update({ enableRichText: v })}
@@ -413,22 +419,22 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* YES/NO                           */}
           {/* =============================== */}
           {ft === 'yesno' && (
-            <Section title="Ja/Nej-installningar">
-              <Text style={styles.subLabel}>Standardsvar</Text>
+            <Section title={t('fieldEditor', 'yesNoSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'defaultAnswer')}</Text>
               <SegmentedButtons
                 value={localField.defaultAnswer || 'none'}
                 onValueChange={(v) =>
                   update({ defaultAnswer: v === 'none' ? null : (v as 'yes' | 'no') })
                 }
                 buttons={[
-                  { value: 'yes', label: 'Ja' },
-                  { value: 'no', label: 'Nej' },
-                  { value: 'none', label: 'Inget' },
+                  { value: 'yes', label: t('fieldEditor', 'yes') },
+                  { value: 'no', label: t('fieldEditor', 'no') },
+                  { value: 'none', label: t('fieldEditor', 'none') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Row label="Kommentarsfalt">
+              <Row label={t('fieldEditor', 'commentField')}>
                 <Switch
                   value={!!localField.hasCommentField}
                   onValueChange={(v) => update({ hasCommentField: v })}
@@ -437,23 +443,23 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
               </Row>
               {!!localField.hasCommentField && (
                 <Input
-                  label="Platshallartext for kommentar"
+                  label={t('fieldEditor', 'commentPlaceholder')}
                   value={localField.commentPlaceholder || ''}
                   onChangeText={(v) => update({ commentPlaceholder: v })}
                 />
               )}
               <Input
-                label="Media-URL (bild/video)"
+                label={t('fieldEditor', 'mediaUrl')}
                 value={localField.mediaUrl || ''}
                 onChangeText={(v) => update({ mediaUrl: v })}
               />
-              <Text style={styles.subLabel}>Mediatyp</Text>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'mediaType')}</Text>
               <SegmentedButtons
                 value={localField.mediaType || 'image'}
                 onValueChange={(v) => update({ mediaType: v as 'image' | 'video' })}
                 buttons={[
-                  { value: 'image', label: 'Bild' },
-                  { value: 'video', label: 'Video' },
+                  { value: 'image', label: t('fieldEditor', 'mediaImage') },
+                  { value: 'video', label: t('fieldEditor', 'mediaVideo') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
@@ -465,8 +471,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* SEPARATOR                        */}
           {/* =============================== */}
           {ft === 'separator' && (
-            <Section title="Avdelare-installningar">
-              <Text style={styles.subLabel}>Stil</Text>
+            <Section title={t('fieldEditor', 'separatorSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'style')}</Text>
               <SegmentedButtons
                 value={localField.separatorOptions?.style || 'solid'}
                 onValueChange={(v) =>
@@ -478,10 +484,10 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
                 buttons={[
-                  { value: 'solid', label: 'Heldragen' },
-                  { value: 'dashed', label: 'Streckad' },
-                  { value: 'dotted', label: 'Prickad' },
-                  { value: 'double', label: 'Dubbel' },
+                  { value: 'solid', label: t('fieldEditor', 'styleSolid') },
+                  { value: 'dashed', label: t('fieldEditor', 'styleDashed') },
+                  { value: 'dotted', label: t('fieldEditor', 'styleDotted') },
+                  { value: 'double', label: t('fieldEditor', 'styleDouble') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
@@ -497,13 +503,13 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
                 buttons={[
-                  { value: 'gradient', label: 'Gradient' },
+                  { value: 'gradient', label: t('fieldEditor', 'styleGradient') },
                 ]}
                 style={[styles.segmented, { marginTop: 8 }]}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
               <Input
-                label="Farg (hex)"
+                label={t('fieldEditor', 'colorHex')}
                 value={localField.separatorOptions?.color || '#2d2d44'}
                 onChangeText={(v) =>
                   update({
@@ -512,7 +518,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }
               />
               <Text style={[styles.subLabel, { marginTop: 8 }]}>
-                Tjocklek: {localField.separatorOptions?.thickness || 1}px
+                {t('fieldEditor', 'thickness')}: {localField.separatorOptions?.thickness || 1}px
               </Text>
               <Slider
                 minimumValue={1}
@@ -529,7 +535,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 thumbTintColor={COLORS.accent}
                 style={{ marginBottom: 8 }}
               />
-              <Text style={styles.subLabel}>Monster</Text>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'pattern')}</Text>
               <SegmentedButtons
                 value={localField.separatorOptions?.pattern || 'simple'}
                 onValueChange={(v) =>
@@ -538,14 +544,14 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
                 buttons={[
-                  { value: 'simple', label: 'Enkel' },
-                  { value: 'decorative', label: 'Dekorativ' },
-                  { value: 'wavy', label: 'Vagig' },
+                  { value: 'simple', label: t('fieldEditor', 'patternSimple') },
+                  { value: 'decorative', label: t('fieldEditor', 'patternDecorative') },
+                  { value: 'wavy', label: t('fieldEditor', 'patternWavy') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Text style={[styles.subLabel, { marginTop: 12 }]}>Avstand</Text>
+              <Text style={[styles.subLabel, { marginTop: 12 }]}>{t('fieldEditor', 'spacing')}</Text>
               <SegmentedButtons
                 value={localField.separatorOptions?.spacing || 'medium'}
                 onValueChange={(v) =>
@@ -554,9 +560,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
                 buttons={[
-                  { value: 'small', label: 'Liten' },
-                  { value: 'medium', label: 'Medium' },
-                  { value: 'large', label: 'Stor' },
+                  { value: 'small', label: t('fieldEditor', 'spacingSmall') },
+                  { value: 'medium', label: t('fieldEditor', 'spacingMedium') },
+                  { value: 'large', label: t('fieldEditor', 'spacingLarge') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
@@ -568,15 +574,15 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* TEXT-DISPLAY                      */}
           {/* =============================== */}
           {ft === 'text-display' && (
-            <Section title="Textvisning-installningar">
+            <Section title={t('fieldEditor', 'textDisplaySettings')}>
               <Input
-                label="Innehall"
+                label={t('fieldEditor', 'content')}
                 value={localField.textContent || ''}
                 onChangeText={(v) => update({ textContent: v })}
                 multiline
                 numberOfLines={4}
               />
-              <Text style={styles.subLabel}>Textstorlek</Text>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'fontSize')}</Text>
               <SegmentedButtons
                 value={localField.textDisplayOptions?.fontSize || '16'}
                 onValueChange={(v) =>
@@ -596,7 +602,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
               <Input
-                label="Typsnittsfamilj"
+                label={t('fieldEditor', 'fontFamily')}
                 value={localField.textDisplayOptions?.fontFamily || ''}
                 onChangeText={(v) =>
                   update({
@@ -604,7 +610,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
               />
-              <Text style={[styles.subLabel, { marginTop: 12 }]}>Tjocklek</Text>
+              <Text style={[styles.subLabel, { marginTop: 12 }]}>{t('fieldEditor', 'fontWeight')}</Text>
               <SegmentedButtons
                 value={localField.textDisplayOptions?.fontWeight || 'normal'}
                 onValueChange={(v) =>
@@ -613,16 +619,16 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
                 buttons={[
-                  { value: 'normal', label: 'Normal' },
-                  { value: 'bold', label: 'Fet' },
-                  { value: '300', label: 'Tunn' },
-                  { value: '600', label: 'Halvfet' },
+                  { value: 'normal', label: t('fieldEditor', 'fontWeightNormal') },
+                  { value: 'bold', label: t('fieldEditor', 'fontWeightBold') },
+                  { value: '300', label: t('fieldEditor', 'fontWeightLight') },
+                  { value: '600', label: t('fieldEditor', 'fontWeightSemibold') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
               <Input
-                label="Textfarg (hex)"
+                label={t('fieldEditor', 'textColor')}
                 value={localField.textDisplayOptions?.color || '#ffffff'}
                 onChangeText={(v: string) =>
                   update({
@@ -630,7 +636,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
               />
-              <Text style={[styles.subLabel, { marginTop: 12 }]}>Textjustering</Text>
+              <Text style={[styles.subLabel, { marginTop: 12 }]}>{t('fieldEditor', 'textAlign')}</Text>
               <SegmentedButtons
                 value={localField.textDisplayOptions?.textAlign || 'left'}
                 onValueChange={(v) =>
@@ -639,16 +645,16 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
                 buttons={[
-                  { value: 'left', label: 'Vanster' },
-                  { value: 'center', label: 'Center' },
-                  { value: 'right', label: 'Hoger' },
-                  { value: 'justify', label: 'Justera' },
+                  { value: 'left', label: t('fieldEditor', 'alignLeft') },
+                  { value: 'center', label: t('fieldEditor', 'alignCenter') },
+                  { value: 'right', label: t('fieldEditor', 'alignRight') },
+                  { value: 'justify', label: t('fieldEditor', 'alignJustify') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
               <Input
-                label="Bakgrundsfarg (hex)"
+                label={t('fieldEditor', 'backgroundColor')}
                 value={localField.textDisplayOptions?.backgroundColor || ''}
                 onChangeText={(v) =>
                   update({
@@ -657,7 +663,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }
               />
               <Input
-                label="Padding (px)"
+                label={t('fieldEditor', 'padding')}
                 value={String(localField.textDisplayOptions?.padding ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) =>
@@ -667,7 +673,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }
               />
               <Input
-                label="Marginal (px)"
+                label={t('fieldEditor', 'margin')}
                 value={String(localField.textDisplayOptions?.margin ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) =>
@@ -677,7 +683,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }
               />
               <Input
-                label="Bordsradie (px)"
+                label={t('fieldEditor', 'borderRadius')}
                 value={String(localField.textDisplayOptions?.borderRadius ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) =>
@@ -687,7 +693,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }
               />
               <Input
-                label="Radhojd"
+                label={t('fieldEditor', 'lineHeight')}
                 value={String(localField.textDisplayOptions?.lineHeight ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) =>
@@ -703,11 +709,11 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* RANKING                          */}
           {/* =============================== */}
           {ft === 'ranking' && (
-            <Section title="Ranking-objekt">
+            <Section title={t('fieldEditor', 'rankingItems')}>
               <OptionsEditor
                 options={localField.rankingItems || []}
                 onChange={(items) => update({ rankingItems: items })}
-                addLabel="Lagg till objekt"
+                addLabel={t('fieldEditor', 'addItem')}
               />
             </Section>
           )}
@@ -716,9 +722,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* DRAWING                          */}
           {/* =============================== */}
           {ft === 'drawing' && (
-            <Section title="Ritnings-installningar">
+            <Section title={t('fieldEditor', 'drawingSettings')}>
               <Text style={styles.subLabel}>
-                Canvasbredd: {localField.canvasWidth || 800}px
+                {t('fieldEditor', 'canvasWidth')}: {localField.canvasWidth || 800}px
               </Text>
               <Slider
                 minimumValue={400}
@@ -732,7 +738,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 style={{ marginBottom: 8 }}
               />
               <Text style={styles.subLabel}>
-                Canvashojd: {localField.canvasHeight || 400}px
+                {t('fieldEditor', 'canvasHeight')}: {localField.canvasHeight || 400}px
               </Text>
               <Slider
                 minimumValue={200}
@@ -746,7 +752,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 style={{ marginBottom: 8 }}
               />
               <Input
-                label="Bakgrundsfarg (hex)"
+                label={t('fieldEditor', 'backgroundColor')}
                 value={localField.backgroundColor || '#ffffff'}
                 onChangeText={(v) => update({ backgroundColor: v })}
               />
@@ -757,9 +763,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* HIDDEN                           */}
           {/* =============================== */}
           {ft === 'hidden' && (
-            <Section title="Dolt falt">
+            <Section title={t('fieldEditor', 'hiddenFieldSection')}>
               <Input
-                label="Dolt varde"
+                label={t('fieldEditor', 'hiddenValue')}
                 value={localField.hiddenFieldValue || ''}
                 onChangeText={(v) => update({ hiddenFieldValue: v })}
               />
@@ -770,9 +776,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* COLOR                            */}
           {/* =============================== */}
           {ft === 'color' && (
-            <Section title="Fargvaljare-installningar">
+            <Section title={t('fieldEditor', 'colorPickerSettings')}>
               <Input
-                label="Standardfarg (hex)"
+                label={t('fieldEditor', 'defaultColor')}
                 value={localField.defaultColor || '#000000'}
                 onChangeText={(v) => update({ defaultColor: v })}
               />
@@ -791,24 +797,24 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* DOCUMENT                         */}
           {/* =============================== */}
           {ft === 'document' && (
-            <Section title="Dokument-installningar">
-              <Text style={styles.subLabel}>Justering</Text>
+            <Section title={t('fieldEditor', 'documentSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'alignment')}</Text>
               <SegmentedButtons
                 value={localField.documentAlignment || 'center'}
                 onValueChange={(v) =>
                   update({ documentAlignment: v as 'left' | 'center' | 'right' })
                 }
                 buttons={[
-                  { value: 'left', label: 'Vanster' },
-                  { value: 'center', label: 'Center' },
-                  { value: 'right', label: 'Hoger' },
+                  { value: 'left', label: t('fieldEditor', 'alignLeft') },
+                  { value: 'center', label: t('fieldEditor', 'alignCenter') },
+                  { value: 'right', label: t('fieldEditor', 'alignRight') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Text style={[styles.subLabel, { marginTop: 16 }]}>Storleksandring</Text>
+              <Text style={[styles.subLabel, { marginTop: 16 }]}>{t('fieldEditor', 'resizing')}</Text>
               <Input
-                label="Bredd"
+                label={t('fieldEditor', 'width')}
                 value={String(localField.documentResize?.width ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -822,7 +828,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Hojd"
+                label={t('fieldEditor', 'height')}
                 value={String(localField.documentResize?.height ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -835,7 +841,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   });
                 }}
               />
-              <Text style={styles.subLabel}>Enhet</Text>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'unit')}</Text>
               <SegmentedButtons
                 value={localField.documentResize?.unit || 'percentage'}
                 onValueChange={(v) =>
@@ -847,14 +853,14 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                   })
                 }
                 buttons={[
-                  { value: 'percentage', label: 'Procent' },
-                  { value: 'pixels', label: 'Pixlar' },
+                  { value: 'percentage', label: t('fieldEditor', 'unitPercentage') },
+                  { value: 'pixels', label: t('fieldEditor', 'unitPixels') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
               <Input
-                label="Skala (%)"
+                label={t('fieldEditor', 'scalePercent')}
                 value={String(localField.documentResize?.scale ?? 100)}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -874,10 +880,10 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* FILE                             */}
           {/* =============================== */}
           {ft === 'file' && (
-            <Section title="Filuppladdning-installningar">
-              <Text style={styles.subLabel}>Accepterade filtyper</Text>
+            <Section title={t('fieldEditor', 'fileUploadSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'acceptedFileTypes')}</Text>
               <View style={styles.chipRow}>
-                {ACCEPTED_FILE_TYPES_OPTIONS.map((opt) => {
+                {acceptedFileTypesOptions.map((opt) => {
                   const current = localField.acceptedFileTypes || [];
                   const selected = current.includes(opt.value);
                   return (
@@ -900,7 +906,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 })}
               </View>
               <Input
-                label="Max filstorlek (MB)"
+                label={t('fieldEditor', 'maxFileSize')}
                 value={String((localField.maxFileSize || 10485760) / 1048576)}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -909,7 +915,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Max antal filer"
+                label={t('fieldEditor', 'maxFiles')}
                 value={String(localField.maxFiles || 1)}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -924,22 +930,22 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* IMAGE                            */}
           {/* =============================== */}
           {ft === 'image' && (
-            <Section title="Bild-installningar">
-              <Text style={styles.subLabel}>Justering</Text>
+            <Section title={t('fieldEditor', 'imageSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'alignment')}</Text>
               <SegmentedButtons
                 value={localField.imageAlignment || 'center'}
                 onValueChange={(v) =>
                   update({ imageAlignment: v as 'left' | 'center' | 'right' })
                 }
                 buttons={[
-                  { value: 'left', label: 'Vanster' },
-                  { value: 'center', label: 'Center' },
-                  { value: 'right', label: 'Hoger' },
+                  { value: 'left', label: t('fieldEditor', 'alignLeft') },
+                  { value: 'center', label: t('fieldEditor', 'alignCenter') },
+                  { value: 'right', label: t('fieldEditor', 'alignRight') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Text style={[styles.subLabel, { marginTop: 12 }]}>Kolumner i rutat</Text>
+              <Text style={[styles.subLabel, { marginTop: 12 }]}>{t('fieldEditor', 'gridColumns')}</Text>
               <SegmentedButtons
                 value={String(localField.gridColumns || 1)}
                 onValueChange={(v) => update({ gridColumns: parseInt(v, 10) })}
@@ -953,7 +959,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
               <Input
-                label="Max antal bilder"
+                label={t('fieldEditor', 'maxImages')}
                 value={String(localField.maxImages || 1)}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -968,8 +974,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* DATE                             */}
           {/* =============================== */}
           {ft === 'date' && (
-            <Section title="Datuminstallningar">
-              <Text style={styles.subLabel}>Datumformat</Text>
+            <Section title={t('fieldEditor', 'dateSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'dateFormat')}</Text>
               <SegmentedButtons
                 value={localField.dateFormat || 'YYYY-MM-DD'}
                 onValueChange={(v) => update({ dateFormat: v })}
@@ -981,28 +987,28 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Text style={[styles.subLabel, { marginTop: 12 }]}>Datumintervall</Text>
+              <Text style={[styles.subLabel, { marginTop: 12 }]}>{t('fieldEditor', 'dateRange')}</Text>
               <SegmentedButtons
                 value={localField.dateRangePreset || 'any'}
                 onValueChange={(v) => update({ dateRangePreset: v })}
                 buttons={[
-                  { value: 'any', label: 'Alla' },
-                  { value: 'today_onwards', label: 'Fran idag' },
-                  { value: 'next_7', label: '7 dagar' },
-                  { value: 'next_30', label: '30 dagar' },
-                  { value: 'past_only', label: 'Forfluten' },
+                  { value: 'any', label: t('fieldEditor', 'dateRangeAll') },
+                  { value: 'today_onwards', label: t('fieldEditor', 'dateRangeFromToday') },
+                  { value: 'next_7', label: t('fieldEditor', 'dateRange7Days') },
+                  { value: 'next_30', label: t('fieldEditor', 'dateRange30Days') },
+                  { value: 'past_only', label: t('fieldEditor', 'dateRangePastOnly') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Row label="Inkludera tid">
+              <Row label={t('fieldEditor', 'includeTime')}>
                 <Switch
                   value={!!localField.includeTime}
                   onValueChange={(v) => update({ includeTime: v })}
                   color={COLORS.accent}
                 />
               </Row>
-              <Row label="24-timmarsformat">
+              <Row label={t('fieldEditor', 'timeFormat24h')}>
                 <Switch
                   value={!!localField.timeFormat24h}
                   onValueChange={(v) => update({ timeFormat24h: v })}
@@ -1016,8 +1022,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* TIME                             */}
           {/* =============================== */}
           {ft === 'time' && (
-            <Section title="Tidinstallningar">
-              <Row label="24-timmarsformat">
+            <Section title={t('fieldEditor', 'timeSettings')}>
+              <Row label={t('fieldEditor', 'timeFormat24h')}>
                 <Switch
                   value={!!localField.timeFormat24h}
                   onValueChange={(v) => update({ timeFormat24h: v })}
@@ -1031,8 +1037,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* NAME                             */}
           {/* =============================== */}
           {ft === 'name' && (
-            <Section title="Namninstallningar">
-              <Row label="Visa prefix (titel)">
+            <Section title={t('fieldEditor', 'nameSettings')}>
+              <Row label={t('fieldEditor', 'showPrefix')}>
                 <Switch
                   value={!!localField.showPrefix}
                   onValueChange={(v) => update({ showPrefix: v })}
@@ -1041,17 +1047,17 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
               </Row>
               {!!localField.showPrefix && (
                 <Input
-                  label="Platshallartext for prefix"
+                  label={t('fieldEditor', 'prefixPlaceholder')}
                   value={localField.prefixPlaceholder || ''}
                   onChangeText={(v) => update({ prefixPlaceholder: v })}
                 />
               )}
               <Input
-                label="Platshallartext for fornamn"
+                label={t('fieldEditor', 'firstNamePlaceholder')}
                 value={localField.firstNamePlaceholder || ''}
                 onChangeText={(v) => update({ firstNamePlaceholder: v })}
               />
-              <Row label="Visa mellannamn">
+              <Row label={t('fieldEditor', 'showMiddleName')}>
                 <Switch
                   value={!!localField.showMiddleName}
                   onValueChange={(v) => update({ showMiddleName: v })}
@@ -1060,17 +1066,17 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
               </Row>
               {!!localField.showMiddleName && (
                 <Input
-                  label="Platshallartext for mellannamn"
+                  label={t('fieldEditor', 'middleNamePlaceholder')}
                   value={localField.middleNamePlaceholder || ''}
                   onChangeText={(v) => update({ middleNamePlaceholder: v })}
                 />
               )}
               <Input
-                label="Platshallartext for efternamn"
+                label={t('fieldEditor', 'lastNamePlaceholder')}
                 value={localField.lastNamePlaceholder || ''}
                 onChangeText={(v) => update({ lastNamePlaceholder: v })}
               />
-              <Row label="Visa suffix">
+              <Row label={t('fieldEditor', 'showSuffix')}>
                 <Switch
                   value={!!localField.showSuffix}
                   onValueChange={(v) => update({ showSuffix: v })}
@@ -1079,7 +1085,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
               </Row>
               {!!localField.showSuffix && (
                 <Input
-                  label="Platshallartext for suffix"
+                  label={t('fieldEditor', 'suffixPlaceholder')}
                   value={localField.suffixPlaceholder || ''}
                   onChangeText={(v) => update({ suffixPlaceholder: v })}
                 />
@@ -1091,9 +1097,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* TEXT / EMAIL / NUMBER VALIDATION  */}
           {/* =============================== */}
           {['text', 'email'].includes(ft) && (
-            <Section title="Validering">
+            <Section title={t('fieldEditor', 'validation')}>
               <Input
-                label="Min langd"
+                label={t('fieldEditor', 'minLength')}
                 value={String(localField.validation?.minLength ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1107,7 +1113,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Max langd"
+                label={t('fieldEditor', 'maxLength')}
                 value={String(localField.validation?.maxLength ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1121,7 +1127,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Monster (regex)"
+                label={t('fieldEditor', 'patternRegex')}
                 value={localField.validation?.pattern || ''}
                 onChangeText={(v) =>
                   update({ validation: { ...localField.validation, pattern: v } })
@@ -1131,9 +1137,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           )}
 
           {ft === 'textarea' && (
-            <Section title="Validering">
+            <Section title={t('fieldEditor', 'validation')}>
               <Input
-                label="Min langd"
+                label={t('fieldEditor', 'minLength')}
                 value={String(localField.validation?.minLength ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1147,7 +1153,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Max langd"
+                label={t('fieldEditor', 'maxLength')}
                 value={String(localField.validation?.maxLength ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1164,9 +1170,9 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           )}
 
           {ft === 'number' && (
-            <Section title="Validering">
+            <Section title={t('fieldEditor', 'validation')}>
               <Input
-                label="Min varde"
+                label={t('fieldEditor', 'minValue')}
                 value={String(localField.validation?.min ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1180,7 +1186,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Max varde"
+                label={t('fieldEditor', 'maxValue')}
                 value={String(localField.validation?.max ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1200,31 +1206,31 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* MATRIX                           */}
           {/* =============================== */}
           {ft === 'matrix' && (
-            <Section title="Matrisinstallningar">
-              <Text style={styles.subLabel}>Inmatningstyp</Text>
+            <Section title={t('fieldEditor', 'matrixSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'inputType')}</Text>
               <SegmentedButtons
                 value={localField.matrixInputType || 'radio'}
                 onValueChange={(v) =>
                   update({ matrixInputType: v as 'radio' | 'checkbox' })
                 }
                 buttons={[
-                  { value: 'radio', label: 'Radio' },
-                  { value: 'checkbox', label: 'Kryssruta' },
+                  { value: 'radio', label: t('fieldEditor', 'matrixRadio') },
+                  { value: 'checkbox', label: t('fieldEditor', 'matrixCheckbox') },
                 ]}
                 style={styles.segmented}
                 theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
               />
-              <Text style={[styles.subLabel, { marginTop: 16 }]}>Rader</Text>
+              <Text style={[styles.subLabel, { marginTop: 16 }]}>{t('fieldEditor', 'rows')}</Text>
               <MatrixItemsEditor
                 items={localField.matrixRows || []}
                 onChange={(items) => update({ matrixRows: items })}
-                addLabel="Lagg till rad"
+                addLabel={t('fieldEditor', 'addRow')}
               />
-              <Text style={[styles.subLabel, { marginTop: 16 }]}>Kolumner</Text>
+              <Text style={[styles.subLabel, { marginTop: 16 }]}>{t('fieldEditor', 'columns')}</Text>
               <MatrixItemsEditor
                 items={localField.matrixColumns || []}
                 onChange={(items) => update({ matrixColumns: items })}
-                addLabel="Lagg till kolumn"
+                addLabel={t('fieldEditor', 'addColumn')}
               />
             </Section>
           )}
@@ -1233,18 +1239,18 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* LIKERT                           */}
           {/* =============================== */}
           {ft === 'likert' && (
-            <Section title="Likert-installningar">
-              <Text style={styles.subLabel}>Pastaenden</Text>
+            <Section title={t('fieldEditor', 'likertSettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'statements')}</Text>
               <StringListEditor
                 items={localField.likertStatements || []}
                 onChange={(items) => update({ likertStatements: items })}
-                addLabel="Lagg till pastaende"
+                addLabel={t('fieldEditor', 'addStatement')}
               />
-              <Text style={[styles.subLabel, { marginTop: 16 }]}>Skalalternativ</Text>
+              <Text style={[styles.subLabel, { marginTop: 16 }]}>{t('fieldEditor', 'scaleOptions')}</Text>
               <StringListEditor
                 items={localField.likertOptions || []}
                 onChange={(items) => update({ likertOptions: items })}
-                addLabel="Lagg till alternativ"
+                addLabel={t('fieldEditor', 'addScaleOption')}
               />
             </Section>
           )}
@@ -1253,8 +1259,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* CURRENCY                         */}
           {/* =============================== */}
           {ft === 'currency' && (
-            <Section title="Valutainstallningar">
-              <Text style={styles.subLabel}>Valuta</Text>
+            <Section title={t('fieldEditor', 'currencySettings')}>
+              <Text style={styles.subLabel}>{t('fieldEditor', 'currencyLabel')}</Text>
               <View style={styles.chipRow}>
                 {CURRENCIES.map((c) => (
                   <Chip
@@ -1275,7 +1281,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 ))}
               </View>
               <Input
-                label="Min belopp"
+                label={t('fieldEditor', 'minAmount')}
                 value={String(localField.min ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1284,7 +1290,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 }}
               />
               <Input
-                label="Max belopp"
+                label={t('fieldEditor', 'maxAmount')}
                 value={String(localField.max ?? '')}
                 keyboardType="numeric"
                 onChangeText={(v) => {
@@ -1299,8 +1305,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* ADDRESS                          */}
           {/* =============================== */}
           {ft === 'address' && (
-            <Section title="Adressinstallningar">
-              <Row label="Visa land">
+            <Section title={t('fieldEditor', 'addressSettings')}>
+              <Row label={t('fieldEditor', 'showCountry')}>
                 <Switch
                   value={localField.showCountry !== false}
                   onValueChange={(v) => update({ showCountry: v })}
@@ -1308,7 +1314,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 />
               </Row>
               <Input
-                label="Standardland (landskod)"
+                label={t('fieldEditor', 'defaultCountry')}
                 value={localField.defaultCountry || 'SE'}
                 onChangeText={(v) => update({ defaultCountry: v.toUpperCase() })}
               />
@@ -1319,13 +1325,13 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* URL                              */}
           {/* =============================== */}
           {ft === 'url' && (
-            <Section title="URL-installningar">
+            <Section title={t('fieldEditor', 'urlSettings')}>
               <Input
-                label="Lanktext"
+                label={t('fieldEditor', 'linkText')}
                 value={localField.urlLinkText || ''}
                 onChangeText={(v) => update({ urlLinkText: v })}
               />
-              <Row label="Oppna i nytt fonster">
+              <Row label={t('fieldEditor', 'openInNewWindow')}>
                 <Switch
                   value={localField.urlOpenInNewTab !== false}
                   onValueChange={(v) => update({ urlOpenInNewTab: v })}
@@ -1339,11 +1345,13 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
           {/* CONDITIONAL LOGIC                */}
           {/* =============================== */}
           {!isLayoutType(ft) && (
-            <CollapsibleSection title="Villkorlig logik">
+            <CollapsibleSection title={t('fieldEditor', 'conditionalLogic')}>
               <ConditionalLogicEditor
                 field={localField}
                 allFields={allFields}
                 onUpdate={update}
+                t={t}
+                conditionOperators={conditionOperators}
               />
             </CollapsibleSection>
           )}
@@ -1360,7 +1368,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
               textColor={COLORS.accent}
               theme={{ colors: { outline: COLORS.accent } }}
             >
-              Duplicera falt
+              {t('fieldEditor', 'duplicateField')}
             </Button>
           )}
 
@@ -1375,7 +1383,7 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
             buttonColor={COLORS.danger}
             textColor="#fff"
           >
-            Ta bort falt
+            {t('fieldEditor', 'deleteField')}
           </Button>
 
           <View style={{ height: 60 }} />
@@ -1488,17 +1496,25 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 function OptionsEditor({
   options,
   onChange,
-  addLabel = 'Lagg till alternativ',
+  addLabel = 'Add option',
+  optionLabelText = 'Label',
+  optionValueText = 'Value',
+  optionDefaultLabel = 'Option {index}',
+  optionDefaultValue = 'option_{index}',
 }: {
   options: FieldOption[];
   onChange: (opts: FieldOption[]) => void;
   addLabel?: string;
+  optionLabelText?: string;
+  optionValueText?: string;
+  optionDefaultLabel?: string;
+  optionDefaultValue?: string;
 }) {
   const addOption = () => {
     const idx = options.length + 1;
     onChange([
       ...options,
-      { id: generateId(), label: `Alternativ ${idx}`, value: `alternativ_${idx}` },
+      { id: generateId(), label: optionDefaultLabel.replace('{index}', String(idx)), value: optionDefaultValue.replace('{index}', String(idx)) },
     ]);
   };
 
@@ -1564,7 +1580,7 @@ function OptionsEditor({
             </View>
             <View style={{ flex: 1 }}>
               <TextInput
-                label="Etikett"
+                label={optionLabelText}
                 value={opt.label}
                 onChangeText={(v) => updateOption(opt.id, v)}
                 mode="outlined"
@@ -1576,7 +1592,7 @@ function OptionsEditor({
                 theme={{ colors: { onSurfaceVariant: COLORS.textDim } }}
               />
               <TextInput
-                label="Varde"
+                label={optionValueText}
                 value={opt.value}
                 onChangeText={(v) => updateValue(opt.id, v)}
                 mode="outlined"
@@ -1788,10 +1804,14 @@ function ConditionalLogicEditor({
   field,
   allFields,
   onUpdate,
+  t,
+  conditionOperators,
 }: {
   field: FormField;
   allFields: FormField[];
   onUpdate: (updates: Partial<FormField>) => void;
+  t: (section: string, key: string, params?: Record<string, string>) => string;
+  conditionOperators: Array<{ label: string; value: string }>;
 }) {
   const logic = field.conditionalLogic || {
     enabled: false,
@@ -1835,7 +1855,7 @@ function ConditionalLogicEditor({
 
   return (
     <View>
-      <Row label="Aktivera villkor">
+      <Row label={t('fieldEditor', 'enableCondition')}>
         <Switch
           value={logic.enabled}
           onValueChange={(v) => setLogic({ enabled: v })}
@@ -1844,13 +1864,13 @@ function ConditionalLogicEditor({
       </Row>
       {logic.enabled && (
         <>
-          <Text style={styles.subLabel}>Aktion</Text>
+          <Text style={styles.subLabel}>{t('fieldEditor', 'action')}</Text>
           <SegmentedButtons
             value={logic.action}
             onValueChange={(v) => setLogic({ action: v as 'show' | 'hide' })}
             buttons={[
-              { value: 'show', label: 'Visa' },
-              { value: 'hide', label: 'Dolj' },
+              { value: 'show', label: t('fieldEditor', 'actionShow') },
+              { value: 'hide', label: t('fieldEditor', 'actionHide') },
             ]}
             style={styles.segmented}
             theme={{ colors: { secondaryContainer: COLORS.accent, onSecondaryContainer: '#fff' } }}
@@ -1859,7 +1879,7 @@ function ConditionalLogicEditor({
           {logic.conditions.map((cond) => (
             <View key={cond.id} style={styles.conditionCard}>
               {/* Field picker */}
-              <Text style={styles.conditionLabel}>Falt</Text>
+              <Text style={styles.conditionLabel}>{t('fieldEditor', 'conditionField')}</Text>
               <Menu
                 visible={fieldMenuVisible === cond.id}
                 onDismiss={() => setFieldMenuVisible(null)}
@@ -1870,7 +1890,7 @@ function ConditionalLogicEditor({
                   >
                     <Text style={styles.menuAnchorText} numberOfLines={1}>
                       {otherFields.find((f) => f.id === cond.fieldId)?.label ||
-                        'Valj falt'}
+                        t('fieldEditor', 'selectField')}
                     </Text>
                   </TouchableOpacity>
                 }
@@ -1890,7 +1910,7 @@ function ConditionalLogicEditor({
               </Menu>
 
               {/* Operator picker */}
-              <Text style={[styles.conditionLabel, { marginTop: 8 }]}>Operator</Text>
+              <Text style={[styles.conditionLabel, { marginTop: 8 }]}>{t('fieldEditor', 'operator')}</Text>
               <Menu
                 visible={operatorMenuVisible === cond.id}
                 onDismiss={() => setOperatorMenuVisible(null)}
@@ -1900,14 +1920,14 @@ function ConditionalLogicEditor({
                     onPress={() => setOperatorMenuVisible(cond.id)}
                   >
                     <Text style={styles.menuAnchorText}>
-                      {CONDITION_OPERATORS.find((op) => op.value === cond.operator)
+                      {conditionOperators.find((op) => op.value === cond.operator)
                         ?.label || cond.operator}
                     </Text>
                   </TouchableOpacity>
                 }
                 contentStyle={{ backgroundColor: COLORS.card }}
               >
-                {CONDITION_OPERATORS.map((op) => (
+                {conditionOperators.map((op) => (
                   <Menu.Item
                     key={op.value}
                     onPress={() => {
@@ -1923,7 +1943,7 @@ function ConditionalLogicEditor({
               {/* Value input */}
               {!['is_empty', 'is_not_empty'].includes(cond.operator) && (
                 <TextInput
-                  label="Varde"
+                  label={t('fieldEditor', 'conditionValue')}
                   value={String(cond.value)}
                   onChangeText={(v) => updateCondition(cond.id, { value: v })}
                   mode="outlined"
@@ -1954,7 +1974,7 @@ function ConditionalLogicEditor({
               onPress={addCondition}
               compact
             >
-              Lagg till villkor
+              {t('fieldEditor', 'addCondition')}
             </Button>
           )}
         </>

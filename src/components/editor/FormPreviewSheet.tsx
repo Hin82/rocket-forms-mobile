@@ -14,6 +14,7 @@ import { WebView } from 'react-native-webview';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { FormField, FormSettings } from '../../hooks/useFormEditor';
+import { useTranslation } from '../../translations';
 
 interface FormPreviewSheetProps {
   visible: boolean;
@@ -45,6 +46,7 @@ export default function FormPreviewSheet({
   settings,
   formName,
 }: FormPreviewSheetProps) {
+  const { t } = useTranslation();
   const titleStyle = settings.titleStyle;
   const titleFontSize = FONT_SIZE_MAP[titleStyle?.fontSize || '4xl'] || 36;
   const titleColor = titleStyle?.color || settings.textColor || '#111827';
@@ -99,7 +101,7 @@ export default function FormPreviewSheet({
 
       {/* Fields */}
       {fields.map((field) => (
-        <FieldPreview key={field.id} field={field} textColor={textColor} />
+        <FieldPreview key={field.id} field={field} textColor={textColor} t={t} />
       ))}
 
       {/* Submit button */}
@@ -108,7 +110,7 @@ export default function FormPreviewSheet({
         activeOpacity={0.8}
       >
         <Text style={styles.submitBtnText}>
-          {settings.submitButtonText || 'Skicka'}
+          {settings.submitButtonText || t('preview', 'submitBtn')}
         </Text>
       </TouchableOpacity>
     </ScrollView>
@@ -119,7 +121,7 @@ export default function FormPreviewSheet({
       <View style={styles.container}>
         {/* Close bar */}
         <View style={styles.closeBar}>
-          <Text style={styles.closeBarTitle}>Forhandsgranskning</Text>
+          <Text style={styles.closeBarTitle}>{t('preview', 'previewTitle')}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
             <MaterialCommunityIcons name="close" size={24} color="#fff" />
           </TouchableOpacity>
@@ -143,7 +145,7 @@ export default function FormPreviewSheet({
 
 // ---- Field Preview ----
 
-function FieldPreview({ field, textColor }: { field: FormField; textColor: string }) {
+function FieldPreview({ field, textColor, t }: { field: FormField; textColor: string; t: (section: string, key: string) => string }) {
   if (field.type === 'hidden') return null;
 
   switch (field.type) {
@@ -152,7 +154,7 @@ function FieldPreview({ field, textColor }: { field: FormField; textColor: strin
     case 'text-display':
       return <TextDisplayPreview field={field} />;
     case 'page-break':
-      return <PageBreakPreview field={field} textColor={textColor} />;
+      return <PageBreakPreview field={field} textColor={textColor} t={t} />;
     default:
       return (
         <View style={styles.fieldContainer}>
@@ -162,7 +164,7 @@ function FieldPreview({ field, textColor }: { field: FormField; textColor: strin
               {field.description}
             </Text>
           ) : null}
-          <FieldInput field={field} textColor={textColor} />
+          <FieldInput field={field} textColor={textColor} t={t} />
         </View>
       );
   }
@@ -185,7 +187,7 @@ function FieldLabel({
   );
 }
 
-function FieldInput({ field, textColor }: { field: FormField; textColor: string }) {
+function FieldInput({ field, textColor, t }: { field: FormField; textColor: string; t: (section: string, key: string) => string }) {
   const inputStyle = [styles.previewInput, { color: textColor, borderColor: textColor + '33' }];
 
   switch (field.type) {
@@ -222,13 +224,13 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
         <View style={styles.nameRow}>
           <TextInput
             style={[...inputStyle, styles.nameInput]}
-            placeholder={field.firstNamePlaceholder || 'Fornamn'}
+            placeholder={field.firstNamePlaceholder || t('preview', 'firstName')}
             placeholderTextColor={textColor + '55'}
             editable={false}
           />
           <TextInput
             style={[...inputStyle, styles.nameInput]}
-            placeholder={field.lastNamePlaceholder || 'Efternamn'}
+            placeholder={field.lastNamePlaceholder || t('preview', 'lastName')}
             placeholderTextColor={textColor + '55'}
             editable={false}
           />
@@ -239,7 +241,7 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
       return (
         <View style={[styles.previewInput, styles.selectInput, { borderColor: textColor + '33' }]}>
           <Text style={{ color: textColor + '55', flex: 1 }}>
-            {field.placeholder || 'Valj ett alternativ...'}
+            {field.placeholder || t('preview', 'selectOption')}
           </Text>
           <MaterialCommunityIcons name="chevron-down" size={20} color={textColor + '55'} />
         </View>
@@ -273,10 +275,10 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
       return (
         <View style={styles.yesNoRow}>
           <TouchableOpacity style={styles.yesNoBtn} activeOpacity={1}>
-            <Text style={styles.yesNoBtnText}>Ja</Text>
+            <Text style={styles.yesNoBtnText}>{t('preview', 'yes')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.yesNoBtn} activeOpacity={1}>
-            <Text style={styles.yesNoBtnText}>Nej</Text>
+            <Text style={styles.yesNoBtnText}>{t('preview', 'no')}</Text>
           </TouchableOpacity>
         </View>
       );
@@ -342,7 +344,7 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
         <View style={[styles.placeholderBox, { borderColor: textColor + '33' }]}>
           <MaterialCommunityIcons name="draw" size={28} color={textColor + '55'} />
           <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>
-            Signaturfalt
+            {t('preview', 'signatureField')}
           </Text>
         </View>
       );
@@ -357,7 +359,7 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
             color={textColor + '55'}
           />
           <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>
-            {field.type === 'image' ? 'Ladda upp bild' : 'Ladda upp fil'}
+            {field.type === 'image' ? t('preview', 'uploadImage') : t('preview', 'uploadFile')}
           </Text>
         </View>
       );
@@ -368,7 +370,7 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
         return (
           <View style={[styles.placeholderBox, { borderColor: textColor + '33' }]}>
             <MaterialCommunityIcons name="file-document-outline" size={28} color={textColor + '55'} />
-            <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>Inget dokument valt</Text>
+            <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>{t('preview', 'noDocument')}</Text>
           </View>
         );
       }
@@ -404,11 +406,11 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
     case 'address':
       return (
         <View style={styles.addressStack}>
-          <TextInput style={inputStyle} placeholder="Gatuadress" placeholderTextColor={textColor + '55'} editable={false} />
-          <TextInput style={inputStyle} placeholder="Postnummer" placeholderTextColor={textColor + '55'} editable={false} />
-          <TextInput style={inputStyle} placeholder="Ort" placeholderTextColor={textColor + '55'} editable={false} />
+          <TextInput style={inputStyle} placeholder={t('preview', 'streetAddress')} placeholderTextColor={textColor + '55'} editable={false} />
+          <TextInput style={inputStyle} placeholder={t('preview', 'postalCode')} placeholderTextColor={textColor + '55'} editable={false} />
+          <TextInput style={inputStyle} placeholder={t('preview', 'city')} placeholderTextColor={textColor + '55'} editable={false} />
           {field.showCountry !== false && (
-            <TextInput style={inputStyle} placeholder="Land" placeholderTextColor={textColor + '55'} editable={false} />
+            <TextInput style={inputStyle} placeholder={t('preview', 'country')} placeholderTextColor={textColor + '55'} editable={false} />
           )}
         </View>
       );
@@ -494,7 +496,7 @@ function FieldInput({ field, textColor }: { field: FormField; textColor: string 
       return (
         <View style={[styles.placeholderBox, { borderColor: textColor + '33', height: 120 }]}>
           <MaterialCommunityIcons name="draw" size={28} color={textColor + '55'} />
-          <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>Rityta</Text>
+          <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>{t('preview', 'drawingArea')}</Text>
         </View>
       );
 
@@ -546,12 +548,12 @@ function TextDisplayPreview({ field }: { field: FormField }) {
   );
 }
 
-function PageBreakPreview({ field, textColor }: { field: FormField; textColor: string }) {
+function PageBreakPreview({ field, textColor, t }: { field: FormField; textColor: string; t: (section: string, key: string) => string }) {
   return (
     <View style={styles.pageBreakContainer}>
       <View style={styles.pageBreakLine} />
       <Text style={[styles.pageBreakTitle, { color: textColor }]}>
-        {field.pageTitle || 'Nasta sida'}
+        {field.pageTitle || t('preview', 'nextPage')}
       </Text>
       {field.pageDescription ? (
         <Text style={[styles.pageBreakDesc, { color: textColor + '88' }]}>
