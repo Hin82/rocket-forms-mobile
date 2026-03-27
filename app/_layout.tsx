@@ -68,7 +68,6 @@ function TranslatedStack() {
       headerStyle: { backgroundColor: '#1a1a2e' },
       headerTintColor: '#ffffff',
       headerRight: () => <HeaderLogo />,
-      headerRightContainerStyle: { paddingRight: 16 },
     }}>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

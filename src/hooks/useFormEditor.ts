@@ -394,12 +394,12 @@ export function useFormEditor(formId: string) {
   }, [form, queryClient]);
 
   const updateForm = useCallback((updates: Partial<FormData>) => {
-    setForm(prev => prev ? { ...prev, ...updates } : prev);
+    setForm((prev: FormData | null) => prev ? { ...prev, ...updates } : prev);
     setDirty(true);
   }, []);
 
   const updateSettings = useCallback((updates: Partial<FormSettings>) => {
-    setForm(prev => {
+    setForm((prev: FormData | null) => {
       if (!prev) return prev;
       return { ...prev, settings: { ...prev.settings, ...updates } };
     });
@@ -407,48 +407,8 @@ export function useFormEditor(formId: string) {
   }, []);
 
   const addField = useCallback((type: FieldType) => {
-    const fieldTypeKey = getFieldTypeKey(type);
-    const newField: FormField = {
-      id: generateId(),
-      type,
-      label: t('fieldTypes', fieldTypeKey),
-      required: false,
-    };
-    // Add default options for choice fields
-    if (['select', 'radio', 'checkbox'].includes(type)) {
-      newField.options = [
-        { id: generateId(), label: `${t('formEditor', 'option')} 1`, value: 'option_1' },
-        { id: generateId(), label: `${t('formEditor', 'option')} 2`, value: 'option_2' },
-      ];
-    }
-    if (type === 'rating') newField.ratingScale = 5;
-    if (type === 'slider') {
-      newField.min = 0;
-      newField.max = 100;
-      newField.step = 1;
-    }
-    if (type === 'likert') {
-      newField.likertOptions = [
-        t('formEditor', 'likertStronglyDisagree'),
-        t('formEditor', 'likertDisagree'),
-        t('formEditor', 'likertNeutral'),
-        t('formEditor', 'likertAgree'),
-        t('formEditor', 'likertStronglyAgree'),
-      ];
-    }
-    if (type === 'currency') newField.currency = 'SEK';
-    if (type === 'matrix') {
-      newField.matrixRows = [
-        { id: generateId(), label: `${t('formEditor', 'row')} 1` },
-        { id: generateId(), label: `${t('formEditor', 'row')} 2` },
-      ];
-      newField.matrixColumns = [
-        { id: generateId(), label: `${t('formEditor', 'column')} 1` },
-        { id: generateId(), label: `${t('formEditor', 'column')} 2` },
-      ];
-      newField.matrixInputType = 'radio';
-    }
-    setForm(prev => {
+    const newField = createFieldWithDefaults(type, t);
+    setForm((prev: FormData | null) => {
       if (!prev) return prev;
       return { ...prev, fields: [...prev.fields, newField] };
     });
@@ -457,11 +417,11 @@ export function useFormEditor(formId: string) {
   }, [t]);
 
   const updateField = useCallback((fieldId: string, updates: Partial<FormField>) => {
-    setForm(prev => {
+    setForm((prev: FormData | null) => {
       if (!prev) return prev;
       return {
         ...prev,
-        fields: prev.fields.map(f => f.id === fieldId ? { ...f, ...updates } : f),
+        fields: prev.fields.map((f: FormField) => f.id === fieldId ? { ...f, ...updates } : f),
       };
     });
     setDirty(true);
@@ -543,4 +503,63 @@ function getFieldTypeKey(type: FieldType): string {
     'page-break': 'pageBreak',
   };
   return keyMap[type] || type;
+}
+
+/**
+ * Shared field factory that creates a complete field object with all necessary defaults.
+ * This ensures consistent field initialization across the app (mobile create screen, editor, etc.)
+ */
+export function createFieldWithDefaults(
+  type: FieldType,
+  t: (section: string, key: string) => string
+): FormField {
+  const fieldTypeKey = getFieldTypeKey(type);
+  const newField: FormField = {
+    id: generateId(),
+    type,
+    label: t('fieldTypes', fieldTypeKey),
+    required: false,
+  };
+
+  // Add default options for choice fields
+  if (['select', 'radio', 'checkbox'].includes(type)) {
+    newField.options = [
+      { id: generateId(), label: `${t('formEditor', 'option')} 1`, value: 'option_1' },
+      { id: generateId(), label: `${t('formEditor', 'option')} 2`, value: 'option_2' },
+    ];
+  }
+
+  if (type === 'rating') newField.ratingScale = 5;
+
+  if (type === 'slider') {
+    newField.min = 0;
+    newField.max = 100;
+    newField.step = 1;
+  }
+
+  if (type === 'likert') {
+    newField.likertOptions = [
+      t('formEditor', 'likertStronglyDisagree'),
+      t('formEditor', 'likertDisagree'),
+      t('formEditor', 'likertNeutral'),
+      t('formEditor', 'likertAgree'),
+      t('formEditor', 'likertStronglyAgree'),
+    ];
+  }
+
+  if (type === 'currency') newField.currency = 'SEK';
+
+  if (type === 'matrix') {
+    newField.matrixRows = [
+      { id: generateId(), label: `${t('formEditor', 'row')} 1` },
+      { id: generateId(), label: `${t('formEditor', 'row')} 2` },
+    ];
+    newField.matrixColumns = [
+      { id: generateId(), label: `${t('formEditor', 'column')} 1` },
+      { id: generateId(), label: `${t('formEditor', 'column')} 2` },
+    ];
+    newField.matrixInputType = 'radio';
+  }
+
+  return newField;
 }

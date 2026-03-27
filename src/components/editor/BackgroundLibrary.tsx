@@ -51,6 +51,45 @@ interface BackgroundLibraryProps {
   currentBackground?: string;
 }
 
+/**
+ * Converts a CSS linear-gradient string to an SVG data URI
+ * so it can be used as an image source
+ */
+function gradientToDataUrl(cssGradient: string): string {
+  // Create a minimal SVG with the gradient as a background
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          ${extractGradientStops(cssGradient)}
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" fill="url(#grad)"/>
+    </svg>
+  `.trim();
+
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+}
+
+/**
+ * Extracts color stops from a linear-gradient CSS string and converts to SVG stop elements
+ */
+function extractGradientStops(cssGradient: string): string {
+  // Extract colors from linear-gradient(135deg, #color1 0%, #color2 100%)
+  const match = cssGradient.match(/linear-gradient\([^,]+,\s*(.+)\)/);
+  if (!match) return '';
+
+  const stopsStr = match[1];
+  const stops = stopsStr.split(',').map(s => s.trim());
+
+  return stops.map(stop => {
+    const parts = stop.split(/\s+/);
+    const color = parts[0];
+    const offset = parts[1] || '0%';
+    return `<stop offset="${offset}" stop-color="${color}"/>`;
+  }).join('\n        ');
+}
+
 export default function BackgroundLibrary({ visible, onClose, onSelect, currentBackground }: BackgroundLibraryProps) {
   const { t } = useTranslation();
   const [tab, setTab] = useState('photos');
@@ -94,7 +133,9 @@ export default function BackgroundLibrary({ visible, onClose, onSelect, currentB
   }, [onSelect, onClose]);
 
   const handleSelectGradient = useCallback((gradient: typeof GRADIENTS[0]) => {
-    onSelect(gradient.css);
+    // Convert CSS gradient to data URI so it's compatible with image-based rendering
+    const dataUri = gradientToDataUrl(gradient.css);
+    onSelect(dataUri);
     onClose();
   }, [onSelect, onClose]);
 

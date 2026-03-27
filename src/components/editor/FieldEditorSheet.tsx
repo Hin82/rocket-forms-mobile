@@ -33,6 +33,7 @@ const COLORS = {
 
 const CURRENCIES = ['SEK', 'NOK', 'DKK', 'EUR', 'USD', 'GBP', 'CHF'];
 
+// Shared field type key mapping - matches the one in useFormEditor.ts
 const FIELD_TYPE_KEY_MAP: Record<string, string> = {
   text: 'text',
   email: 'email',
@@ -69,6 +70,8 @@ const FIELD_TYPE_KEY_MAP: Record<string, string> = {
   address: 'address',
   matrix: 'matrix',
   drawing: 'drawing',
+  'multi-text-row': 'multiTextRow',
+  recaptcha: 'recaptcha',
 };
 
 // ---- Interfaces ----
@@ -1496,11 +1499,11 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 function OptionsEditor({
   options,
   onChange,
-  addLabel = 'Add option',
-  optionLabelText = 'Label',
-  optionValueText = 'Value',
-  optionDefaultLabel = 'Option {index}',
-  optionDefaultValue = 'option_{index}',
+  addLabel,
+  optionLabelText,
+  optionValueText,
+  optionDefaultLabel,
+  optionDefaultValue,
 }: {
   options: FieldOption[];
   onChange: (opts: FieldOption[]) => void;
@@ -1510,11 +1513,20 @@ function OptionsEditor({
   optionDefaultLabel?: string;
   optionDefaultValue?: string;
 }) {
+  const { t } = useTranslation();
+
+  // Use translated defaults if not provided
+  const finalAddLabel = addLabel || t('fieldEditor', 'addOption');
+  const finalOptionLabelText = optionLabelText || t('fieldEditor', 'optionLabel');
+  const finalOptionValueText = optionValueText || t('fieldEditor', 'optionValue');
+  const finalOptionDefaultLabel = optionDefaultLabel || t('fieldEditor', 'optionDefault');
+  const finalOptionDefaultValue = optionDefaultValue || t('fieldEditor', 'optionValueDefault');
+
   const addOption = () => {
     const idx = options.length + 1;
     onChange([
       ...options,
-      { id: generateId(), label: optionDefaultLabel.replace('{index}', String(idx)), value: optionDefaultValue.replace('{index}', String(idx)) },
+      { id: generateId(), label: finalOptionDefaultLabel.replace('{index}', String(idx)), value: finalOptionDefaultValue.replace('{index}', String(idx)) },
     ]);
   };
 
@@ -1580,7 +1592,7 @@ function OptionsEditor({
             </View>
             <View style={{ flex: 1 }}>
               <TextInput
-                label={optionLabelText}
+                label={finalOptionLabelText}
                 value={opt.label}
                 onChangeText={(v) => updateOption(opt.id, v)}
                 mode="outlined"
@@ -1592,7 +1604,7 @@ function OptionsEditor({
                 theme={{ colors: { onSurfaceVariant: COLORS.textDim } }}
               />
               <TextInput
-                label={optionValueText}
+                label={finalOptionValueText}
                 value={opt.value}
                 onChangeText={(v) => updateValue(opt.id, v)}
                 mode="outlined"
@@ -1614,7 +1626,7 @@ function OptionsEditor({
         </View>
       ))}
       <Button mode="text" icon="plus" textColor={COLORS.accent} onPress={addOption} compact>
-        {addLabel}
+        {finalAddLabel}
       </Button>
     </View>
   );

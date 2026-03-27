@@ -9,18 +9,12 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { useFormGroups } from '@/src/hooks/useForms';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from '@/src/translations';
-
-interface NewField {
-  id: string;
-  type: string;
-  label: string;
-  required: boolean;
-}
+import { createFieldWithDefaults, type FormField } from '@/src/hooks/useFormEditor';
 
 export default function CreateFormScreen() {
   const [formName, setFormName] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [fields, setFields] = useState<NewField[]>([]);
+  const [fields, setFields] = useState<FormField[]>([]);
   const [step, setStep] = useState(1);
 
   const { user } = useAuth();
@@ -120,16 +114,11 @@ export default function CreateFormScreen() {
 
   const createForm = useMutation({
     mutationFn: async () => {
+      // Fields are now created with createFieldWithDefaults, which includes all necessary properties
+      // (likertOptions, matrixRows, matrixColumns, etc.) so we can use them directly
       const formFields = fields.map((f, i) => ({
-        id: f.id,
-        type: f.type,
-        label: f.label,
-        required: f.required,
+        ...f,
         order: i,
-        placeholder: '',
-        options: f.type === 'select' || f.type === 'radio' || f.type === 'checkbox'
-          ? [`${t('create', 'option')} 1`, `${t('create', 'option')} 2`, `${t('create', 'option')} 3`]
-          : undefined,
       }));
 
       const { data, error } = await supabase.from('forms').insert({
@@ -155,12 +144,11 @@ export default function CreateFormScreen() {
 
   const addField = (type: string, label: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setFields(prev => [...prev, {
-      id: `field_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      type,
-      label,
-      required: false,
-    }]);
+    // Use the shared field factory to ensure complete field initialization
+    const newField = createFieldWithDefaults(type as any, t);
+    // Override label to use the translated label from the palette
+    newField.label = label;
+    setFields(prev => [...prev, newField]);
   };
 
   const removeField = (id: string) => {

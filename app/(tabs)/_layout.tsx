@@ -20,7 +20,6 @@ export default function TabLayout() {
         },
         headerTintColor: '#ffffff',
         headerRight: () => <HeaderLogo />,
-        headerRightContainerStyle: { paddingRight: 16 },
       }}
     >
       <Tabs.Screen
