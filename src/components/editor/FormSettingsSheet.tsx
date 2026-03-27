@@ -6,6 +6,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../../lib/supabase';
 import ColorPickerField from './ColorPickerField';
+import BackgroundLibrary from './BackgroundLibrary';
 import { useTranslation } from '@/src/translations';
 import type { FormSettings } from '../../hooks/useFormEditor';
 
@@ -72,6 +73,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
     const [name, setName] = useState(formName);
     const [email, setEmail] = useState(notificationEmail || '');
     const [sender, setSender] = useState(senderName || '');
+    const [showBgLibrary, setShowBgLibrary] = useState(false);
 
     // Translated option arrays
     const bgSizes = useMemo(() => [
@@ -251,17 +253,36 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
               onChange={(c) => onUpdateSettings({ textColor: c })}
             />
 
-            <TextInput
-              label={t('formSettings', 'backgroundImageUrl')}
-              value={settings.backgroundImage || ''}
-              onChangeText={(v) => onUpdateSettings({ backgroundImage: v || undefined })}
-              mode="outlined"
-              style={styles.input}
-              textColor="#fff"
-              outlineColor="#2d2d44"
-              activeOutlineColor="#e8622c"
-              theme={{ colors: { onSurfaceVariant: '#888' } }}
-              autoCapitalize="none"
+            {/* Background preview + browse button */}
+            {settings.backgroundImage ? (
+              <View style={styles.bgPreview}>
+                <Image
+                  source={{ uri: settings.backgroundImage }}
+                  style={styles.bgPreviewImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.bgPreviewActions}>
+                  <TouchableOpacity onPress={() => setShowBgLibrary(true)} style={styles.bgChangeBtn}>
+                    <MaterialCommunityIcons name="image-edit-outline" size={16} color="#fff" />
+                    <Text style={styles.bgChangeBtnText}>{t('formSettings', 'changeBackground')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => onUpdateSettings({ backgroundImage: undefined })} style={styles.bgRemoveBtn}>
+                    <MaterialCommunityIcons name="close" size={16} color="#cc3333" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity onPress={() => setShowBgLibrary(true)} style={styles.bgBrowseBtn}>
+                <MaterialCommunityIcons name="image-plus" size={24} color="#e8622c" />
+                <Text style={styles.bgBrowseBtnText}>{t('formSettings', 'browseBackgrounds')}</Text>
+              </TouchableOpacity>
+            )}
+
+            <BackgroundLibrary
+              visible={showBgLibrary}
+              onClose={() => setShowBgLibrary(false)}
+              onSelect={(bg) => onUpdateSettings({ backgroundImage: bg || undefined })}
+              currentBackground={settings.backgroundImage}
             />
 
             {/* Background size */}
@@ -723,4 +744,18 @@ const styles = StyleSheet.create({
     borderBottomColor: '#2d2d44',
   },
   toggleLabel: { color: '#ccc', fontSize: 14, flex: 1 },
+
+  // Background preview
+  bgPreview: { borderRadius: 12, overflow: 'hidden', backgroundColor: '#252540', marginBottom: 8 },
+  bgPreviewImage: { width: '100%', height: 120, borderRadius: 12 },
+  bgPreviewActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 8 },
+  bgChangeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  bgChangeBtnText: { color: '#fff', fontSize: 13 },
+  bgRemoveBtn: { padding: 4 },
+  bgBrowseBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    paddingVertical: 16, borderRadius: 12, borderWidth: 1, borderColor: '#2d2d44',
+    borderStyle: 'dashed', backgroundColor: '#1e1e2e',
+  },
+  bgBrowseBtnText: { color: '#ccc', fontSize: 14 },
 });
