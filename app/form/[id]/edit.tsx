@@ -7,7 +7,7 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import { Text, ActivityIndicator, FAB, IconButton, Badge } from 'react-native-paper';
+import { Text, ActivityIndicator, FAB, IconButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
@@ -27,6 +27,12 @@ import ShareSheet from '@/src/components/editor/ShareSheet';
 import VersionHistorySheet from '@/src/components/editor/VersionHistorySheet';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useTranslation } from '@/src/translations';
+
+// Map field type identifiers (with hyphens) to translation keys (camelCase)
+const FIELD_TYPE_KEYS: Record<string, string> = {
+  'text-display': 'textDisplay', 'page-break': 'pageBreak',
+  'html-block': 'htmlBlock', 'multi-text-row': 'multiTextRow',
+};
 
 const FIELD_ICONS: Record<string, string> = {
   text: 'form-textbox',
@@ -227,7 +233,10 @@ export default function FormEditorScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle} numberOfLines={1}>{form.name}</Text>
-          {dirty && <Text style={styles.unsavedBadge}>{t('editor', 'unsaved')}</Text>}
+          <View style={styles.headerMeta}>
+            <Text style={styles.fieldCount}>{form.fields.length} {t('editor', 'fieldsCount')}</Text>
+            {dirty && <Text style={styles.unsavedBadge}>{t('editor', 'unsaved')}</Text>}
+          </View>
         </View>
         <View style={styles.headerRight}>
           <IconButton
@@ -278,6 +287,26 @@ export default function FormEditorScreen() {
           <MaterialCommunityIcons name="form-textbox" size={64} color="#2d2d44" />
           <Text style={styles.emptyTitle}>{t('editor', 'noFields')}</Text>
           <Text style={styles.emptySubtitle}>{t('editor', 'tapToAddFields')}</Text>
+
+          <View style={styles.tipsList}>
+            <View style={styles.tipRow}>
+              <MaterialCommunityIcons name="plus-circle-outline" size={18} color="#e8622c" />
+              <Text style={styles.tipText}>{t('editor', 'tipAdd')}</Text>
+            </View>
+            <View style={styles.tipRow}>
+              <MaterialCommunityIcons name="drag" size={18} color="#e8622c" />
+              <Text style={styles.tipText}>{t('editor', 'tipDrag')}</Text>
+            </View>
+            <View style={styles.tipRow}>
+              <MaterialCommunityIcons name="gesture-swipe-left" size={18} color="#e8622c" />
+              <Text style={styles.tipText}>{t('editor', 'tipSwipe')}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity onPress={handleOpenPalette} style={styles.emptyAddBtn}>
+            <MaterialCommunityIcons name="plus" size={22} color="#fff" />
+            <Text style={styles.emptyAddBtnText}>{t('editor', 'addFirstField')}</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <DraggableFlatList
@@ -417,10 +446,10 @@ function SwipeableFieldRow({
         </View>
         <View style={styles.fieldInfo}>
           <Text style={styles.fieldLabel} numberOfLines={1}>{field.label}</Text>
-          <Text style={styles.fieldType}>{field.type}</Text>
+          <Text style={styles.fieldType}>{t('fieldTypes', FIELD_TYPE_KEYS[field.type] || field.type)}</Text>
         </View>
         {field.required && (
-          <Badge style={styles.requiredBadge} size={20}>*</Badge>
+          <View style={styles.requiredDot} />
         )}
         <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />
       </TouchableOpacity>
@@ -450,7 +479,9 @@ const styles = StyleSheet.create({
   headerBackBtn: { padding: 4 },
   headerCenter: { flex: 1, marginHorizontal: 4 },
   headerTitle: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  unsavedBadge: { color: '#e8622c', fontSize: 11, marginTop: 2 },
+  headerMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
+  fieldCount: { color: '#666', fontSize: 11 },
+  unsavedBadge: { color: '#e8622c', fontSize: 11 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 0 },
   headerIconBtn: { margin: 0, width: 36, height: 36 },
   saveBtn: {
@@ -467,9 +498,18 @@ const styles = StyleSheet.create({
   listContent: { padding: 12, paddingBottom: 100 },
 
   // Empty state
-  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
   emptyTitle: { color: '#888', fontSize: 18, fontWeight: '600', marginTop: 16 },
-  emptySubtitle: { color: '#555', fontSize: 14, marginTop: 4 },
+  emptySubtitle: { color: '#555', fontSize: 14, marginTop: 4, textAlign: 'center' },
+  tipsList: { marginTop: 24, gap: 10, alignSelf: 'stretch' },
+  tipRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 },
+  tipText: { color: '#888', fontSize: 13 },
+  emptyAddBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#e8622c', borderRadius: 12,
+    paddingHorizontal: 24, paddingVertical: 14, marginTop: 28,
+  },
+  emptyAddBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
   // Field card
   fieldCard: {
@@ -500,7 +540,7 @@ const styles = StyleSheet.create({
   fieldInfo: { flex: 1 },
   fieldLabel: { color: '#fff', fontSize: 15, fontWeight: '500' },
   fieldType: { color: '#666', fontSize: 12, marginTop: 2 },
-  requiredBadge: { backgroundColor: '#e8622c', marginRight: 8 },
+  requiredDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#e8622c', marginRight: 8 },
 
   // Swipe
   swipeActions: { flexDirection: 'row', width: 160 },

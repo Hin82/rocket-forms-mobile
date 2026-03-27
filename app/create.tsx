@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Pressable } from 'react-native';
 import { Text, TextInput, Button, List, Chip } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -118,6 +119,76 @@ export default function CreateFormScreen() {
     },
   ];
 
+  // Templates matching web app (FormTemplates.tsx)
+  const TEMPLATES = [
+    {
+      id: 'contact',
+      icon: 'email-outline' as const,
+      color: '#4facfe',
+      fields: [
+        { type: 'text', labelKey: 'name', required: true },
+        { type: 'email', labelKey: 'email', required: true },
+        { type: 'textarea', labelKey: 'textarea', required: true },
+      ],
+      settings: { backgroundColor: '#ffffff', textColor: '#000000', borderRadius: 8 },
+    },
+    {
+      id: 'feedback',
+      icon: 'star-outline' as const,
+      color: '#43e97b',
+      fields: [
+        { type: 'text', labelKey: 'name', required: false },
+        { type: 'rating', labelKey: 'rating', required: true },
+        { type: 'textarea', labelKey: 'textarea', required: false },
+      ],
+      settings: { backgroundColor: '#f7f7f7', textColor: '#000000', borderRadius: 8 },
+    },
+    {
+      id: 'event',
+      icon: 'calendar-check-outline' as const,
+      color: '#667eea',
+      fields: [
+        { type: 'name', labelKey: 'name', required: true },
+        { type: 'email', labelKey: 'email', required: true },
+        { type: 'phone', labelKey: 'phone', required: false },
+        { type: 'select', labelKey: 'select', required: true },
+        { type: 'checkbox', labelKey: 'checkbox', required: false },
+      ],
+      settings: { backgroundColor: '#edf7ff', textColor: '#000000', borderRadius: 8 },
+    },
+  ];
+
+  const applyTemplate = async (template: typeof TEMPLATES[0]) => {
+    const templateFields = template.fields.map((f, i) => ({
+      id: `field_${Date.now()}_${i}`,
+      type: f.type,
+      label: t('fieldTypes', f.labelKey),
+      required: f.required,
+      order: i,
+      placeholder: '',
+      options: f.type === 'select' || f.type === 'radio' || f.type === 'checkbox'
+        ? [`${t('create', 'option')} 1`, `${t('create', 'option')} 2`, `${t('create', 'option')} 3`]
+        : undefined,
+    }));
+
+    try {
+      const { data, error } = await supabase.from('forms').insert({
+        name: formName.trim() || t('templates', template.id),
+        fields: templateFields,
+        settings: template.settings,
+        user_id: user!.id,
+        form_group_id: selectedGroup,
+      }).select().single();
+
+      if (error) throw error;
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
+      router.replace(`/form/${data.id}/edit`);
+    } catch (err: any) {
+      Alert.alert(t('create', 'error'), err.message || t('create', 'couldNotCreate'));
+    }
+  };
+
   const createForm = useMutation({
     mutationFn: async () => {
       const formFields = fields.map((f, i) => ({
@@ -206,12 +277,35 @@ export default function CreateFormScreen() {
             </>
           )}
 
+          {/* Templates */}
+          <Text variant="titleSmall" style={styles.sectionLabel}>{t('templates', 'quickStart')}</Text>
+          <Text style={styles.sectionHint}>{t('templates', 'quickStartDesc')}</Text>
+          <View style={styles.templateGrid}>
+            {TEMPLATES.map(tmpl => (
+              <Pressable
+                key={tmpl.id}
+                onPress={() => applyTemplate(tmpl)}
+                style={styles.templateCard}
+              >
+                <View style={[styles.templateIcon, { backgroundColor: tmpl.color + '20' }]}>
+                  <MaterialCommunityIcons name={tmpl.icon} size={28} color={tmpl.color} />
+                </View>
+                <Text style={styles.templateName}>{t('templates', tmpl.id)}</Text>
+                <Text style={styles.templateDesc}>{t('templates', `${tmpl.id}Desc`)}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          {/* Or create from scratch */}
+          <Text variant="titleSmall" style={[styles.sectionLabel, { marginTop: 24 }]}>{t('templates', 'orFromScratch')}</Text>
+
           <Button
             mode="contained"
             onPress={() => setStep(2)}
             disabled={!formName.trim()}
             style={styles.nextButton}
             contentStyle={styles.buttonContent}
+            icon="plus"
           >
             {t('create', 'nextAddFields')}
           </Button>
@@ -301,4 +395,23 @@ const styles = StyleSheet.create({
   categoryTitle: { color: '#e8622c', fontSize: 13, fontWeight: '600', textTransform: 'uppercase', marginBottom: 8, letterSpacing: 1 },
   fieldChip: { backgroundColor: '#2d2d44' },
   fieldChipText: { color: '#ccc' },
+  sectionLabel: { color: '#fff', marginBottom: 4, fontWeight: '600' },
+  sectionHint: { color: '#666', fontSize: 13, marginBottom: 12 },
+  templateGrid: { gap: 12 },
+  templateCard: {
+    backgroundColor: '#1e1e2e',
+    borderRadius: 14,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    borderWidth: 1,
+    borderColor: '#2d2d44',
+  },
+  templateIcon: {
+    width: 52, height: 52, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  templateName: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  templateDesc: { color: '#888', fontSize: 13, marginTop: 2 },
 });
