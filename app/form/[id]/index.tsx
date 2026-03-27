@@ -44,17 +44,38 @@ export default function FormDetailScreen() {
     },
   });
 
-  const { data: submissionCount } = useQuery({
-    queryKey: ['submissionCount', id],
+  const { data: stats } = useQuery({
+    queryKey: ['formStats', id],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from('submissions')
-        .select('id', { count: 'exact', head: true })
-        .eq('form_id', id);
+        .select('submitted_at')
+        .eq('form_id', id)
+        .order('submitted_at', { ascending: false });
       if (error) throw error;
-      return count || 0;
+
+      const total = data?.length || 0;
+      const lastSubmission = data?.[0]?.submitted_at || null;
+
+      // This week vs last week
+      const now = new Date();
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+      const thisWeek = (data || []).filter(s => new Date(s.submitted_at) >= weekAgo).length;
+      const lastWeek = (data || []).filter(s => {
+        const d = new Date(s.submitted_at);
+        return d >= twoWeeksAgo && d < weekAgo;
+      }).length;
+
+      // Today
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const today = (data || []).filter(s => new Date(s.submitted_at) >= todayStart).length;
+
+      return { total, lastSubmission, thisWeek, lastWeek, today };
     },
   });
+
+  const submissionCount = stats?.total ?? 0;
 
   const formUrl = `https://rocketformspro.com/form/${id}`;
 
@@ -166,6 +187,39 @@ export default function FormDetailScreen() {
         </Card.Content>
       </Card>
 
+      {/* Stats */}
+      {stats && stats.total > 0 && (
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{stats.today}</Text>
+            <Text style={styles.statLabel}>{t('forms', 'today')}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{stats.thisWeek}</Text>
+            <Text style={styles.statLabel}>{t('forms', 'thisWeek')}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <View style={styles.trendRow}>
+              <Text style={styles.statValue}>{stats.total}</Text>
+              {stats.thisWeek > stats.lastWeek ? (
+                <MaterialCommunityIcons name="trending-up" size={16} color="#22c55e" />
+              ) : stats.thisWeek < stats.lastWeek ? (
+                <MaterialCommunityIcons name="trending-down" size={16} color="#ef4444" />
+              ) : null}
+            </View>
+            <Text style={styles.statLabel}>{t('forms', 'totalSubs')}</Text>
+          </View>
+          {stats.lastSubmission && (
+            <View style={styles.statCard}>
+              <Text style={styles.statValueSmall}>
+                {new Date(stats.lastSubmission).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}
+              </Text>
+              <Text style={styles.statLabel}>{t('forms', 'lastSub')}</Text>
+            </View>
+          )}
+        </View>
+      )}
+
       <View style={styles.actions}>
         <Button mode="contained" icon="pencil-outline" onPress={() => router.push(`/form/${id}/edit`)} style={styles.editButton} contentStyle={styles.editContent} labelStyle={styles.editLabel}>
           {t('forms', 'editForm')}
@@ -229,6 +283,17 @@ const styles = StyleSheet.create({
   chip: { backgroundColor: '#2d2d44' },
   chipText: { color: '#ccc', fontSize: 12 },
   date: { color: '#666' },
+  statsRow: {
+    flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginBottom: 16,
+  },
+  statCard: {
+    flex: 1, backgroundColor: '#1e1e2e', borderRadius: 12, padding: 12,
+    alignItems: 'center', borderWidth: 1, borderColor: '#2d2d44',
+  },
+  statValue: { color: '#fff', fontSize: 22, fontWeight: '700' },
+  statValueSmall: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  statLabel: { color: '#888', fontSize: 11, marginTop: 2 },
+  trendRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   actions: { paddingHorizontal: 16, gap: 10 },
   editButton: { borderRadius: 12, backgroundColor: '#e8622c', marginBottom: 4 },
   editContent: { paddingVertical: 8 },
