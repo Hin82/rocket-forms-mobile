@@ -13,14 +13,8 @@ import { useAuth } from '@/src/contexts/AuthContext';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
-    'sv': 'sv-SE',
-    'en': 'en-GB',
-    'no': 'nb-NO',
-    'da': 'da-DK',
-    'fi': 'fi-FI',
-    'de': 'de-DE',
-    'fr': 'fr-FR',
-    'es': 'es-ES',
+    sv: 'sv-SE', en: 'en-GB', no: 'nb-NO', da: 'da-DK',
+    fi: 'fi-FI', de: 'de-DE', fr: 'fr-FR', es: 'es-ES',
   };
   return localeMap[languageCode] || 'en-GB';
 }
@@ -33,6 +27,8 @@ export default function FormDetailScreen() {
   const dateLocale = getDateLocale(language);
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const [isDuplicating, setIsDuplicating] = React.useState(false);
+  const duplicatingRef = React.useRef(false);
 
   const { data: form, isLoading } = useQuery({
     queryKey: ['form', id],
@@ -75,18 +71,23 @@ export default function FormDetailScreen() {
   };
 
   const handleDuplicate = async () => {
-    try {
-      if (!user?.id) {
-        Alert.alert(t('settings', 'error'), t('forms', 'notAuthenticated'));
-        return;
-      }
+    if (duplicatingRef.current) return;
+    if (!user?.id) {
+      Alert.alert(t('settings', 'error'), t('forms', 'couldNotDuplicate'));
+      return;
+    }
 
+    try {
+      duplicatingRef.current = true;
+      setIsDuplicating(true);
       const { data, error } = await supabase.from('forms').insert({
         name: `${form?.name} (${t('forms', 'copy')})`,
         fields: form?.fields || [],
         settings: form?.settings || {},
         user_id: user.id,
         form_group_id: form?.form_group_id,
+        notification_email: form?.notification_email,
+        sender_name: form?.sender_name,
       }).select().single();
 
       if (error) throw error;
@@ -95,6 +96,9 @@ export default function FormDetailScreen() {
       router.push(`/form/${data.id}`);
     } catch (err: any) {
       Alert.alert(t('settings', 'error'), err.message || t('forms', 'couldNotDuplicate'));
+    } finally {
+      duplicatingRef.current = false;
+      setIsDuplicating(false);
     }
   };
 
@@ -116,7 +120,7 @@ export default function FormDetailScreen() {
               router.back();
             } catch (err: any) {
               const msg = err.code === '23503'
-                ? t('forms', 'couldNotDelete') // FK constraint - related data exists
+                ? t('forms', 'couldNotDelete')
                 : (err.message || t('forms', 'couldNotDelete'));
               Alert.alert(t('settings', 'error'), msg);
             }
@@ -174,7 +178,7 @@ export default function FormDetailScreen() {
         <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={styles.actionButtonOutline} textColor="#e8622c">
           {t('forms', 'copyLink')}
         </Button>
-        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={styles.actionButtonOutline} textColor="#e8622c">
+        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={styles.actionButtonOutline} textColor="#e8622c" disabled={isDuplicating} loading={isDuplicating}>
           {t('forms', 'duplicateForm')}
         </Button>
         <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={styles.deleteButton} textColor="#ef4444">
