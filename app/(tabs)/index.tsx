@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import FolderManager from '@/src/components/FolderManager';
+import { FormListSkeleton } from '@/src/components/SkeletonLoader';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -152,11 +153,7 @@ export default function FormsScreen() {
   }, [router, dateLocale, renderSwipeActions]);
 
   if (isLoading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#e8622c" />
-      </View>
-    );
+    return <FormListSkeleton />;
   }
 
   return (

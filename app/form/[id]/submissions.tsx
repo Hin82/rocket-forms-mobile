@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSubmissions } from '@/src/hooks/useSubmissions';
 import { useTranslation } from '@/src/translations';
 import { useLanguage } from '@/src/contexts/LanguageContext';
+import { SubmissionsSkeleton } from '@/src/components/SkeletonLoader';
 
 export default function FormSubmissionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,7 +24,7 @@ export default function FormSubmissionsScreen() {
   };
 
   if (isLoading) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color="#e8622c" /></View>;
+    return <SubmissionsSkeleton />;
   }
 
   return (
