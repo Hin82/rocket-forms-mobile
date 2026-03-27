@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useForms, useFormGroups, Form } from '@/src/hooks/useForms';
 import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
+import FolderManager from '@/src/components/FolderManager';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -23,6 +24,7 @@ function getDateLocale(languageCode: LanguageCode): string {
 
 export default function FormsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFolders, setShowFolders] = useState(false);
   const { data: forms, isLoading, refetch, isRefetching } = useForms();
   const { data: groups } = useFormGroups();
   const router = useRouter();
@@ -106,13 +108,20 @@ export default function FormsScreen() {
 
   return (
     <View style={styles.container}>
-      <Searchbar
-        placeholder={t('forms', 'searchPlaceholder')}
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-        style={styles.searchbar}
+      <View style={styles.searchRow}>
+        <Searchbar
+          placeholder={t('forms', 'searchPlaceholder')}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={styles.searchbar}
         inputStyle={styles.searchInput}
       />
+        <Pressable onPress={() => setShowFolders(true)} style={styles.folderBtn} accessibilityLabel={t('folders', 'manageFolders')} accessibilityRole="button">
+          <MaterialCommunityIcons name="folder-cog-outline" size={22} color="#e8622c" />
+        </Pressable>
+      </View>
+
+      <FolderManager visible={showFolders} onClose={() => setShowFolders(false)} />
 
       <SectionList
         sections={sections}
@@ -156,12 +165,15 @@ export default function FormsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121220' },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', paddingRight: 8 },
   searchbar: {
-    margin: 16,
-    marginBottom: 8,
+    flex: 1,
+    marginLeft: 16,
+    marginVertical: 8,
     backgroundColor: '#1e1e2e',
     borderRadius: 12,
   },
+  folderBtn: { padding: 8 },
   searchInput: { color: '#fff' },
   list: { paddingHorizontal: 16, paddingBottom: 80 },
   listEmpty: { flexGrow: 1, paddingHorizontal: 16, paddingBottom: 80 },
