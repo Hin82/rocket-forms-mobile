@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
+import QRCode from 'react-native-qrcode-svg';
 import { useTranslation } from '../../translations';
 
 interface ShareSheetProps {
@@ -81,10 +82,16 @@ export default function ShareSheet({
 
         {/* QR Code */}
         <Text style={styles.sectionLabel}>{t('share', 'qrCode')}</Text>
-        <View style={styles.qrPlaceholder}>
-          <MaterialCommunityIcons name="qrcode" size={48} color="#555" />
-          <Text style={styles.qrUrl} numberOfLines={1}>{formUrl}</Text>
-          <Text style={styles.qrNote}>{t('share', 'qrComingSoon')}</Text>
+        <View style={styles.qrContainer}>
+          <View style={styles.qrWhiteBg}>
+            <QRCode
+              value={formUrl}
+              size={180}
+              color="#1a1a2e"
+              backgroundColor="#ffffff"
+            />
+          </View>
+          <Text style={styles.qrHint}>{t('share', 'scanToFill')}</Text>
         </View>
 
         {/* Embed */}
@@ -152,17 +159,20 @@ const styles = StyleSheet.create({
   },
   actionBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
 
-  qrPlaceholder: {
-    backgroundColor: '#121220',
-    borderRadius: 10,
-    padding: 20,
+  qrContainer: {
     alignItems: 'center',
-    gap: 8,
+    padding: 20,
+    backgroundColor: '#121220',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#2d2d44',
   },
-  qrUrl: { color: '#888', fontSize: 12 },
-  qrNote: { color: '#555', fontSize: 12, fontStyle: 'italic' },
+  qrWhiteBg: {
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+  },
+  qrHint: { color: '#888', fontSize: 13, marginTop: 12 },
 
   embedBox: {
     backgroundColor: '#121220',
