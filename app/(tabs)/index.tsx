@@ -1,9 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, SectionList, RefreshControl, Pressable } from 'react-native';
+import { View, StyleSheet, SectionList, RefreshControl, Pressable, Alert, Animated, TouchableOpacity } from 'react-native';
 import { Text, FAB, Searchbar, Chip, ActivityIndicator, Card, Badge } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Swipeable } from 'react-native-gesture-handler';
+import * as Haptics from 'expo-haptics';
 import { useForms, useFormGroups, Form } from '@/src/hooks/useForms';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { supabase } from '@/src/lib/supabase';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import FolderManager from '@/src/components/FolderManager';
@@ -64,39 +69,87 @@ export default function FormsScreen() {
     return result;
   }, [forms, searchQuery, t]);
 
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handleDeleteForm = useCallback((form: Form) => {
+    Alert.alert(
+      t('forms', 'deleteForm'),
+      t('forms', 'deleteFormConfirm', { name: form.name }),
+      [
+        { text: t('settings', 'cancel'), style: 'cancel' },
+        {
+          text: t('settings', 'delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await supabase.from('forms').delete().eq('id', form.id);
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+              queryClient.invalidateQueries({ queryKey: ['forms'] });
+            } catch {}
+          },
+        },
+      ],
+    );
+  }, [t, queryClient]);
+
+  const renderSwipeActions = useCallback((item: Form) => (
+    progress: Animated.AnimatedInterpolation<number>,
+    dragX: Animated.AnimatedInterpolation<number>,
+  ) => {
+    const translateX = dragX.interpolate({
+      inputRange: [-180, 0],
+      outputRange: [0, 180],
+      extrapolate: 'clamp',
+    });
+    return (
+      <Animated.View style={[styles.swipeActions, { transform: [{ translateX }] }]}>
+        <TouchableOpacity onPress={() => router.push(`/form/${item.id}/edit`)} style={styles.swipeEditBtn}>
+          <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
+          <Text style={styles.swipeText}>{t('forms', 'editForm')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDeleteForm(item)} style={styles.swipeDeleteBtn}>
+          <MaterialCommunityIcons name="delete-outline" size={20} color="#fff" />
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }, [router, t, handleDeleteForm]);
+
   const renderFormCard = useCallback(({ item }: { item: Form }) => {
     const fieldCount = item.fields?.length || 0;
     const subCount = item.submission_count || 0;
 
     return (
-      <Pressable onPress={() => router.push(`/form/${item.id}`)}>
-        <Card style={styles.card} mode="outlined">
-          <Card.Content style={styles.cardContent}>
-            <View style={styles.cardLeft}>
-              <Text variant="titleMedium" numberOfLines={1} style={styles.formName}>
-                {item.name}
-              </Text>
-              <View style={styles.cardMeta}>
-                <View style={styles.metaItem}>
-                  <MaterialCommunityIcons name="format-list-bulleted" size={14} color="#666" />
-                  <Text style={styles.metaText}>{fieldCount}</Text>
-                </View>
-                <View style={styles.metaItem}>
-                  <MaterialCommunityIcons name="file-check-outline" size={14} color={subCount > 0 ? '#e8622c' : '#666'} />
-                  <Text style={[styles.metaText, subCount > 0 && styles.metaTextActive]}>{subCount}</Text>
-                </View>
-                <Text style={styles.metaDot}>·</Text>
-                <Text style={styles.metaText}>
-                  {new Date(item.updated_at || item.created_at).toLocaleDateString(dateLocale)}
+      <Swipeable renderRightActions={renderSwipeActions(item)} overshootRight={false}>
+        <Pressable onPress={() => router.push(`/form/${item.id}`)}>
+          <Card style={styles.card} mode="outlined">
+            <Card.Content style={styles.cardContent}>
+              <View style={styles.cardLeft}>
+                <Text variant="titleMedium" numberOfLines={1} style={styles.formName}>
+                  {item.name}
                 </Text>
+                <View style={styles.cardMeta}>
+                  <View style={styles.metaItem}>
+                    <MaterialCommunityIcons name="format-list-bulleted" size={14} color="#666" />
+                    <Text style={styles.metaText}>{fieldCount}</Text>
+                  </View>
+                  <View style={styles.metaItem}>
+                    <MaterialCommunityIcons name="file-check-outline" size={14} color={subCount > 0 ? '#e8622c' : '#666'} />
+                    <Text style={[styles.metaText, subCount > 0 && styles.metaTextActive]}>{subCount}</Text>
+                  </View>
+                  <Text style={styles.metaDot}>·</Text>
+                  <Text style={styles.metaText}>
+                    {new Date(item.updated_at || item.created_at).toLocaleDateString(dateLocale)}
+                  </Text>
+                </View>
               </View>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />
-          </Card.Content>
-        </Card>
-      </Pressable>
+              <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />
+            </Card.Content>
+          </Card>
+        </Pressable>
+      </Swipeable>
     );
-  }, [router, dateLocale]);
+  }, [router, dateLocale, renderSwipeActions]);
 
   if (isLoading) {
     return (
@@ -214,6 +267,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, paddingVertical: 12, marginTop: 20,
   },
   emptyCreateBtnText: { color: '#fff', fontWeight: '600' },
+  swipeActions: { flexDirection: 'row', width: 130, marginBottom: 8 },
+  swipeEditBtn: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#3b82f6', borderTopLeftRadius: 12, borderBottomLeftRadius: 12,
+  },
+  swipeDeleteBtn: {
+    width: 50, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#cc3333', borderTopRightRadius: 12, borderBottomRightRadius: 12,
+  },
+  swipeText: { color: '#fff', fontSize: 11, marginTop: 2 },
   fab: {
     position: 'absolute',
     left: 16,

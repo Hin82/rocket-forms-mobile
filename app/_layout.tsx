@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -102,6 +103,7 @@ function RootLayoutNav() {
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <QueryClientProvider client={queryClient}>
       <PaperProvider theme={paperTheme}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -120,5 +122,6 @@ function RootLayoutNav() {
         </ThemeProvider>
       </PaperProvider>
     </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
