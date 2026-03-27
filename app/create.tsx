@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Pressable, ActivityIndicator } from 'react-native';
 import { Text, TextInput, Button, List, Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useFormGroups } from '@/src/hooks/useForms';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from '@/src/translations';
+
+interface FormTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  fields: any[];
+  settings: Record<string, any>;
+  tags: string[];
+  usage_count: number;
+}
 
 interface NewField {
   id: string;
@@ -17,6 +28,36 @@ interface NewField {
   label: string;
   required: boolean;
 }
+
+const CATEGORY_ICONS: Record<string, string> = {
+  contact: 'email-outline',
+  registration: 'account-plus-outline',
+  feedback: 'star-outline',
+  survey: 'clipboard-text-outline',
+  booking: 'calendar-check-outline',
+  application: 'file-document-edit-outline',
+  order: 'cart-outline',
+  hr: 'account-group-outline',
+  education: 'school-outline',
+  healthcare: 'hospital-box-outline',
+  wedding: 'heart-outline',
+  event: 'calendar-star-outline',
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  contact: '#4facfe',
+  registration: '#667eea',
+  feedback: '#43e97b',
+  survey: '#fa709a',
+  booking: '#f7971e',
+  application: '#a18cd1',
+  order: '#fbc2eb',
+  hr: '#84fab0',
+  education: '#fccb90',
+  healthcare: '#e0c3fc',
+  wedding: '#f5576c',
+  event: '#667eea',
+};
 
 export default function CreateFormScreen() {
   const [formName, setFormName] = useState('');
@@ -29,6 +70,20 @@ export default function CreateFormScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+
+  // Fetch templates from database
+  const { data: templates, isLoading: templatesLoading } = useQuery({
+    queryKey: ['formTemplates'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('form_templates')
+        .select('*')
+        .order('usage_count', { ascending: false });
+      if (error) throw error;
+      return (data || []) as FormTemplate[];
+    },
+    staleTime: 10 * 60 * 1000, // 10 min
+  });
 
   // Same categories as web app (fieldDefinitions.ts)
   const FIELD_CATEGORIES = [
@@ -119,68 +174,25 @@ export default function CreateFormScreen() {
     },
   ];
 
-  // Templates matching web app (FormTemplates.tsx)
-  const TEMPLATES = [
-    {
-      id: 'contact',
-      icon: 'email-outline' as const,
-      color: '#4facfe',
-      fields: [
-        { type: 'text', labelKey: 'name', required: true },
-        { type: 'email', labelKey: 'email', required: true },
-        { type: 'textarea', labelKey: 'textarea', required: true },
-      ],
-      settings: { backgroundColor: '#ffffff', textColor: '#000000', borderRadius: 8 },
-    },
-    {
-      id: 'feedback',
-      icon: 'star-outline' as const,
-      color: '#43e97b',
-      fields: [
-        { type: 'text', labelKey: 'name', required: false },
-        { type: 'rating', labelKey: 'rating', required: true },
-        { type: 'textarea', labelKey: 'textarea', required: false },
-      ],
-      settings: { backgroundColor: '#f7f7f7', textColor: '#000000', borderRadius: 8 },
-    },
-    {
-      id: 'event',
-      icon: 'calendar-check-outline' as const,
-      color: '#667eea',
-      fields: [
-        { type: 'name', labelKey: 'name', required: true },
-        { type: 'email', labelKey: 'email', required: true },
-        { type: 'phone', labelKey: 'phone', required: false },
-        { type: 'select', labelKey: 'select', required: true },
-        { type: 'checkbox', labelKey: 'checkbox', required: false },
-      ],
-      settings: { backgroundColor: '#edf7ff', textColor: '#000000', borderRadius: 8 },
-    },
-  ];
-
-  const applyTemplate = async (template: typeof TEMPLATES[0]) => {
-    const templateFields = template.fields.map((f, i) => ({
-      id: `field_${Date.now()}_${i}`,
-      type: f.type,
-      label: t('fieldTypes', f.labelKey),
-      required: f.required,
-      order: i,
-      placeholder: '',
-      options: f.type === 'select' || f.type === 'radio' || f.type === 'checkbox'
-        ? [`${t('create', 'option')} 1`, `${t('create', 'option')} 2`, `${t('create', 'option')} 3`]
-        : undefined,
-    }));
-
+  const applyTemplate = async (template: FormTemplate) => {
     try {
       const { data, error } = await supabase.from('forms').insert({
-        name: formName.trim() || t('templates', template.id),
-        fields: templateFields,
+        name: formName.trim() || template.name,
+        fields: template.fields,
         settings: template.settings,
         user_id: user!.id,
         form_group_id: selectedGroup,
       }).select().single();
 
       if (error) throw error;
+
+      // Update template usage count
+      supabase
+        .from('form_templates')
+        .update({ usage_count: template.usage_count + 1 })
+        .eq('id', template.id)
+        .then();
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       queryClient.invalidateQueries({ queryKey: ['forms'] });
       router.replace(`/form/${data.id}/edit`);
@@ -238,6 +250,14 @@ export default function CreateFormScreen() {
     setFields(prev => prev.filter(f => f.id !== id));
   };
 
+  const getTemplateIcon = (category: string): string => {
+    return CATEGORY_ICONS[category.toLowerCase()] || 'file-document-outline';
+  };
+
+  const getTemplateColor = (category: string): string => {
+    return CATEGORY_COLORS[category.toLowerCase()] || '#667eea';
+  };
+
   if (step === 1) {
     return (
       <SafeAreaView style={styles.container}>
@@ -277,26 +297,37 @@ export default function CreateFormScreen() {
             </>
           )}
 
-          {/* Templates */}
+          {/* Templates from database */}
           <Text variant="titleSmall" style={styles.sectionLabel}>{t('templates', 'quickStart')}</Text>
           <Text style={styles.sectionHint}>{t('templates', 'quickStartDesc')}</Text>
-          <View style={styles.templateGrid}>
-            {TEMPLATES.map(tmpl => (
-              <Pressable
-                key={tmpl.id}
-                onPress={() => applyTemplate(tmpl)}
-                style={styles.templateCard}
-              >
-                <View style={[styles.templateIcon, { backgroundColor: tmpl.color + '20' }]}>
-                  <MaterialCommunityIcons name={tmpl.icon} size={28} color={tmpl.color} />
-                </View>
-                <View style={styles.templateTextCol}>
-                  <Text style={styles.templateName}>{t('templates', tmpl.id)}</Text>
-                  <Text style={styles.templateDesc} numberOfLines={2}>{t('templates', `${tmpl.id}Desc`)}</Text>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+
+          {templatesLoading ? (
+            <ActivityIndicator size="small" color="#e8622c" style={{ marginVertical: 20 }} />
+          ) : templates && templates.length > 0 ? (
+            <View style={styles.templateGrid}>
+              {templates.map(tmpl => {
+                const icon = getTemplateIcon(tmpl.category);
+                const color = getTemplateColor(tmpl.category);
+                return (
+                  <Pressable
+                    key={tmpl.id}
+                    onPress={() => applyTemplate(tmpl)}
+                    style={styles.templateCard}
+                  >
+                    <View style={[styles.templateIcon, { backgroundColor: color + '20' }]}>
+                      <MaterialCommunityIcons name={icon as any} size={28} color={color} />
+                    </View>
+                    <View style={styles.templateTextCol}>
+                      <Text style={styles.templateName}>{tmpl.name}</Text>
+                      {tmpl.description ? (
+                        <Text style={styles.templateDesc} numberOfLines={2}>{tmpl.description}</Text>
+                      ) : null}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
 
           {/* Or create from scratch */}
           <Text variant="titleSmall" style={[styles.sectionLabel, { marginTop: 24 }]}>{t('templates', 'orFromScratch')}</Text>
