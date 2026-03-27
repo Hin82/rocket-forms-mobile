@@ -353,6 +353,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Duplicate form',
       copy: 'copy',
       couldNotDuplicate: 'Could not duplicate form',
+      today: 'Today', thisWeek: 'This week', totalSubs: 'Total', lastSub: 'Latest',
     },
     create: {
       newForm: 'New form',
@@ -1083,6 +1084,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Duplicera formulär',
       copy: 'kopia',
       couldNotDuplicate: 'Kunde inte duplicera formuläret',
+      today: 'Idag', thisWeek: 'Denna vecka', totalSubs: 'Totalt', lastSub: 'Senaste',
     },
     create: {
       newForm: 'Nytt formulär',
@@ -1813,6 +1815,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Dupliser skjema',
       copy: 'kopi',
       couldNotDuplicate: 'Kunne ikke duplisere skjemaet',
+      today: 'I dag', thisWeek: 'Denne uken', totalSubs: 'Totalt', lastSub: 'Siste',
     },
     create: {
       newForm: 'Nytt skjema',
@@ -2543,6 +2546,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Dupliker formular',
       copy: 'kopi',
       couldNotDuplicate: 'Kunne ikke duplikere formularen',
+      today: 'I dag', thisWeek: 'Denne uge', totalSubs: 'I alt', lastSub: 'Seneste',
     },
     create: {
       newForm: 'Ny formular',
@@ -3273,6 +3277,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Kopioi lomake',
       copy: 'kopio',
       couldNotDuplicate: 'Lomaketta ei voitu kopioida',
+      today: 'Tänään', thisWeek: 'Tällä viikolla', totalSubs: 'Yhteensä', lastSub: 'Viimeisin',
     },
     create: {
       newForm: 'Uusi lomake',
@@ -4003,6 +4008,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Formular duplizieren',
       copy: 'Kopie',
       couldNotDuplicate: 'Formular konnte nicht dupliziert werden',
+      today: 'Heute', thisWeek: 'Diese Woche', totalSubs: 'Gesamt', lastSub: 'Letztes',
     },
     create: {
       newForm: 'Neues Formular',
@@ -4733,6 +4739,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Dupliquer le formulaire',
       copy: 'copie',
       couldNotDuplicate: 'Impossible de dupliquer le formulaire',
+      today: "Aujourd'hui", thisWeek: 'Cette semaine', totalSubs: 'Total', lastSub: 'Dernier',
     },
     create: {
       newForm: 'Nouveau formulaire',
@@ -5463,6 +5470,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       duplicateForm: 'Duplicar formulario',
       copy: 'copia',
       couldNotDuplicate: 'No se pudo duplicar el formulario',
+      today: 'Hoy', thisWeek: 'Esta semana', totalSubs: 'Total', lastSub: 'Último',
     },
     create: {
       newForm: 'Nuevo formulario',
