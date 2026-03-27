@@ -2,6 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../translations';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export interface Submission {
   id: string;
@@ -15,10 +17,12 @@ export interface Submission {
 
 export function useSubmissions(formId?: string) {
   const { user } = useAuth();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ['submissions', formId || 'all', user?.id],
+    queryKey: ['submissions', formId || 'all', user?.id, language],
     queryFn: async () => {
       if (formId) {
         const { data, error } = await supabase
@@ -53,7 +57,7 @@ export function useSubmissions(formId?: string) {
       if (error) throw error;
       return (data || []).map(s => ({
         ...s,
-        form_name: formNameMap[s.form_id] || 'Okänt formulär',
+        form_name: formNameMap[s.form_id] || t('forms', 'unknownForm'),
       })) as Submission[];
     },
     enabled: !!user,
