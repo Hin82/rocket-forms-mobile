@@ -22,16 +22,18 @@ interface PaletteCategory {
   items: PaletteItem[];
 }
 
+// Same categories as web app (fieldDefinitions.ts)
 const CATEGORIES: PaletteCategory[] = [
   {
-    titleKey: 'basic',
+    titleKey: 'essentials',
     items: [
       { type: 'text', labelKey: 'text', icon: 'form-textbox' },
+      { type: 'name', labelKey: 'name', icon: 'account-outline' },
+      { type: 'textarea', labelKey: 'textarea', icon: 'text-box-outline' },
+      { type: 'number', labelKey: 'number', icon: 'numeric' },
       { type: 'email', labelKey: 'email', icon: 'email-outline' },
       { type: 'phone', labelKey: 'phone', icon: 'phone-outline' },
-      { type: 'name', labelKey: 'name', icon: 'account-outline' },
-      { type: 'number', labelKey: 'number', icon: 'numeric' },
-      { type: 'textarea', labelKey: 'textarea', icon: 'text-box-outline' },
+      { type: 'url', labelKey: 'url', icon: 'link-variant' },
       { type: 'select', labelKey: 'select', icon: 'form-dropdown' },
       { type: 'radio', labelKey: 'radio', icon: 'radiobox-marked' },
       { type: 'checkbox', labelKey: 'checkbox', icon: 'checkbox-marked-outline' },
@@ -39,43 +41,72 @@ const CATEGORIES: PaletteCategory[] = [
     ],
   },
   {
-    titleKey: 'advanced',
+    titleKey: 'contactInfo',
     items: [
-      { type: 'date', labelKey: 'date', icon: 'calendar' },
-      { type: 'time', labelKey: 'time', icon: 'clock-outline' },
-      { type: 'datetime', labelKey: 'datetime', icon: 'calendar-clock' },
-      { type: 'file', labelKey: 'file', icon: 'file-upload-outline' },
-      { type: 'image', labelKey: 'image', icon: 'image-outline' },
-      { type: 'signature', labelKey: 'signature', icon: 'draw' },
-      { type: 'rating', labelKey: 'rating', icon: 'star-outline' },
-      { type: 'nps', labelKey: 'nps', icon: 'chart-bar' },
-      { type: 'likert', labelKey: 'likert', icon: 'format-list-numbered' },
-      { type: 'ranking', labelKey: 'ranking', icon: 'sort-numeric-ascending' },
-      { type: 'slider', labelKey: 'slider', icon: 'tune-vertical' },
-      { type: 'currency', labelKey: 'currency', icon: 'currency-usd' },
+      { type: 'name', labelKey: 'name', icon: 'account-outline' },
+      { type: 'email', labelKey: 'email', icon: 'email-outline' },
+      { type: 'phone', labelKey: 'phone', icon: 'phone-outline' },
       { type: 'address', labelKey: 'address', icon: 'map-marker-outline' },
-      { type: 'color', labelKey: 'color', icon: 'palette-outline' },
-      { type: 'url', labelKey: 'url', icon: 'link-variant' },
-      { type: 'hidden', labelKey: 'hidden', icon: 'eye-off-outline' },
-      { type: 'matrix', labelKey: 'matrix', icon: 'grid' },
-      { type: 'multi-text-row', labelKey: 'multiTextRow', icon: 'table-row' },
     ],
   },
   {
-    titleKey: 'layout',
+    titleKey: 'uploads',
     items: [
-      { type: 'separator', labelKey: 'separator', icon: 'minus' },
-      { type: 'page-break', labelKey: 'pageBreak', icon: 'book-open-page-variant-outline' },
-      { type: 'html-block', labelKey: 'htmlBlock', icon: 'code-tags' },
-      { type: 'text-display', labelKey: 'textDisplay', icon: 'format-text' },
+      { type: 'file', labelKey: 'file', icon: 'file-upload-outline' },
+      { type: 'image', labelKey: 'image', icon: 'image-outline' },
       { type: 'document', labelKey: 'document', icon: 'file-document-outline' },
     ],
   },
   {
-    titleKey: 'swedish',
+    titleKey: 'ratingScales',
+    items: [
+      { type: 'rating', labelKey: 'rating', icon: 'star-outline' },
+      { type: 'nps', labelKey: 'nps', icon: 'chart-bar' },
+      { type: 'likert', labelKey: 'likert', icon: 'format-list-numbered' },
+      { type: 'ranking', labelKey: 'ranking', icon: 'sort-numeric-ascending' },
+      { type: 'multi-text-row', labelKey: 'multiTextRow', icon: 'table-row' },
+    ],
+  },
+  {
+    titleKey: 'dateTime',
+    items: [
+      { type: 'date', labelKey: 'date', icon: 'calendar' },
+      { type: 'time', labelKey: 'time', icon: 'clock-outline' },
+      { type: 'datetime', labelKey: 'datetime', icon: 'calendar-clock' },
+    ],
+  },
+  {
+    titleKey: 'nationalId',
     items: [
       { type: 'personnummer', labelKey: 'personnummer', icon: 'card-account-details-outline' },
       { type: 'organisationsnummer', labelKey: 'organisationsnummer', icon: 'domain' },
+    ],
+  },
+  {
+    titleKey: 'legalConsent',
+    items: [
+      { type: 'recaptcha', labelKey: 'recaptcha', icon: 'shield-check-outline' },
+      { type: 'signature', labelKey: 'signature', icon: 'draw' },
+      { type: 'drawing', labelKey: 'drawing', icon: 'draw' },
+    ],
+  },
+  {
+    titleKey: 'advancedFields',
+    items: [
+      { type: 'slider', labelKey: 'slider', icon: 'tune-vertical' },
+      { type: 'color', labelKey: 'color', icon: 'palette-outline' },
+      { type: 'currency', labelKey: 'currency', icon: 'currency-usd' },
+      { type: 'matrix', labelKey: 'matrix', icon: 'grid' },
+    ],
+  },
+  {
+    titleKey: 'layoutDisplay',
+    items: [
+      { type: 'text-display', labelKey: 'textDisplay', icon: 'format-text' },
+      { type: 'separator', labelKey: 'separator', icon: 'minus' },
+      { type: 'page-break', labelKey: 'pageBreak', icon: 'book-open-page-variant-outline' },
+      { type: 'hidden', labelKey: 'hidden', icon: 'eye-off-outline' },
+      { type: 'html-block', labelKey: 'htmlBlock', icon: 'code-tags' },
     ],
   },
 ];

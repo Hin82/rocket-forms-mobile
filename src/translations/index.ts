@@ -672,7 +672,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Viewers can see',
       viewersCanEdit: 'Viewers can edit',
     },
-    fieldPalette: { basic: 'Basic', advanced: 'Advanced', layout: 'Layout', swedish: 'Swedish', addField: 'Add field' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Contact information', uploads: 'Uploads', ratingScales: 'Rating scales', dateTime: 'Date & time', nationalId: 'National ID fields', legalConsent: 'Legal & consent', advancedFields: 'Advanced fields', layoutDisplay: 'Layout & Display', addField: 'Add field' },
     preview: {
       previewTitle: 'Preview',
       submitBtn: 'Submit',
@@ -1358,7 +1358,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Visare kan se',
       viewersCanEdit: 'Visare kan redigera',
     },
-    fieldPalette: { basic: 'Grundläggande', advanced: 'Avancerade', layout: 'Layout', swedish: 'Svenska', addField: 'Lägg till fält' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktuppgifter', uploads: 'Uppladdningar', ratingScales: 'Bedömningsskalor', dateTime: 'Datum & tid', nationalId: 'Nationella ID-fält', legalConsent: 'Juridiskt & samtycke', advancedFields: 'Avancerade fält', layoutDisplay: 'Layout & Display', addField: 'Lägg till fält' },
     preview: {
       previewTitle: 'Förhandsgranskning',
       submitBtn: 'Skicka',
@@ -2044,7 +2044,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Seere kan se',
       viewersCanEdit: 'Seere kan redigere',
     },
-    fieldPalette: { basic: 'Grunnleggende', advanced: 'Avanserte', layout: 'Layout', swedish: 'Svenske', addField: 'Legg til felt' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformasjon', uploads: 'Opplastinger', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nasjonale ID-felt', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avanserte felt', layoutDisplay: 'Layout og visning', addField: 'Legg til felt' },
     preview: {
       previewTitle: 'Forhåndsvisning',
       submitBtn: 'Send inn',
@@ -2730,7 +2730,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Seere kan se',
       viewersCanEdit: 'Seere kan redigere',
     },
-    fieldPalette: { basic: 'Grundlæggende', advanced: 'Avancerede', layout: 'Layout', swedish: 'Svenske', addField: 'Tilføj felt' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktoplysninger', uploads: 'Uploads', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nationale ID-felter', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avancerede felter', layoutDisplay: 'Layout og visning', addField: 'Tilføj felt' },
     preview: {
       previewTitle: 'Forhåndsvisning',
       submitBtn: 'Indsend',
@@ -3416,7 +3416,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Katsojat voivat nähdä',
       viewersCanEdit: 'Katsojat voivat muokata',
     },
-    fieldPalette: { basic: 'Perus', advanced: 'Edistyneet', layout: 'Asettelu', swedish: 'Ruotsalaiset', addField: 'Lisää kenttä' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Yhteystiedot', uploads: 'Lataukset', ratingScales: 'Arviointiasteikot', dateTime: 'Päivämäärä ja aika', nationalId: 'Kansalliset ID-kentät', legalConsent: 'Oikeudelliset ja suostumus', advancedFields: 'Edistyneet kentät', layoutDisplay: 'Asettelu ja näyttö', addField: 'Lisää kenttä' },
     preview: {
       previewTitle: 'Esikatselu',
       submitBtn: 'Lähetä',
@@ -4102,7 +4102,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Betrachter können sehen',
       viewersCanEdit: 'Betrachter können bearbeiten',
     },
-    fieldPalette: { basic: 'Grundlegend', advanced: 'Erweitert', layout: 'Layout', swedish: 'Schwedisch', addField: 'Feld hinzufügen' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformationen', uploads: 'Uploads', ratingScales: 'Bewertungsskalen', dateTime: 'Datum und Zeit', nationalId: 'Nationale ID-Felder', legalConsent: 'Rechtliches und Einwilligung', advancedFields: 'Erweiterte Felder', layoutDisplay: 'Layout und Anzeige', addField: 'Feld hinzufügen' },
     preview: {
       previewTitle: 'Vorschau',
       submitBtn: 'Absenden',
@@ -4788,7 +4788,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Les spectateurs peuvent voir',
       viewersCanEdit: 'Les spectateurs peuvent modifier',
     },
-    fieldPalette: { basic: 'Basique', advanced: 'Avancé', layout: 'Mise en page', swedish: 'Suédois', addField: 'Ajouter un champ' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Coordonnées', uploads: 'Téléchargements', ratingScales: "Échelles d'évaluation", dateTime: 'Date et heure', nationalId: "Champs d'identité nationale", legalConsent: 'Juridique et consentement', advancedFields: 'Champs avancés', layoutDisplay: 'Mise en page et affichage', addField: 'Ajouter un champ' },
     preview: {
       previewTitle: 'Aperçu',
       submitBtn: 'Envoyer',
@@ -5474,7 +5474,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       viewersCanSee: 'Los espectadores pueden ver',
       viewersCanEdit: 'Los espectadores pueden editar',
     },
-    fieldPalette: { basic: 'Básico', advanced: 'Avanzado', layout: 'Diseño', swedish: 'Sueco', addField: 'Agregar campo' },
+    fieldPalette: { essentials: 'Essentials', contactInfo: 'Información de contacto', uploads: 'Cargas', ratingScales: 'Escalas de valoración', dateTime: 'Fecha y hora', nationalId: 'Campos de ID nacional', legalConsent: 'Legal y consentimiento', advancedFields: 'Campos avanzados', layoutDisplay: 'Diseño y visualización', addField: 'Agregar campo' },
     preview: {
       previewTitle: 'Vista previa',
       submitBtn: 'Enviar',
