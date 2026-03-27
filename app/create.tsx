@@ -290,8 +290,10 @@ export default function CreateFormScreen() {
                 <View style={[styles.templateIcon, { backgroundColor: tmpl.color + '20' }]}>
                   <MaterialCommunityIcons name={tmpl.icon} size={28} color={tmpl.color} />
                 </View>
-                <Text style={styles.templateName}>{t('templates', tmpl.id)}</Text>
-                <Text style={styles.templateDesc}>{t('templates', `${tmpl.id}Desc`)}</Text>
+                <View style={styles.templateTextCol}>
+                  <Text style={styles.templateName}>{t('templates', tmpl.id)}</Text>
+                  <Text style={styles.templateDesc} numberOfLines={2}>{t('templates', `${tmpl.id}Desc`)}</Text>
+                </View>
               </Pressable>
             ))}
           </View>
@@ -412,6 +414,7 @@ const styles = StyleSheet.create({
     width: 52, height: 52, borderRadius: 14,
     alignItems: 'center', justifyContent: 'center',
   },
+  templateTextCol: { flex: 1 },
   templateName: { color: '#fff', fontSize: 16, fontWeight: '600' },
   templateDesc: { color: '#888', fontSize: 13, marginTop: 2 },
 });
