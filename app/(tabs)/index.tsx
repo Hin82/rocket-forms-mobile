@@ -5,7 +5,21 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useForms, useFormGroups, Form } from '@/src/hooks/useForms';
 import { useTranslation } from '@/src/translations';
-import { useLanguage } from '@/src/contexts/LanguageContext';
+import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
+
+function getDateLocale(languageCode: LanguageCode): string {
+  const localeMap: Record<LanguageCode, string> = {
+    'sv': 'sv-SE',
+    'en': 'en-GB',
+    'no': 'nb-NO',
+    'da': 'da-DK',
+    'fi': 'fi-FI',
+    'de': 'de-DE',
+    'fr': 'fr-FR',
+    'es': 'es-ES',
+  };
+  return localeMap[languageCode] || 'en-GB';
+}
 
 export default function FormsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,7 +28,7 @@ export default function FormsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
+  const dateLocale = getDateLocale(language);
 
   const sections = React.useMemo(() => {
     if (!forms) return [];
@@ -114,7 +128,7 @@ export default function FormsScreen() {
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#e8622c" />
         }
-        contentContainerStyle={styles.list}
+        contentContainerStyle={sections.length === 0 ? styles.listEmpty : styles.list}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <MaterialCommunityIcons name="file-document-outline" size={64} color="#2d2d44" />
@@ -150,6 +164,7 @@ const styles = StyleSheet.create({
   },
   searchInput: { color: '#fff' },
   list: { paddingHorizontal: 16, paddingBottom: 80 },
+  listEmpty: { flexGrow: 1, paddingHorizontal: 16, paddingBottom: 80 },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
