@@ -9,7 +9,6 @@ import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
 import { useTranslation } from '@/src/translations';
 
 const SAVED_EMAIL_KEY = 'saved_login_email';
-const SAVED_PASS_KEY = 'saved_login_pass';
 const REMEMBER_KEY = 'remember_login';
 
 export default function LoginScreen() {
@@ -42,9 +41,7 @@ export default function LoginScreen() {
           const saved = await SecureStore.getItemAsync(REMEMBER_KEY);
           if (saved === 'true') {
             const savedEmail = await SecureStore.getItemAsync(SAVED_EMAIL_KEY);
-            const savedPass = await SecureStore.getItemAsync(SAVED_PASS_KEY);
             if (savedEmail) setEmail(savedEmail);
-            if (savedPass) setPassword(savedPass);
             setRememberMe(true);
           }
         }
@@ -54,15 +51,13 @@ export default function LoginScreen() {
     })();
   }, []);
 
-  const saveCredentials = async (emailToSave: string, passwordToSave: string) => {
+  const saveCredentials = async (emailToSave: string) => {
     try {
       if (Platform.OS === 'web') {
-        // Only save email on web (no plaintext password in localStorage)
         localStorage.setItem(SAVED_EMAIL_KEY, emailToSave);
         localStorage.setItem(REMEMBER_KEY, 'true');
       } else {
         await SecureStore.setItemAsync(SAVED_EMAIL_KEY, emailToSave);
-        await SecureStore.setItemAsync(SAVED_PASS_KEY, passwordToSave);
         await SecureStore.setItemAsync(REMEMBER_KEY, 'true');
       }
     } catch {}
@@ -75,7 +70,6 @@ export default function LoginScreen() {
         localStorage.removeItem(REMEMBER_KEY);
       } else {
         await SecureStore.deleteItemAsync(SAVED_EMAIL_KEY);
-        await SecureStore.deleteItemAsync(SAVED_PASS_KEY);
         await SecureStore.deleteItemAsync(REMEMBER_KEY);
       }
     } catch {}
@@ -99,7 +93,7 @@ export default function LoginScreen() {
       } else {
         // Full auth success — save or clear credentials
         if (rememberMe) {
-          await saveCredentials(email.trim(), password);
+          await saveCredentials(email.trim());
         } else {
           await clearCredentials();
         }
