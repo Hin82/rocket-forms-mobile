@@ -1,18 +1,26 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Text, Card, ActivityIndicator, Divider } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Image, Share, Alert, Pressable } from 'react-native';
+import { Text, Card, Divider, Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
 import { useTranslation } from '@/src/translations';
-import { useLanguage } from '@/src/contexts/LanguageContext';
+import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
+import { SubmissionsSkeleton } from '@/src/components/SkeletonLoader';
+
+const DATE_LOCALE_MAP: Record<LanguageCode, string> = {
+  sv: 'sv-SE', en: 'en-GB', no: 'nb-NO', da: 'da-DK',
+  fi: 'fi-FI', de: 'de-DE', fr: 'fr-FR', es: 'es-ES',
+};
 
 export default function SubmissionDetailScreen() {
   const { id, submissionId } = useLocalSearchParams<{ id: string; submissionId: string }>();
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
+  const dateLocale = DATE_LOCALE_MAP[language] || 'en-GB';
 
   const { data: submission, isLoading: subLoading } = useQuery({
     queryKey: ['submission', submissionId],
@@ -41,7 +49,7 @@ export default function SubmissionDetailScreen() {
   });
 
   if (subLoading) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color="#e8622c" /></View>;
+    return <SubmissionsSkeleton />;
   }
 
   if (!submission) {
@@ -71,18 +79,47 @@ export default function SubmissionDetailScreen() {
     return String(value);
   };
 
+  const handleCopyValue = async (label: string, value: string) => {
+    await Clipboard.setStringAsync(value);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const handleShareSubmission = async () => {
+    const lines = Object.entries(formData).map(([key, value]) => {
+      const label = labelMap[key] || key;
+      return `${label}: ${formatValue(value)}`;
+    });
+    const text = `${form?.name || 'Form'}\n${t('forms', 'submittedAt')} ${new Date(submission.submitted_at).toLocaleString(dateLocale)}\n\n${lines.join('\n')}`;
+
+    try {
+      await Share.share({ message: text });
+    } catch {}
+  };
+
+  const submittedDate = new Date(submission.submitted_at);
+
   return (
     <ScrollView style={styles.container}>
+      {/* Header */}
       <Card style={styles.headerCard}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.formName}>{form?.name || t('nav', 'form')}</Text>
-          <Text variant="bodySmall" style={styles.date}>
-            {t('forms', 'submittedAt')} {new Date(submission.submitted_at).toLocaleDateString(dateLocale)}{' '}
-            {new Date(submission.submitted_at).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
-          </Text>
+          <View style={styles.headerRow}>
+            <View style={styles.headerLeft}>
+              <Text variant="titleMedium" style={styles.formName}>{form?.name || t('nav', 'form')}</Text>
+              <Text style={styles.date}>
+                {submittedDate.toLocaleDateString(dateLocale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                {' · '}
+                {submittedDate.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+            </View>
+            <Pressable onPress={handleShareSubmission} style={styles.shareBtn} accessibilityLabel={t('forms', 'shareForm')} accessibilityRole="button">
+              <MaterialCommunityIcons name="share-variant-outline" size={20} color="#e8622c" />
+            </Pressable>
+          </View>
         </Card.Content>
       </Card>
 
+      {/* Fields */}
       <View style={styles.fieldsContainer}>
         {Object.entries(formData).map(([key, value], index) => {
           const label = labelMap[key] || key;
@@ -90,16 +127,25 @@ export default function SubmissionDetailScreen() {
 
           return (
             <View key={key}>
-              <View style={styles.fieldRow}>
-                <Text variant="bodySmall" style={styles.fieldLabel}>{label}</Text>
-                <Text variant="bodyMedium" style={styles.fieldValue}>{displayValue}</Text>
-              </View>
+              <Pressable
+                onLongPress={() => handleCopyValue(label, displayValue)}
+                style={styles.fieldRow}
+              >
+                <Text style={styles.fieldLabel}>{label}</Text>
+                <View style={styles.valueRow}>
+                  <Text style={styles.fieldValue}>{displayValue}</Text>
+                  <Pressable onPress={() => handleCopyValue(label, displayValue)} hitSlop={8}>
+                    <MaterialCommunityIcons name="content-copy" size={16} color="#555" />
+                  </Pressable>
+                </View>
+              </Pressable>
               {index < Object.entries(formData).length - 1 && <Divider style={styles.divider} />}
             </View>
           );
         })}
       </View>
 
+      {/* Signature */}
       {submission.signature && (
         <Card style={styles.signatureCard}>
           <Card.Content>
@@ -122,12 +168,20 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121220' },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   headerCard: { margin: 16, marginBottom: 8, backgroundColor: '#1e1e2e', borderRadius: 16 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  headerLeft: { flex: 1 },
   formName: { color: '#fff', fontWeight: 'bold' },
-  date: { color: '#888', marginTop: 6 },
+  date: { color: '#888', marginTop: 6, fontSize: 13 },
+  shareBtn: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: 'rgba(232, 98, 44, 0.12)',
+    alignItems: 'center', justifyContent: 'center',
+  },
   fieldsContainer: { marginHorizontal: 16, backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16 },
-  fieldRow: { paddingVertical: 10 },
-  fieldLabel: { color: '#888', marginBottom: 4 },
-  fieldValue: { color: '#fff' },
+  fieldRow: { paddingVertical: 12 },
+  fieldLabel: { color: '#888', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
+  valueRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  fieldValue: { color: '#fff', fontSize: 15, flex: 1, marginRight: 8 },
   divider: { backgroundColor: '#2d2d44' },
   signatureCard: { margin: 16, backgroundColor: '#1e1e2e', borderRadius: 16 },
   signatureTitle: { color: '#888', marginBottom: 8 },
