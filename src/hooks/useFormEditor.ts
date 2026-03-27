@@ -289,8 +289,8 @@ function getDefaultSettings(t: (section: string, key: string) => string): FormSe
   return {
     backgroundColor: '#ffffff',
     textColor: '#000000',
-    submitButtonText: t('formEditor', 'defaultSubmitButton'),
-    successMessage: t('formEditor', 'defaultSuccessMessage'),
+    submitButtonText: t('fieldEditor', 'defaultSubmitButton'),
+    successMessage: t('fieldEditor', 'defaultSuccessMessage'),
     emailNotifications: false,
     allowMultipleSubmissions: true,
     showProgressBar: false,
@@ -417,8 +417,8 @@ export function useFormEditor(formId: string) {
     // Add default options for choice fields
     if (['select', 'radio', 'checkbox'].includes(type)) {
       newField.options = [
-        { id: generateId(), label: `${t('formEditor', 'option')} 1`, value: 'option_1' },
-        { id: generateId(), label: `${t('formEditor', 'option')} 2`, value: 'option_2' },
+        { id: generateId(), label: `${t('fieldEditor', 'option')} 1`, value: 'option_1' },
+        { id: generateId(), label: `${t('fieldEditor', 'option')} 2`, value: 'option_2' },
       ];
     }
     if (type === 'rating') newField.ratingScale = 5;
@@ -429,22 +429,22 @@ export function useFormEditor(formId: string) {
     }
     if (type === 'likert') {
       newField.likertOptions = [
-        t('formEditor', 'likertStronglyDisagree'),
-        t('formEditor', 'likertDisagree'),
-        t('formEditor', 'likertNeutral'),
-        t('formEditor', 'likertAgree'),
-        t('formEditor', 'likertStronglyAgree'),
+        t('fieldEditor', 'likertStronglyDisagree'),
+        t('fieldEditor', 'likertDisagree'),
+        t('fieldEditor', 'likertNeutral'),
+        t('fieldEditor', 'likertAgree'),
+        t('fieldEditor', 'likertStronglyAgree'),
       ];
     }
     if (type === 'currency') newField.currency = 'SEK';
     if (type === 'matrix') {
       newField.matrixRows = [
-        { id: generateId(), label: `${t('formEditor', 'row')} 1` },
-        { id: generateId(), label: `${t('formEditor', 'row')} 2` },
+        { id: generateId(), label: `${t('fieldEditor', 'row')} 1` },
+        { id: generateId(), label: `${t('fieldEditor', 'row')} 2` },
       ];
       newField.matrixColumns = [
-        { id: generateId(), label: `${t('formEditor', 'column')} 1` },
-        { id: generateId(), label: `${t('formEditor', 'column')} 2` },
+        { id: generateId(), label: `${t('fieldEditor', 'column')} 1` },
+        { id: generateId(), label: `${t('fieldEditor', 'column')} 2` },
       ];
       newField.matrixInputType = 'radio';
     }
@@ -494,7 +494,7 @@ export function useFormEditor(formId: string) {
       // Deep copy the field and assign a new ID
       const duplicated: FormField = JSON.parse(JSON.stringify(sourceField));
       duplicated.id = generateId();
-      duplicated.label = `${sourceField.label} (${t('formEditor', 'copy')})`;
+      duplicated.label = `${sourceField.label} (${t('fieldEditor', 'copy')})`;
       // Re-generate IDs for nested objects that carry their own IDs
       if (duplicated.options) {
         duplicated.options = duplicated.options.map((opt: FieldOption) => ({ ...opt, id: generateId() }));

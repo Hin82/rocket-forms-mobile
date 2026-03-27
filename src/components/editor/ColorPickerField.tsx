@@ -74,7 +74,7 @@ export default function ColorPickerField({ value, onChange, label }: ColorPicker
 
       {/* Custom hex input */}
       <View style={styles.hexRow}>
-        <Text style={styles.hexLabel}>{t('formEditor', 'hexCode')}</Text>
+        <Text style={styles.hexLabel}>{t('fieldEditor', 'hexCode')}</Text>
         <RNTextInput
           value={customHex}
           onChangeText={handleCustomChange}
