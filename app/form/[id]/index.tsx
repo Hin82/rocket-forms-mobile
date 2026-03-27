@@ -47,31 +47,26 @@ export default function FormDetailScreen() {
   const { data: stats } = useQuery({
     queryKey: ['formStats', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('submissions')
-        .select('submitted_at')
-        .eq('form_id', id)
-        .order('submitted_at', { ascending: false });
-      if (error) throw error;
-
-      const total = data?.length || 0;
-      const lastSubmission = data?.[0]?.submitted_at || null;
-
-      // This week vs last week
       const now = new Date();
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-      const thisWeek = (data || []).filter(s => new Date(s.submitted_at) >= weekAgo).length;
-      const lastWeek = (data || []).filter(s => {
-        const d = new Date(s.submitted_at);
-        return d >= twoWeeksAgo && d < weekAgo;
-      }).length;
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
-      // Today
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const today = (data || []).filter(s => new Date(s.submitted_at) >= todayStart).length;
+      const [totalRes, todayRes, thisWeekRes, lastWeekRes, lastSubRes] = await Promise.all([
+        supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('form_id', id),
+        supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('form_id', id).gte('submitted_at', todayStart),
+        supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('form_id', id).gte('submitted_at', weekAgo),
+        supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('form_id', id).gte('submitted_at', twoWeeksAgo).lt('submitted_at', weekAgo),
+        supabase.from('submissions').select('submitted_at').eq('form_id', id).order('submitted_at', { ascending: false }).limit(1),
+      ]);
 
-      return { total, lastSubmission, thisWeek, lastWeek, today };
+      return {
+        total: totalRes.count ?? 0,
+        today: todayRes.count ?? 0,
+        thisWeek: thisWeekRes.count ?? 0,
+        lastWeek: lastWeekRes.count ?? 0,
+        lastSubmission: lastSubRes.data?.[0]?.submitted_at || null,
+      };
     },
   });
 
