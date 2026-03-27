@@ -28,6 +28,7 @@ export default function FormDetailScreen() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isDuplicating, setIsDuplicating] = React.useState(false);
+  const duplicatingRef = React.useRef(false);
 
   const { data: form, isLoading } = useQuery({
     queryKey: ['form', id],
@@ -70,13 +71,14 @@ export default function FormDetailScreen() {
   };
 
   const handleDuplicate = async () => {
-    if (isDuplicating) return;
+    if (duplicatingRef.current) return;
     if (!user?.id) {
       Alert.alert(t('settings', 'error'), t('forms', 'couldNotDuplicate'));
       return;
     }
 
     try {
+      duplicatingRef.current = true;
       setIsDuplicating(true);
       const { data, error } = await supabase.from('forms').insert({
         name: `${form?.name} (${t('forms', 'copy')})`,
@@ -95,6 +97,7 @@ export default function FormDetailScreen() {
     } catch (err: any) {
       Alert.alert(t('settings', 'error'), err.message || t('forms', 'couldNotDuplicate'));
     } finally {
+      duplicatingRef.current = false;
       setIsDuplicating(false);
     }
   };

@@ -1,13 +1,27 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Pressable, Alert, Share } from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, Pressable, Alert, Share, Platform } from 'react-native';
 import { Text, Card, ActivityIndicator, Searchbar, FAB } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSubmissions } from '@/src/hooks/useSubmissions';
 import { useTranslation } from '@/src/translations';
-import { useLanguage } from '@/src/contexts/LanguageContext';
+import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+
+const DATE_LOCALE_MAP: Record<LanguageCode, string> = {
+  sv: 'sv-SE', en: 'en-GB', no: 'nb-NO', da: 'da-DK',
+  fi: 'fi-FI', de: 'de-DE', fr: 'fr-FR', es: 'es-ES',
+};
+
+function collectText(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map(collectText).join(' ');
+  if (typeof value === 'object') return Object.values(value).map(collectText).join(' ');
+  return String(value);
+}
 
 export default function FormSubmissionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,7 +29,7 @@ export default function FormSubmissionsScreen() {
   const { data: submissions, isLoading, refetch, isRefetching } = useSubmissions(id);
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
+  const dateLocale = DATE_LOCALE_MAP[language] || 'en-GB';
   const [searchQuery, setSearchQuery] = useState('');
   const [exporting, setExporting] = useState(false);
 
@@ -23,8 +37,8 @@ export default function FormSubmissionsScreen() {
     if (!submissions || !searchQuery.trim()) return submissions;
     const q = searchQuery.toLowerCase();
     return submissions.filter(s => {
-      const values = Object.values(s.form_data || {}).join(' ').toLowerCase();
-      return values.includes(q);
+      const text = collectText(s.form_data).toLowerCase();
+      return text.includes(q);
     });
   }, [submissions, searchQuery]);
 
@@ -60,13 +74,26 @@ export default function FormSubmissionsScreen() {
       });
 
       const csv = [header, ...rows].join('\n');
-      const filePath = `${FileSystem.cacheDirectory}submissions_${id}.csv`;
-      await FileSystem.writeAsStringAsync(filePath, csv, { encoding: FileSystem.EncodingType.UTF8 });
 
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(filePath, { mimeType: 'text/csv', UTI: 'public.comma-separated-values-text' });
+      if (Platform.OS === 'web') {
+        // Web: trigger browser download
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `submissions_${id}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
       } else {
-        Alert.alert(t('settings', 'error'), t('forms', 'sharingNotAvailable'));
+        // Native: write to file and share
+        const filePath = `${FileSystem.cacheDirectory}submissions_${id}.csv`;
+        await FileSystem.writeAsStringAsync(filePath, csv, { encoding: FileSystem.EncodingType.UTF8 });
+
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(filePath, { mimeType: 'text/csv', UTI: 'public.comma-separated-values-text' });
+        } else {
+          Alert.alert(t('settings', 'error'), t('forms', 'sharingNotAvailable'));
+        }
       }
     } catch (err: any) {
       Alert.alert(t('settings', 'error'), err.message || t('forms', 'exportFailed'));
