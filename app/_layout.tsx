@@ -4,7 +4,7 @@ import { PaperProvider } from 'react-native-paper';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
@@ -18,6 +18,7 @@ import { lightTheme, darkTheme } from '@/src/constants/theme';
 import SupportChat from '@/src/components/SupportChat';
 import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
+import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/OnboardingScreen';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -91,6 +92,20 @@ function TranslatedStack() {
   );
 }
 
+const OnboardingWrapper = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) { setShowOnboarding(false); return; }
+    hasSeenOnboarding().then(seen => setShowOnboarding(!seen));
+  }, [user]);
+
+  if (showOnboarding === null) return null;
+  if (showOnboarding) return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  return <>{children}</>;
+};
+
 const ChatWrapper = () => {
   const { user } = useAuth();
   const segments = useSegments();
@@ -112,8 +127,10 @@ function RootLayoutNav() {
               <BiometricLock>
                 <CompanyProvider>
                   <AuthGuard>
-                    <TranslatedStack />
-                    <ChatWrapper />
+                    <OnboardingWrapper>
+                      <TranslatedStack />
+                      <ChatWrapper />
+                    </OnboardingWrapper>
                   </AuthGuard>
                 </CompanyProvider>
               </BiometricLock>
