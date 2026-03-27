@@ -33,43 +33,17 @@ const COLORS = {
 
 const CURRENCIES = ['SEK', 'NOK', 'DKK', 'EUR', 'USD', 'GBP', 'CHF'];
 
-const FIELD_TYPE_KEY_MAP: Record<string, string> = {
-  text: 'text',
-  email: 'email',
-  number: 'number',
-  url: 'url',
-  phone: 'phone',
-  name: 'name',
-  textarea: 'textarea',
-  select: 'select',
-  radio: 'radio',
-  checkbox: 'checkbox',
-  yesno: 'yesno',
-  date: 'date',
-  time: 'time',
-  datetime: 'datetime',
-  file: 'file',
-  image: 'image',
-  document: 'document',
-  separator: 'separator',
-  'text-display': 'textDisplay',
-  rating: 'rating',
-  nps: 'nps',
-  likert: 'likert',
-  ranking: 'ranking',
-  hidden: 'hidden',
-  'html-block': 'htmlBlock',
-  'page-break': 'pageBreak',
-  signature: 'signature',
-  slider: 'slider',
-  color: 'color',
-  currency: 'currency',
-  personnummer: 'personnummer',
-  organisationsnummer: 'organisationsnummer',
-  address: 'address',
-  matrix: 'matrix',
-  drawing: 'drawing',
-};
+// Shared field type key mapping - same as used in useFormEditor.ts
+function getFieldTypeKey(type: string): string {
+  const keyMap: Record<string, string> = {
+    'text-display': 'textDisplay',
+    'multi-text-row': 'multiTextRow',
+    'html-block': 'htmlBlock',
+    'page-break': 'pageBreak',
+    recaptcha: 'recaptcha',
+  };
+  return keyMap[type] || type;
+}
 
 // ---- Interfaces ----
 
@@ -129,8 +103,8 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
     ], [t]);
 
     const getFieldTypeLabel = useCallback((type: string) => {
-      const key = FIELD_TYPE_KEY_MAP[type];
-      return key ? t('fieldTypes', key) : type;
+      const key = getFieldTypeKey(type);
+      return t('fieldTypes', key);
     }, [t]);
 
     const [localField, setLocalField] = useState<FormField | null>(field);
@@ -270,11 +244,6 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
               <OptionsEditor
                 options={localField.options || []}
                 onChange={(opts) => update({ options: opts })}
-                addLabel={t('fieldEditor', 'addOption')}
-                optionLabelText={t('fieldEditor', 'optionLabel')}
-                optionValueText={t('fieldEditor', 'optionValue')}
-                optionDefaultLabel={t('fieldEditor', 'optionDefault')}
-                optionDefaultValue={t('fieldEditor', 'optionValueDefault')}
               />
             </Section>
           )}
@@ -713,7 +682,6 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
               <OptionsEditor
                 options={localField.rankingItems || []}
                 onChange={(items) => update({ rankingItems: items })}
-                addLabel={t('fieldEditor', 'addItem')}
               />
             </Section>
           )}
@@ -1496,11 +1464,11 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 function OptionsEditor({
   options,
   onChange,
-  addLabel = 'Add option',
-  optionLabelText = 'Label',
-  optionValueText = 'Value',
-  optionDefaultLabel = 'Option {index}',
-  optionDefaultValue = 'option_{index}',
+  addLabel,
+  optionLabelText,
+  optionValueText,
+  optionDefaultLabel,
+  optionDefaultValue,
 }: {
   options: FieldOption[];
   onChange: (opts: FieldOption[]) => void;
@@ -1510,11 +1478,20 @@ function OptionsEditor({
   optionDefaultLabel?: string;
   optionDefaultValue?: string;
 }) {
+  const { t } = useTranslation();
+
+  // Use translation function for default fallbacks
+  const actualAddLabel = addLabel || t('fieldEditor', 'addOption');
+  const actualLabelText = optionLabelText || t('fieldEditor', 'optionLabel');
+  const actualValueText = optionValueText || t('fieldEditor', 'optionValue');
+  const actualDefaultLabel = optionDefaultLabel || t('fieldEditor', 'optionDefault');
+  const actualDefaultValue = optionDefaultValue || t('fieldEditor', 'optionValueDefault');
+
   const addOption = () => {
     const idx = options.length + 1;
     onChange([
       ...options,
-      { id: generateId(), label: optionDefaultLabel.replace('{index}', String(idx)), value: optionDefaultValue.replace('{index}', String(idx)) },
+      { id: generateId(), label: actualDefaultLabel.replace('{index}', String(idx)), value: actualDefaultValue.replace('{index}', String(idx)) },
     ]);
   };
 
@@ -1580,7 +1557,7 @@ function OptionsEditor({
             </View>
             <View style={{ flex: 1 }}>
               <TextInput
-                label={optionLabelText}
+                label={actualLabelText}
                 value={opt.label}
                 onChangeText={(v) => updateOption(opt.id, v)}
                 mode="outlined"
@@ -1592,7 +1569,7 @@ function OptionsEditor({
                 theme={{ colors: { onSurfaceVariant: COLORS.textDim } }}
               />
               <TextInput
-                label={optionValueText}
+                label={actualValueText}
                 value={opt.value}
                 onChangeText={(v) => updateValue(opt.id, v)}
                 mode="outlined"
@@ -1614,7 +1591,7 @@ function OptionsEditor({
         </View>
       ))}
       <Button mode="text" icon="plus" textColor={COLORS.accent} onPress={addOption} compact>
-        {addLabel}
+        {actualAddLabel}
       </Button>
     </View>
   );
