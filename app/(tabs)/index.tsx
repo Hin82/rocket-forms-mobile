@@ -116,7 +116,7 @@ export default function FormsScreen() {
           style={styles.searchbar}
         inputStyle={styles.searchInput}
       />
-        <Pressable onPress={() => setShowFolders(true)} style={styles.folderBtn}>
+        <Pressable onPress={() => setShowFolders(true)} style={styles.folderBtn} accessibilityLabel={t('folders', 'manageFolders')} accessibilityRole="button">
           <MaterialCommunityIcons name="folder-cog-outline" size={22} color="#e8622c" />
         </Pressable>
       </View>

@@ -705,6 +705,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'No folders yet',
       deleteFolder: 'Delete folder',
       deleteFolderConfirm: 'Delete "{name}"? Forms in this folder will be ungrouped.',
+      duplicateName: 'A folder with this name already exists.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Contact information', uploads: 'Uploads', ratingScales: 'Rating scales', dateTime: 'Date & time', nationalId: 'National ID fields', legalConsent: 'Legal & consent', advancedFields: 'Advanced fields', layoutDisplay: 'Layout & Display', addField: 'Add field' },
     preview: {
@@ -1425,6 +1426,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'Inga mappar ännu',
       deleteFolder: 'Ta bort mapp',
       deleteFolderConfirm: 'Ta bort "{name}"? Formulär i mappen blir ogrupperade.',
+      duplicateName: 'En mapp med detta namn finns redan.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktuppgifter', uploads: 'Uppladdningar', ratingScales: 'Bedömningsskalor', dateTime: 'Datum & tid', nationalId: 'Nationella ID-fält', legalConsent: 'Juridiskt & samtycke', advancedFields: 'Avancerade fält', layoutDisplay: 'Layout & Display', addField: 'Lägg till fält' },
     preview: {
@@ -2145,6 +2147,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'Ingen mapper ennå',
       deleteFolder: 'Slett mappe',
       deleteFolderConfirm: 'Slette "{name}"? Skjemaer i mappen blir ugruppert.',
+      duplicateName: 'En mappe med dette navnet finnes allerede.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformasjon', uploads: 'Opplastinger', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nasjonale ID-felt', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avanserte felt', layoutDisplay: 'Layout og visning', addField: 'Legg til felt' },
     preview: {
@@ -2865,6 +2868,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'Ingen mapper endnu',
       deleteFolder: 'Slet mappe',
       deleteFolderConfirm: 'Slet "{name}"? Formularer i mappen bliver ugrupperede.',
+      duplicateName: 'En mappe med dette navn findes allerede.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktoplysninger', uploads: 'Uploads', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nationale ID-felter', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avancerede felter', layoutDisplay: 'Layout og visning', addField: 'Tilføj felt' },
     preview: {
@@ -3585,6 +3589,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'Ei kansioita vielä',
       deleteFolder: 'Poista kansio',
       deleteFolderConfirm: 'Poista "{name}"? Kansion lomakkeet siirretään ryhmittämättömiksi.',
+      duplicateName: 'Samanniminen kansio on jo olemassa.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Yhteystiedot', uploads: 'Lataukset', ratingScales: 'Arviointiasteikot', dateTime: 'Päivämäärä ja aika', nationalId: 'Kansalliset ID-kentät', legalConsent: 'Oikeudelliset ja suostumus', advancedFields: 'Edistyneet kentät', layoutDisplay: 'Asettelu ja näyttö', addField: 'Lisää kenttä' },
     preview: {
@@ -4305,6 +4310,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'Noch keine Ordner',
       deleteFolder: 'Ordner löschen',
       deleteFolderConfirm: '"{name}" löschen? Formulare im Ordner werden nicht mehr gruppiert.',
+      duplicateName: 'Ein Ordner mit diesem Namen existiert bereits.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformationen', uploads: 'Uploads', ratingScales: 'Bewertungsskalen', dateTime: 'Datum und Zeit', nationalId: 'Nationale ID-Felder', legalConsent: 'Rechtliches und Einwilligung', advancedFields: 'Erweiterte Felder', layoutDisplay: 'Layout und Anzeige', addField: 'Feld hinzufügen' },
     preview: {
@@ -5025,6 +5031,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'Aucun dossier pour le moment',
       deleteFolder: 'Supprimer le dossier',
       deleteFolderConfirm: 'Supprimer "{name}" ? Les formulaires du dossier ne seront plus groupés.',
+      duplicateName: 'Un dossier avec ce nom existe déjà.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Coordonnées', uploads: 'Téléchargements', ratingScales: "Échelles d'évaluation", dateTime: 'Date et heure', nationalId: "Champs d'identité nationale", legalConsent: 'Juridique et consentement', advancedFields: 'Champs avancés', layoutDisplay: 'Mise en page et affichage', addField: 'Ajouter un champ' },
     preview: {
@@ -5745,6 +5752,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       noFolders: 'Sin carpetas aún',
       deleteFolder: 'Eliminar carpeta',
       deleteFolderConfirm: '¿Eliminar "{name}"? Los formularios de la carpeta quedarán sin agrupar.',
+      duplicateName: 'Ya existe una carpeta con este nombre.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Información de contacto', uploads: 'Cargas', ratingScales: 'Escalas de valoración', dateTime: 'Fecha y hora', nationalId: 'Campos de ID nacional', legalConsent: 'Legal y consentimiento', advancedFields: 'Campos avanzados', layoutDisplay: 'Diseño y visualización', addField: 'Agregar campo' },
     preview: {

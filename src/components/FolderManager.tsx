@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, Pressable } from 'react-native';
+import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Text, TextInput, Button, IconButton, Portal, Modal } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { supabase } from '@/src/lib/supabase';
@@ -24,8 +24,18 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
   const [editName, setEditName] = useState('');
   const [creating, setCreating] = useState(false);
 
+  const isDuplicateName = (name: string, excludeId?: string) => {
+    return (groups || []).some(
+      g => g.name.toLowerCase() === name.trim().toLowerCase() && g.id !== excludeId
+    );
+  };
+
   const handleCreate = async () => {
     if (!newName.trim() || !user?.id) return;
+    if (isDuplicateName(newName)) {
+      Alert.alert(t('settings', 'error'), t('folders', 'duplicateName'));
+      return;
+    }
     setCreating(true);
     try {
       const { error } = await supabase.from('form_groups').insert({
@@ -46,6 +56,10 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
 
   const handleRename = async (group: FormGroup) => {
     if (!editName.trim()) return;
+    if (isDuplicateName(editName, group.id)) {
+      Alert.alert(t('settings', 'error'), t('folders', 'duplicateName'));
+      return;
+    }
     try {
       const { error } = await supabase.from('form_groups')
         .update({ name: editName.trim() })
@@ -90,7 +104,7 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
       <Modal visible={visible} onDismiss={onClose} contentContainerStyle={styles.modal}>
         <View style={styles.header}>
           <Text style={styles.title}>{t('folders', 'manageFolders')}</Text>
-          <IconButton icon="close" iconColor="#888" size={20} onPress={onClose} />
+          <IconButton icon="close" iconColor="#888" size={20} onPress={onClose} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
         </View>
 
         {/* Create new */}
@@ -129,7 +143,7 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
             <Text style={styles.emptyText}>{t('folders', 'noFolders')}</Text>
           </View>
         ) : (
-          <View style={styles.list}>
+          <ScrollView style={styles.list} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
             {groups.map(group => (
               <View key={group.id} style={styles.groupRow}>
                 {editingId === group.id ? (
@@ -147,8 +161,8 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
                       autoFocus
                       theme={{ colors: { onSurfaceVariant: '#888' } }}
                     />
-                    <IconButton icon="check" iconColor="#22c55e" size={20} onPress={() => handleRename(group)} />
-                    <IconButton icon="close" iconColor="#888" size={20} onPress={() => setEditingId(null)} />
+                    <IconButton icon="check" iconColor="#22c55e" size={20} onPress={() => handleRename(group)} accessibilityLabel={t('settings', 'save')} accessibilityRole="button" />
+                    <IconButton icon="close" iconColor="#888" size={20} onPress={() => setEditingId(null)} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
                   </View>
                 ) : (
                   <>
@@ -160,6 +174,8 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
                       size={18}
                       onPress={() => { setEditingId(group.id); setEditName(group.name); }}
                       style={styles.iconBtn}
+                      accessibilityLabel={t('folders', 'manageFolders')}
+                      accessibilityRole="button"
                     />
                     <IconButton
                       icon="delete-outline"
@@ -167,12 +183,14 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
                       size={18}
                       onPress={() => handleDelete(group)}
                       style={styles.iconBtn}
+                      accessibilityLabel={t('folders', 'deleteFolder')}
+                      accessibilityRole="button"
                     />
                   </>
                 )}
               </View>
             ))}
-          </View>
+          </ScrollView>
         )}
       </Modal>
     </Portal>
@@ -197,7 +215,8 @@ const styles = StyleSheet.create({
   createRow: { flexDirection: 'row', gap: 8, marginBottom: 20, alignItems: 'center' },
   createInput: { flex: 1, backgroundColor: '#1a1a2e', height: 42 },
   createBtn: { borderRadius: 8 },
-  list: { gap: 4 },
+  list: { maxHeight: 300 },
+  listContent: { paddingBottom: 16 },
   groupRow: {
     flexDirection: 'row',
     alignItems: 'center',
