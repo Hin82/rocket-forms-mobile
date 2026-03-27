@@ -2,7 +2,7 @@
   "expo": {
     "name": "Rocket Forms Pro",
     "slug": "rocket-forms-pro",
-    "version": "1.5.5",
+    "version": "1.5.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rocketforms",
@@ -63,7 +63,8 @@
       ],
       "expo-document-picker",
       "expo-local-authentication",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true

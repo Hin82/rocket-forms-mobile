@@ -1,11 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Pressable } from 'react-native';
-import { Text, Card, ActivityIndicator } from 'react-native-paper';
+import React, { useState, useMemo, useCallback } from 'react';
+import { View, StyleSheet, FlatList, RefreshControl, Pressable, Alert, Share } from 'react-native';
+import { Text, Card, ActivityIndicator, Searchbar, FAB } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSubmissions } from '@/src/hooks/useSubmissions';
 import { useTranslation } from '@/src/translations';
 import { useLanguage } from '@/src/contexts/LanguageContext';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 export default function FormSubmissionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -14,6 +16,17 @@ export default function FormSubmissionsScreen() {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
+  const [searchQuery, setSearchQuery] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  const filteredSubmissions = useMemo(() => {
+    if (!submissions || !searchQuery.trim()) return submissions;
+    const q = searchQuery.toLowerCase();
+    return submissions.filter(s => {
+      const values = Object.values(s.form_data || {}).join(' ').toLowerCase();
+      return values.includes(q);
+    });
+  }, [submissions, searchQuery]);
 
   const getPreview = (formData: Record<string, any>): string => {
     const values = Object.values(formData || {})
@@ -22,14 +35,68 @@ export default function FormSubmissionsScreen() {
     return values.join(' | ') || t('forms', 'noValues');
   };
 
+  const handleExportCSV = useCallback(async () => {
+    if (!submissions || submissions.length === 0) return;
+    setExporting(true);
+    try {
+      // Collect all unique field keys
+      const allKeys = new Set<string>();
+      submissions.forEach(s => {
+        Object.keys(s.form_data || {}).forEach(k => allKeys.add(k));
+      });
+      const keys = Array.from(allKeys);
+
+      // Build CSV
+      const header = ['#', t('forms', 'submittedAt'), ...keys].map(k => `"${k}"`).join(',');
+      const rows = submissions.map((s, i) => {
+        const date = new Date(s.submitted_at).toLocaleString(dateLocale);
+        const values = keys.map(k => {
+          const val = s.form_data?.[k];
+          if (val === undefined || val === null) return '""';
+          const str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+          return `"${str.replace(/"/g, '""')}"`;
+        });
+        return [submissions.length - i, `"${date}"`, ...values].join(',');
+      });
+
+      const csv = [header, ...rows].join('\n');
+      const filePath = `${FileSystem.cacheDirectory}submissions_${id}.csv`;
+      await FileSystem.writeAsStringAsync(filePath, csv, { encoding: FileSystem.EncodingType.UTF8 });
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(filePath, { mimeType: 'text/csv', UTI: 'public.comma-separated-values-text' });
+      } else {
+        Alert.alert(t('settings', 'error'), t('forms', 'sharingNotAvailable'));
+      }
+    } catch (err: any) {
+      Alert.alert(t('settings', 'error'), err.message || t('forms', 'exportFailed'));
+    } finally {
+      setExporting(false);
+    }
+  }, [submissions, id, dateLocale, t]);
+
   if (isLoading) {
     return <View style={styles.centered}><ActivityIndicator size="large" color="#e8622c" /></View>;
   }
 
   return (
     <View style={styles.container}>
+      {/* Search + count */}
+      {submissions && submissions.length > 0 && (
+        <View style={styles.headerRow}>
+          <Searchbar
+            placeholder={t('forms', 'searchSubmissions')}
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            style={styles.searchbar}
+            inputStyle={styles.searchInput}
+          />
+          <Text style={styles.countText}>{filteredSubmissions?.length || 0} / {submissions.length}</Text>
+        </View>
+      )}
+
       <FlatList
-        data={submissions}
+        data={filteredSubmissions}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
           <Pressable onPress={() => router.push(`/form/${id}/submission/${item.id}`)}>
@@ -63,6 +130,18 @@ export default function FormSubmissionsScreen() {
           </View>
         }
       />
+
+      {submissions && submissions.length > 0 && (
+        <FAB
+          icon="download"
+          label={t('forms', 'exportCSV')}
+          onPress={handleExportCSV}
+          loading={exporting}
+          disabled={exporting}
+          style={styles.fab}
+          color="#fff"
+        />
+      )}
     </View>
   );
 }
@@ -79,4 +158,9 @@ const styles = StyleSheet.create({
   date: { color: '#aaa' },
   preview: { color: '#888', marginTop: 4 },
   emptyText: { color: '#888', marginTop: 16 },
+  headerRow: { paddingHorizontal: 16, paddingTop: 8 },
+  searchbar: { backgroundColor: '#1e1e2e', borderRadius: 12, marginBottom: 4 },
+  searchInput: { color: '#fff' },
+  countText: { color: '#666', fontSize: 12, textAlign: 'right', paddingRight: 4, paddingBottom: 4 },
+  fab: { position: 'absolute', right: 16, bottom: 16, backgroundColor: '#e8622c', borderRadius: 16 },
 });
