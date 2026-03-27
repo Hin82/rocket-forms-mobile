@@ -515,7 +515,7 @@ export function useFormEditor(formId: string) {
       return { ...prev, fields: newFields };
     });
     setDirty(true);
-  }, []);
+  }, [t]);
 
   return {
     form,
