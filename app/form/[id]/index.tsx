@@ -17,6 +17,7 @@ export default function FormDetailScreen() {
   const { language } = useLanguage();
   const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
   const queryClient = useQueryClient();
+  const [isDuplicating, setIsDuplicating] = React.useState(false);
 
   const { data: form, isLoading } = useQuery({
     queryKey: ['form', id],
@@ -56,6 +57,32 @@ export default function FormDetailScreen() {
     await Clipboard.setStringAsync(formUrl);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Alert.alert(t('forms', 'copied'), t('forms', 'linkCopied'));
+  };
+
+  const handleDuplicate = async () => {
+    if (isDuplicating) return;
+
+    try {
+      setIsDuplicating(true);
+      const { data, error } = await supabase.from('forms').insert({
+        name: `${form?.name} (${t('forms', 'copy')})`,
+        fields: form?.fields || [],
+        settings: form?.settings || {},
+        user_id: form?.user_id,
+        form_group_id: form?.form_group_id,
+        notification_email: form?.notification_email,
+        sender_name: form?.sender_name,
+      }).select().single();
+
+      if (error) throw error;
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
+      router.push(`/form/${data.id}`);
+    } catch (err: any) {
+      Alert.alert(t('settings', 'error'), err.message || t('forms', 'couldNotDuplicate'));
+    } finally {
+      setIsDuplicating(false);
+    }
   };
 
   const handleDelete = () => {
@@ -133,6 +160,9 @@ export default function FormDetailScreen() {
         </Button>
         <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={styles.actionButtonOutline} textColor="#e8622c">
           {t('forms', 'copyLink')}
+        </Button>
+        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={styles.actionButtonOutline} textColor="#e8622c" disabled={isDuplicating} loading={isDuplicating}>
+          {t('forms', 'duplicateForm')}
         </Button>
         <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={styles.deleteButton} textColor="#ef4444">
           {t('forms', 'deleteForm')}

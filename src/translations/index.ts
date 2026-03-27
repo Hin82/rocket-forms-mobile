@@ -347,6 +347,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Delete form',
       deleteFormConfirm: 'Are you sure you want to delete "{name}"? This cannot be undone.',
       couldNotDelete: 'Could not delete form',
+      duplicateForm: 'Duplicate form',
+      copy: 'copy',
+      couldNotDuplicate: 'Could not duplicate form',
     },
     create: {
       newForm: 'New form',
@@ -1054,6 +1057,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Radera formulär',
       deleteFormConfirm: 'Vill du verkligen radera "{name}"? Detta kan inte ångras.',
       couldNotDelete: 'Kunde inte radera formuläret',
+      duplicateForm: 'Duplicera formulär',
+      copy: 'kopia',
+      couldNotDuplicate: 'Kunde inte duplicera formuläret',
     },
     create: {
       newForm: 'Nytt formulär',
@@ -1761,6 +1767,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Slett skjema',
       deleteFormConfirm: 'Er du sikker på at du vil slette "{name}"? Dette kan ikke angres.',
       couldNotDelete: 'Kunne ikke slette skjemaet',
+      duplicateForm: 'Dupliser skjema',
+      copy: 'kopi',
+      couldNotDuplicate: 'Kunne ikke duplisere skjemaet',
     },
     create: {
       newForm: 'Nytt skjema',
@@ -2468,6 +2477,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Slet formular',
       deleteFormConfirm: 'Er du sikker på, at du vil slette "{name}"? Dette kan ikke fortrydes.',
       couldNotDelete: 'Kunne ikke slette formularen',
+      duplicateForm: 'Dupliker formular',
+      copy: 'kopi',
+      couldNotDuplicate: 'Kunne ikke duplikere formularen',
     },
     create: {
       newForm: 'Ny formular',
@@ -3175,6 +3187,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Poista lomake',
       deleteFormConfirm: 'Haluatko varmasti poistaa "{name}"? Tätä ei voi kumota.',
       couldNotDelete: 'Lomaketta ei voitu poistaa',
+      duplicateForm: 'Kopioi lomake',
+      copy: 'kopio',
+      couldNotDuplicate: 'Lomaketta ei voitu kopioida',
     },
     create: {
       newForm: 'Uusi lomake',
@@ -3882,6 +3897,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Formular löschen',
       deleteFormConfirm: 'Sind Sie sicher, dass Sie "{name}" löschen möchten? Dies kann nicht rückgängig gemacht werden.',
       couldNotDelete: 'Formular konnte nicht gelöscht werden',
+      duplicateForm: 'Formular duplizieren',
+      copy: 'Kopie',
+      couldNotDuplicate: 'Formular konnte nicht dupliziert werden',
     },
     create: {
       newForm: 'Neues Formular',
@@ -4589,6 +4607,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Supprimer le formulaire',
       deleteFormConfirm: 'Êtes-vous sûr de vouloir supprimer "{name}" ? Cette action est irréversible.',
       couldNotDelete: 'Impossible de supprimer le formulaire',
+      duplicateForm: 'Dupliquer le formulaire',
+      copy: 'copie',
+      couldNotDuplicate: 'Impossible de dupliquer le formulaire',
     },
     create: {
       newForm: 'Nouveau formulaire',
@@ -5296,6 +5317,9 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteForm: 'Eliminar formulario',
       deleteFormConfirm: '¿Estás seguro de que quieres eliminar "{name}"? Esto no se puede deshacer.',
       couldNotDelete: 'No se pudo eliminar el formulario',
+      duplicateForm: 'Duplicar formulario',
+      copy: 'copia',
+      couldNotDuplicate: 'No se pudo duplicar el formulario',
     },
     create: {
       newForm: 'Nuevo formulario',
