@@ -5,6 +5,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -16,6 +17,7 @@ import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
 import SupportChat from '@/src/components/SupportChat';
 import HeaderLogo from '@/src/components/HeaderLogo';
+import BiometricLock from '@/src/components/BiometricLock';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -101,21 +103,25 @@ function RootLayoutNav() {
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <QueryClientProvider client={queryClient}>
       <PaperProvider theme={paperTheme}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <AuthProvider>
             <LanguageProvider>
-              <CompanyProvider>
-                <AuthGuard>
-                  <TranslatedStack />
-                  <ChatWrapper />
-                </AuthGuard>
-              </CompanyProvider>
+              <BiometricLock>
+                <CompanyProvider>
+                  <AuthGuard>
+                    <TranslatedStack />
+                    <ChatWrapper />
+                  </AuthGuard>
+                </CompanyProvider>
+              </BiometricLock>
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
       </PaperProvider>
     </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

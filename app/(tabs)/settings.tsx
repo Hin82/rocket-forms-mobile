@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Linking, Image } from 'react-native';
-import { Text, List, Divider, Button, Avatar } from 'react-native-paper';
+import { Text, List, Divider, Button, Avatar, Switch } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import { useQuery } from '@tanstack/react-query';
@@ -8,12 +8,26 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
 import { useTranslation } from '@/src/translations';
 import { supabase } from '@/src/lib/supabase';
+import { isBiometricEnabled, setBiometricEnabled, hasBiometricHardware } from '@/src/components/BiometricLock';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const { language } = useLanguage();
   const { t } = useTranslation();
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricOn, setBiometricOn] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const available = await hasBiometricHardware();
+      setBiometricAvailable(available);
+      if (available) {
+        const enabled = await isBiometricEnabled();
+        setBiometricOn(enabled);
+      }
+    })();
+  }, []);
 
   const currentLang = LANGUAGES.find(l => l.code === language);
 
@@ -83,6 +97,33 @@ export default function SettingsScreen() {
           onPress={() => router.push('/settings/language')}
         />
       </List.Section>
+
+      {/* Security */}
+      {biometricAvailable && (
+        <>
+          <Divider style={styles.divider} />
+          <List.Section>
+            <List.Subheader style={styles.subheader}>{t('settings', 'security')}</List.Subheader>
+            <List.Item
+              title={t('biometric', 'appLock')}
+              description={t('biometric', 'appLockDesc')}
+              left={props => <List.Icon {...props} icon="fingerprint" color="#e8622c" />}
+              right={() => (
+                <Switch
+                  value={biometricOn}
+                  onValueChange={async (val) => {
+                    await setBiometricEnabled(val);
+                    setBiometricOn(val);
+                  }}
+                  color="#e8622c"
+                />
+              )}
+              titleStyle={styles.itemTitle}
+              descriptionStyle={styles.itemDesc}
+            />
+          </List.Section>
+        </>
+      )}
 
       <Divider style={styles.divider} />
 

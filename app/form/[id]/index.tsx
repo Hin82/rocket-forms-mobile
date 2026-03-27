@@ -10,6 +10,7 @@ import * as Haptics from 'expo-haptics';
 import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { FormDetailSkeleton } from '@/src/components/SkeletonLoader';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -131,7 +132,7 @@ export default function FormDetailScreen() {
   };
 
   if (isLoading) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color="#e8622c" /></View>;
+    return <FormDetailSkeleton />;
   }
 
   if (!form) {
