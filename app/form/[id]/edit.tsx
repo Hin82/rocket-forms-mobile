@@ -234,7 +234,7 @@ export default function FormEditorScreen() {
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle} numberOfLines={1}>{form.name}</Text>
           <View style={styles.headerMeta}>
-            <Text style={styles.fieldCount}>{form.fields.length} {t('editor', 'fieldsCount')}</Text>
+            <Text style={styles.fieldCount}>{t('editor', 'fieldsCount', { count: form.fields.length })}</Text>
             {dirty && <Text style={styles.unsavedBadge}>{t('editor', 'unsaved')}</Text>}
           </View>
         </View>
@@ -433,6 +433,9 @@ function SwipeableFieldRow({
         delayLongPress={200}
         activeOpacity={0.7}
         style={[styles.fieldCard, isActive && styles.fieldCardActive]}
+        accessible={true}
+        accessibilityLabel={field.required ? `${field.label}, ${t('editor', 'required')}` : field.label}
+        accessibilityHint={field.required ? t('editor', 'requiredFieldHint') : undefined}
       >
         <View style={styles.dragHandle}>
           <MaterialCommunityIcons name="drag-horizontal-variant" size={20} color="#555" />
@@ -449,7 +452,10 @@ function SwipeableFieldRow({
           <Text style={styles.fieldType}>{t('fieldTypes', FIELD_TYPE_KEYS[field.type] || field.type)}</Text>
         </View>
         {field.required && (
-          <View style={styles.requiredDot} />
+          <View style={styles.requiredDotContainer}>
+            <View style={styles.requiredDot} />
+            <Text style={styles.requiredAsterisk}>*</Text>
+          </View>
         )}
         <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />
       </TouchableOpacity>
@@ -540,7 +546,9 @@ const styles = StyleSheet.create({
   fieldInfo: { flex: 1 },
   fieldLabel: { color: '#fff', fontSize: 15, fontWeight: '500' },
   fieldType: { color: '#666', fontSize: 12, marginTop: 2 },
-  requiredDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#e8622c', marginRight: 8 },
+  requiredDotContainer: { flexDirection: 'row', alignItems: 'center', marginRight: 8 },
+  requiredDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#e8622c', marginRight: 4 },
+  requiredAsterisk: { color: '#e8622c', fontSize: 16, fontWeight: 'bold' },
 
   // Swipe
   swipeActions: { flexDirection: 'row', width: 160 },
