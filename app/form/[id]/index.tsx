@@ -161,7 +161,7 @@ export default function FormDetailScreen() {
         <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={styles.actionButtonOutline} textColor="#e8622c">
           {t('forms', 'copyLink')}
         </Button>
-        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={styles.actionButtonOutline} textColor="#e8622c" disabled={isDuplicating} loading={isDuplicating}>
+        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} disabled={isDuplicating} loading={isDuplicating} style={styles.actionButtonOutline} textColor="#e8622c">
           {t('forms', 'duplicateForm')}
         </Button>
         <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={styles.deleteButton} textColor="#ef4444">

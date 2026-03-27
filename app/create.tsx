@@ -291,8 +291,8 @@ export default function CreateFormScreen() {
               <Pressable
                 key={tmpl.id}
                 onPress={() => applyTemplate(tmpl)}
-                style={styles.templateCard}
                 disabled={isApplyingTemplate}
+                style={[styles.templateCard, isApplyingTemplate && { opacity: 0.6 }]}
               >
                 <View style={[styles.templateIcon, { backgroundColor: tmpl.color + '20' }]}>
                   <MaterialCommunityIcons name={tmpl.icon} size={28} color={tmpl.color} />
