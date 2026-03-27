@@ -16,6 +16,7 @@ import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
 import SupportChat from '@/src/components/SupportChat';
 import HeaderLogo from '@/src/components/HeaderLogo';
+import BiometricLock from '@/src/components/BiometricLock';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -106,12 +107,14 @@ function RootLayoutNav() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <AuthProvider>
             <LanguageProvider>
-              <CompanyProvider>
-                <AuthGuard>
-                  <TranslatedStack />
-                  <ChatWrapper />
-                </AuthGuard>
-              </CompanyProvider>
+              <BiometricLock>
+                <CompanyProvider>
+                  <AuthGuard>
+                    <TranslatedStack />
+                    <ChatWrapper />
+                  </AuthGuard>
+                </CompanyProvider>
+              </BiometricLock>
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>

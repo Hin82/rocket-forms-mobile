@@ -38,6 +38,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     settings: {
       // Main settings
       account: 'Account',
+      security: 'Security',
       profile: 'Profile',
       manageProfile: 'Manage your profile',
       company: 'Company',
@@ -707,6 +708,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolderConfirm: 'Delete "{name}"? Forms in this folder will be ungrouped.',
       duplicateName: 'A folder with this name already exists.',
     },
+    biometric: {
+      appLock: 'App lock',
+      appLockDesc: 'Require Face ID or fingerprint to open the app',
+      unlockApp: 'Unlock Rocket Forms',
+      usePasscode: 'Use passcode',
+      lockedMessage: 'Authenticate to access your forms',
+      unlock: 'Unlock',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Contact information', uploads: 'Uploads', ratingScales: 'Rating scales', dateTime: 'Date & time', nationalId: 'National ID fields', legalConsent: 'Legal & consent', advancedFields: 'Advanced fields', layoutDisplay: 'Layout & Display', addField: 'Add field' },
     preview: {
       previewTitle: 'Preview',
@@ -766,6 +775,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     },
     settings: {
       account: 'Konto',
+      security: 'Säkerhet',
       profile: 'Profil',
       manageProfile: 'Hantera din profil',
       company: 'Företag',
@@ -1428,6 +1438,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolderConfirm: 'Ta bort "{name}"? Formulär i mappen blir ogrupperade.',
       duplicateName: 'En mapp med detta namn finns redan.',
     },
+    biometric: {
+      appLock: 'Applås',
+      appLockDesc: 'Kräv Face ID eller fingeravtryck för att öppna appen',
+      unlockApp: 'Lås upp Rocket Forms',
+      usePasscode: 'Använd lösenkod',
+      lockedMessage: 'Autentisera dig för att komma åt dina formulär',
+      unlock: 'Lås upp',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktuppgifter', uploads: 'Uppladdningar', ratingScales: 'Bedömningsskalor', dateTime: 'Datum & tid', nationalId: 'Nationella ID-fält', legalConsent: 'Juridiskt & samtycke', advancedFields: 'Avancerade fält', layoutDisplay: 'Layout & Display', addField: 'Lägg till fält' },
     preview: {
       previewTitle: 'Förhandsgranskning',
@@ -1487,6 +1505,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     },
     settings: {
       account: 'Konto',
+      security: 'Sikkerhet',
       profile: 'Profil',
       manageProfile: 'Administrer profilen din',
       company: 'Bedrift',
@@ -2149,6 +2168,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolderConfirm: 'Slette "{name}"? Skjemaer i mappen blir ugruppert.',
       duplicateName: 'En mappe med dette navnet finnes allerede.',
     },
+    biometric: {
+      appLock: 'Applås',
+      appLockDesc: 'Krev Face ID eller fingeravtrykk for å åpne appen',
+      unlockApp: 'Lås opp Rocket Forms',
+      usePasscode: 'Bruk passord',
+      lockedMessage: 'Autentiser deg for å få tilgang til skjemaene dine',
+      unlock: 'Lås opp',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformasjon', uploads: 'Opplastinger', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nasjonale ID-felt', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avanserte felt', layoutDisplay: 'Layout og visning', addField: 'Legg til felt' },
     preview: {
       previewTitle: 'Forhåndsvisning',
@@ -2208,6 +2235,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     },
     settings: {
       account: 'Konto',
+      security: 'Sikkerhed',
       profile: 'Profil',
       manageProfile: 'Administrer din profil',
       company: 'Virksomhed',
@@ -2870,6 +2898,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolderConfirm: 'Slet "{name}"? Formularer i mappen bliver ugrupperede.',
       duplicateName: 'En mappe med dette navn findes allerede.',
     },
+    biometric: {
+      appLock: 'Applås',
+      appLockDesc: 'Kræv Face ID eller fingeraftryk for at åbne appen',
+      unlockApp: 'Lås Rocket Forms op',
+      usePasscode: 'Brug adgangskode',
+      lockedMessage: 'Godkend dig selv for at få adgang til dine formularer',
+      unlock: 'Lås op',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktoplysninger', uploads: 'Uploads', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nationale ID-felter', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avancerede felter', layoutDisplay: 'Layout og visning', addField: 'Tilføj felt' },
     preview: {
       previewTitle: 'Forhåndsvisning',
@@ -2929,6 +2965,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     },
     settings: {
       account: 'Tili',
+      security: 'Turvallisuus',
       profile: 'Profiili',
       manageProfile: 'Hallitse profiiliasi',
       company: 'Yritys',
@@ -3591,6 +3628,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolderConfirm: 'Poista "{name}"? Kansion lomakkeet siirretään ryhmittämättömiksi.',
       duplicateName: 'Samanniminen kansio on jo olemassa.',
     },
+    biometric: {
+      appLock: 'Sovelluksen lukitus',
+      appLockDesc: 'Vaadi Face ID tai sormenjälki sovelluksen avaamiseen',
+      unlockApp: 'Avaa Rocket Forms',
+      usePasscode: 'Käytä pääsykoodia',
+      lockedMessage: 'Tunnistaudu päästäksesi lomakkeisiisi',
+      unlock: 'Avaa',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Yhteystiedot', uploads: 'Lataukset', ratingScales: 'Arviointiasteikot', dateTime: 'Päivämäärä ja aika', nationalId: 'Kansalliset ID-kentät', legalConsent: 'Oikeudelliset ja suostumus', advancedFields: 'Edistyneet kentät', layoutDisplay: 'Asettelu ja näyttö', addField: 'Lisää kenttä' },
     preview: {
       previewTitle: 'Esikatselu',
@@ -3650,6 +3695,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     },
     settings: {
       account: 'Konto',
+      security: 'Sicherheit',
       profile: 'Profil',
       manageProfile: 'Profil verwalten',
       company: 'Unternehmen',
@@ -4312,6 +4358,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolderConfirm: '"{name}" löschen? Formulare im Ordner werden nicht mehr gruppiert.',
       duplicateName: 'Ein Ordner mit diesem Namen existiert bereits.',
     },
+    biometric: {
+      appLock: 'App-Sperre',
+      appLockDesc: 'Face ID oder Fingerabdruck zum Öffnen der App erforderlich',
+      unlockApp: 'Rocket Forms entsperren',
+      usePasscode: 'Passcode verwenden',
+      lockedMessage: 'Authentifizieren Sie sich um auf Ihre Formulare zuzugreifen',
+      unlock: 'Entsperren',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformationen', uploads: 'Uploads', ratingScales: 'Bewertungsskalen', dateTime: 'Datum und Zeit', nationalId: 'Nationale ID-Felder', legalConsent: 'Rechtliches und Einwilligung', advancedFields: 'Erweiterte Felder', layoutDisplay: 'Layout und Anzeige', addField: 'Feld hinzufügen' },
     preview: {
       previewTitle: 'Vorschau',
@@ -4371,6 +4425,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     },
     settings: {
       account: 'Compte',
+      security: 'Sécurité',
       profile: 'Profil',
       manageProfile: 'Gérer votre profil',
       company: 'Entreprise',
@@ -5033,6 +5088,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolderConfirm: 'Supprimer "{name}" ? Les formulaires du dossier ne seront plus groupés.',
       duplicateName: 'Un dossier avec ce nom existe déjà.',
     },
+    biometric: {
+      appLock: "Verrouillage de l'app",
+      appLockDesc: "Exiger Face ID ou empreinte digitale pour ouvrir l'app",
+      unlockApp: 'Déverrouiller Rocket Forms',
+      usePasscode: 'Utiliser le code',
+      lockedMessage: 'Authentifiez-vous pour accéder à vos formulaires',
+      unlock: 'Déverrouiller',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Coordonnées', uploads: 'Téléchargements', ratingScales: "Échelles d'évaluation", dateTime: 'Date et heure', nationalId: "Champs d'identité nationale", legalConsent: 'Juridique et consentement', advancedFields: 'Champs avancés', layoutDisplay: 'Mise en page et affichage', addField: 'Ajouter un champ' },
     preview: {
       previewTitle: 'Aperçu',
@@ -5092,6 +5155,7 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
     },
     settings: {
       account: 'Cuenta',
+      security: 'Seguridad',
       profile: 'Perfil',
       manageProfile: 'Gestionar tu perfil',
       company: 'Empresa',
@@ -5753,6 +5817,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       deleteFolder: 'Eliminar carpeta',
       deleteFolderConfirm: '¿Eliminar "{name}"? Los formularios de la carpeta quedarán sin agrupar.',
       duplicateName: 'Ya existe una carpeta con este nombre.',
+    },
+    biometric: {
+      appLock: 'Bloqueo de app',
+      appLockDesc: 'Requerir Face ID o huella digital para abrir la app',
+      unlockApp: 'Desbloquear Rocket Forms',
+      usePasscode: 'Usar código',
+      lockedMessage: 'Autentícate para acceder a tus formularios',
+      unlock: 'Desbloquear',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Información de contacto', uploads: 'Cargas', ratingScales: 'Escalas de valoración', dateTime: 'Fecha y hora', nationalId: 'Campos de ID nacional', legalConsent: 'Legal y consentimiento', advancedFields: 'Campos avanzados', layoutDisplay: 'Diseño y visualización', addField: 'Agregar campo' },
     preview: {
