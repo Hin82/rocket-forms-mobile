@@ -338,6 +338,7 @@ export default function CreateFormScreen() {
             disabled={!formName.trim()}
             style={styles.nextButton}
             contentStyle={styles.buttonContent}
+            labelStyle={styles.buttonLabel}
             icon="plus"
           >
             {t('create', 'nextAddFields')}
@@ -398,6 +399,7 @@ export default function CreateFormScreen() {
           loading={createForm.isPending}
           style={styles.nextButton}
           contentStyle={styles.buttonContent}
+          labelStyle={styles.buttonLabel}
         >
           {t('create', 'createForm')}
         </Button>
@@ -420,6 +422,7 @@ const styles = StyleSheet.create({
   groupChipText: { color: '#ccc' },
   nextButton: { marginTop: 16, borderRadius: 12, backgroundColor: '#e8622c' },
   buttonContent: { paddingVertical: 6 },
+  buttonLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },
   addedFields: { gap: 6, marginBottom: 24 },
   addedChip: { backgroundColor: '#1e1e2e' },
   addedChipText: { color: '#fff' },
