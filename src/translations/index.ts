@@ -698,6 +698,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       event: 'Event registration',
       eventDesc: 'Sign up with contact details',
     },
+    folders: {
+      manageFolders: 'Manage folders',
+      newFolderName: 'New folder name',
+      create: 'Create',
+      noFolders: 'No folders yet',
+      deleteFolder: 'Delete folder',
+      deleteFolderConfirm: 'Delete "{name}"? Forms in this folder will be ungrouped.',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Contact information', uploads: 'Uploads', ratingScales: 'Rating scales', dateTime: 'Date & time', nationalId: 'National ID fields', legalConsent: 'Legal & consent', advancedFields: 'Advanced fields', layoutDisplay: 'Layout & Display', addField: 'Add field' },
     preview: {
       previewTitle: 'Preview',
@@ -1409,6 +1417,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       feedbackDesc: 'Samla betyg och feedback',
       event: 'Eventregistrering',
       eventDesc: 'Anmälan med kontaktuppgifter',
+    },
+    folders: {
+      manageFolders: 'Hantera mappar',
+      newFolderName: 'Nytt mappnamn',
+      create: 'Skapa',
+      noFolders: 'Inga mappar ännu',
+      deleteFolder: 'Ta bort mapp',
+      deleteFolderConfirm: 'Ta bort "{name}"? Formulär i mappen blir ogrupperade.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktuppgifter', uploads: 'Uppladdningar', ratingScales: 'Bedömningsskalor', dateTime: 'Datum & tid', nationalId: 'Nationella ID-fält', legalConsent: 'Juridiskt & samtycke', advancedFields: 'Avancerade fält', layoutDisplay: 'Layout & Display', addField: 'Lägg till fält' },
     preview: {
@@ -2122,6 +2138,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       event: 'Arrangementregistrering',
       eventDesc: 'Påmelding med kontaktopplysninger',
     },
+    folders: {
+      manageFolders: 'Administrer mapper',
+      newFolderName: 'Nytt mappenavn',
+      create: 'Opprett',
+      noFolders: 'Ingen mapper ennå',
+      deleteFolder: 'Slett mappe',
+      deleteFolderConfirm: 'Slette "{name}"? Skjemaer i mappen blir ugruppert.',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformasjon', uploads: 'Opplastinger', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nasjonale ID-felt', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avanserte felt', layoutDisplay: 'Layout og visning', addField: 'Legg til felt' },
     preview: {
       previewTitle: 'Forhåndsvisning',
@@ -2833,6 +2857,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       feedbackDesc: 'Indsaml vurderinger og feedback',
       event: 'Begivenhedsregistrering',
       eventDesc: 'Tilmelding med kontaktoplysninger',
+    },
+    folders: {
+      manageFolders: 'Administrer mapper',
+      newFolderName: 'Nyt mappenavn',
+      create: 'Opret',
+      noFolders: 'Ingen mapper endnu',
+      deleteFolder: 'Slet mappe',
+      deleteFolderConfirm: 'Slet "{name}"? Formularer i mappen bliver ugrupperede.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktoplysninger', uploads: 'Uploads', ratingScales: 'Vurderingsskalaer', dateTime: 'Dato og tid', nationalId: 'Nationale ID-felter', legalConsent: 'Juridisk og samtykke', advancedFields: 'Avancerede felter', layoutDisplay: 'Layout og visning', addField: 'Tilføj felt' },
     preview: {
@@ -3546,6 +3578,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       event: 'Tapahtumailmoittautuminen',
       eventDesc: 'Ilmoittautuminen yhteystiedoilla',
     },
+    folders: {
+      manageFolders: 'Hallinnoi kansioita',
+      newFolderName: 'Uuden kansion nimi',
+      create: 'Luo',
+      noFolders: 'Ei kansioita vielä',
+      deleteFolder: 'Poista kansio',
+      deleteFolderConfirm: 'Poista "{name}"? Kansion lomakkeet siirretään ryhmittämättömiksi.',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Yhteystiedot', uploads: 'Lataukset', ratingScales: 'Arviointiasteikot', dateTime: 'Päivämäärä ja aika', nationalId: 'Kansalliset ID-kentät', legalConsent: 'Oikeudelliset ja suostumus', advancedFields: 'Edistyneet kentät', layoutDisplay: 'Asettelu ja näyttö', addField: 'Lisää kenttä' },
     preview: {
       previewTitle: 'Esikatselu',
@@ -4257,6 +4297,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       feedbackDesc: 'Bewertungen und Feedback sammeln',
       event: 'Veranstaltungsanmeldung',
       eventDesc: 'Anmeldung mit Kontaktdaten',
+    },
+    folders: {
+      manageFolders: 'Ordner verwalten',
+      newFolderName: 'Neuer Ordnername',
+      create: 'Erstellen',
+      noFolders: 'Noch keine Ordner',
+      deleteFolder: 'Ordner löschen',
+      deleteFolderConfirm: '"{name}" löschen? Formulare im Ordner werden nicht mehr gruppiert.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Kontaktinformationen', uploads: 'Uploads', ratingScales: 'Bewertungsskalen', dateTime: 'Datum und Zeit', nationalId: 'Nationale ID-Felder', legalConsent: 'Rechtliches und Einwilligung', advancedFields: 'Erweiterte Felder', layoutDisplay: 'Layout und Anzeige', addField: 'Feld hinzufügen' },
     preview: {
@@ -4970,6 +5018,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       event: "Inscription à un événement",
       eventDesc: 'Inscription avec coordonnées',
     },
+    folders: {
+      manageFolders: 'Gérer les dossiers',
+      newFolderName: 'Nom du nouveau dossier',
+      create: 'Créer',
+      noFolders: 'Aucun dossier pour le moment',
+      deleteFolder: 'Supprimer le dossier',
+      deleteFolderConfirm: 'Supprimer "{name}" ? Les formulaires du dossier ne seront plus groupés.',
+    },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Coordonnées', uploads: 'Téléchargements', ratingScales: "Échelles d'évaluation", dateTime: 'Date et heure', nationalId: "Champs d'identité nationale", legalConsent: 'Juridique et consentement', advancedFields: 'Champs avancés', layoutDisplay: 'Mise en page et affichage', addField: 'Ajouter un champ' },
     preview: {
       previewTitle: 'Aperçu',
@@ -5681,6 +5737,14 @@ const translations: Record<string, Record<string, Record<string, string>>> = {
       feedbackDesc: 'Recoger valoraciones y comentarios',
       event: 'Registro de evento',
       eventDesc: 'Inscripción con datos de contacto',
+    },
+    folders: {
+      manageFolders: 'Gestionar carpetas',
+      newFolderName: 'Nombre de nueva carpeta',
+      create: 'Crear',
+      noFolders: 'Sin carpetas aún',
+      deleteFolder: 'Eliminar carpeta',
+      deleteFolderConfirm: '¿Eliminar "{name}"? Los formularios de la carpeta quedarán sin agrupar.',
     },
     fieldPalette: { essentials: 'Essentials', contactInfo: 'Información de contacto', uploads: 'Cargas', ratingScales: 'Escalas de valoración', dateTime: 'Fecha y hora', nationalId: 'Campos de ID nacional', legalConsent: 'Legal y consentimiento', advancedFields: 'Campos avanzados', layoutDisplay: 'Diseño y visualización', addField: 'Agregar campo' },
     preview: {
