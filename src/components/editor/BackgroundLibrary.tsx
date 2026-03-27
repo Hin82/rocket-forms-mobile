@@ -93,10 +93,25 @@ export default function BackgroundLibrary({ visible, onClose, onSelect, currentB
     onClose();
   }, [onSelect, onClose]);
 
+  const gradientToDataUrl = useCallback((css: string) => {
+    // Convert CSS gradient to SVG data URI for compatibility with image URI consumers
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
+      <defs>
+        <linearGradient id="grad" gradientTransform="rotate(135)">
+          ${css.match(/#[0-9a-fA-F]{6}/g)?.map((color, idx, arr) =>
+            `<stop offset="${(idx / (arr.length - 1)) * 100}%" stop-color="${color}"/>`
+          ).join('') || ''}
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grad)"/>
+    </svg>`;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+  }, []);
+
   const handleSelectGradient = useCallback((gradient: typeof GRADIENTS[0]) => {
-    onSelect(gradient.css);
+    onSelect(gradientToDataUrl(gradient.css));
     onClose();
-  }, [onSelect, onClose]);
+  }, [onSelect, onClose, gradientToDataUrl]);
 
   const handleRemoveBackground = useCallback(() => {
     onSelect('');

@@ -153,14 +153,67 @@ export default function CreateFormScreen() {
     },
   });
 
-  const addField = (type: string, label: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setFields(prev => [...prev, {
+  // Field factory helper that mirrors the shared factory in useFormEditor.ts
+  const createFieldDefaults = (type: string, label: string) => {
+    const baseField = {
       id: `field_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       type,
       label,
       required: false,
-    }]);
+    };
+
+    // Add type-specific defaults matching useFormEditor factory
+    if (['select', 'radio', 'checkbox'].includes(type)) {
+      return {
+        ...baseField,
+        options: [
+          { id: `o${Math.random().toString(36).substring(2, 11)}`, label: `${t('create', 'option')} 1`, value: 'option_1' },
+          { id: `o${Math.random().toString(36).substring(2, 11)}`, label: `${t('create', 'option')} 2`, value: 'option_2' },
+        ],
+      };
+    }
+    if (type === 'rating') {
+      return { ...baseField, ratingScale: 5 };
+    }
+    if (type === 'slider') {
+      return { ...baseField, min: 0, max: 100, step: 1 };
+    }
+    if (type === 'likert') {
+      return {
+        ...baseField,
+        likertOptions: [
+          t('formEditor', 'likertStronglyDisagree'),
+          t('formEditor', 'likertDisagree'),
+          t('formEditor', 'likertNeutral'),
+          t('formEditor', 'likertAgree'),
+          t('formEditor', 'likertStronglyAgree'),
+        ],
+      };
+    }
+    if (type === 'currency') {
+      return { ...baseField, currency: 'SEK' };
+    }
+    if (type === 'matrix') {
+      return {
+        ...baseField,
+        matrixRows: [
+          { id: `o${Math.random().toString(36).substring(2, 11)}`, label: `${t('formEditor', 'row')} 1` },
+          { id: `o${Math.random().toString(36).substring(2, 11)}`, label: `${t('formEditor', 'row')} 2` },
+        ],
+        matrixColumns: [
+          { id: `o${Math.random().toString(36).substring(2, 11)}`, label: `${t('formEditor', 'column')} 1` },
+          { id: `o${Math.random().toString(36).substring(2, 11)}`, label: `${t('formEditor', 'column')} 2` },
+        ],
+        matrixInputType: 'radio',
+      };
+    }
+    return baseField;
+  };
+
+  const addField = (type: string, label: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const newField = createFieldDefaults(type, label);
+    setFields(prev => [...prev, newField]);
   };
 
   const removeField = (id: string) => {

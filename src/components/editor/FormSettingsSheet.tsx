@@ -77,15 +77,15 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
 
     // Translated option arrays
     const bgSizes = useMemo(() => [
-      { value: 'cover', label: 'Cover' },
-      { value: 'contain', label: 'Contain' },
+      { value: 'cover', label: t('formSettings', 'bgCover') },
+      { value: 'contain', label: t('formSettings', 'bgContain') },
       { value: 'stretch', label: t('formSettings', 'bgStretch') },
       { value: 'repeat', label: t('formSettings', 'bgRepeat') },
       { value: 'no-repeat', label: t('formSettings', 'bgNoRepeat') },
     ], [t]);
 
     const bgAttachments = useMemo(() => [
-      { value: 'scroll', label: 'Scroll' },
+      { value: 'scroll', label: t('formSettings', 'bgScroll') },
       { value: 'fixed', label: t('formSettings', 'bgFixed') },
       { value: 'local', label: t('formSettings', 'bgLocal') },
     ], [t]);
