@@ -14,7 +14,7 @@ interface Notification {
   title: string;
   message: string;
   type: string;
-  read: boolean;
+  is_read: boolean;
   form_id: string | null;
   created_at: string;
 }
@@ -44,23 +44,29 @@ export default function NotificationsScreen() {
 
   const markRead = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from('notifications').update({ read: true }).eq('id', id);
+      await supabase.from('notifications').update({ is_read: true }).eq('id', id);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+    },
   });
 
   const markAllRead = useMutation({
     mutationFn: async () => {
       await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('user_id', user!.id)
-        .eq('read', false);
+        .eq('is_read', false);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+    },
   });
 
-  const unreadCount = notifications?.filter(n => !n.read).length || 0;
+  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   if (isLoading) {
     return <View style={styles.centered}><ActivityIndicator size="large" color="#e8622c" /></View>;
@@ -78,16 +84,16 @@ export default function NotificationsScreen() {
         data={notifications}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Pressable onPress={() => !item.read && markRead.mutate(item.id)}>
-            <Card style={[styles.card, !item.read && styles.unread]} mode="outlined">
+          <Pressable onPress={() => !item.is_read && markRead.mutate(item.id)}>
+            <Card style={[styles.card, !item.is_read && styles.unread]} mode="outlined">
               <Card.Content style={styles.cardContent}>
                 <MaterialCommunityIcons
                   name={item.type === 'submission' ? 'file-check-outline' : 'bell-outline'}
                   size={24}
-                  color={item.read ? '#666' : '#e8622c'}
+                  color={item.is_read ? '#666' : '#e8622c'}
                 />
                 <View style={styles.textContainer}>
-                  <Text variant="titleSmall" style={[styles.title, !item.read && styles.unreadText]}>
+                  <Text variant="titleSmall" style={[styles.title, !item.is_read && styles.unreadText]}>
                     {item.title}
                   </Text>
                   <Text variant="bodySmall" style={styles.message} numberOfLines={2}>

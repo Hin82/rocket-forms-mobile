@@ -1,10 +1,14 @@
 import { Tabs } from 'expo-router';
+import { View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Text } from 'react-native-paper';
 import { useTranslation } from '@/src/translations';
 import HeaderLogo from '@/src/components/HeaderLogo';
+import { useUnreadCount } from '@/src/hooks/useUnreadCount';
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const unreadCount = useUnreadCount();
 
   return (
     <Tabs
@@ -46,7 +50,22 @@ export default function TabLayout() {
         options={{
           title: t('nav', 'notificationsTab'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bell-outline" size={size} color={color} />
+            <View>
+              <MaterialCommunityIcons name="bell-outline" size={size} color={color} />
+              {unreadCount > 0 && (
+                <View style={{
+                  position: 'absolute', top: -4, right: -8,
+                  backgroundColor: '#e8622c', borderRadius: 9,
+                  minWidth: 18, height: 18,
+                  alignItems: 'center', justifyContent: 'center',
+                  paddingHorizontal: 4,
+                }}>
+                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </Text>
+                </View>
+              )}
+            </View>
           ),
         }}
       />
