@@ -58,6 +58,25 @@ export default function FormDetailScreen() {
     Alert.alert(t('forms', 'copied'), t('forms', 'linkCopied'));
   };
 
+  const handleDuplicate = async () => {
+    try {
+      const { data, error } = await supabase.from('forms').insert({
+        name: `${form?.name} (${t('forms', 'copy')})`,
+        fields: form?.fields || [],
+        settings: form?.settings || {},
+        user_id: form?.user_id,
+        form_group_id: form?.form_group_id,
+      }).select().single();
+
+      if (error) throw error;
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
+      router.push(`/form/${data.id}`);
+    } catch (err: any) {
+      Alert.alert(t('settings', 'error'), err.message || t('forms', 'couldNotDuplicate'));
+    }
+  };
+
   const handleDelete = () => {
     Alert.alert(
       t('forms', 'deleteForm'),
@@ -133,6 +152,9 @@ export default function FormDetailScreen() {
         </Button>
         <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={styles.actionButtonOutline} textColor="#e8622c">
           {t('forms', 'copyLink')}
+        </Button>
+        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={styles.actionButtonOutline} textColor="#e8622c">
+          {t('forms', 'duplicateForm')}
         </Button>
         <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={styles.deleteButton} textColor="#ef4444">
           {t('forms', 'deleteForm')}
