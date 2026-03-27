@@ -234,7 +234,7 @@ export default function FormEditorScreen() {
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle} numberOfLines={1}>{form.name}</Text>
           <View style={styles.headerMeta}>
-            <Text style={styles.fieldCount}>{form.fields.length} {t('editor', 'fieldsCount')}</Text>
+            <Text style={styles.fieldCount}>{t('editor', 'fieldsCount', { count: form.fields.length })}</Text>
             {dirty && <Text style={styles.unsavedBadge}>{t('editor', 'unsaved')}</Text>}
           </View>
         </View>
@@ -433,6 +433,8 @@ function SwipeableFieldRow({
         delayLongPress={200}
         activeOpacity={0.7}
         style={[styles.fieldCard, isActive && styles.fieldCardActive]}
+        accessibilityLabel={`${field.label}, ${t('fieldTypes', FIELD_TYPE_KEYS[field.type] || field.type)}${field.required ? ', required' : ''}`}
+        accessibilityState={{ required: field.required }}
       >
         <View style={styles.dragHandle}>
           <MaterialCommunityIcons name="drag-horizontal-variant" size={20} color="#555" />

@@ -23,6 +23,7 @@ export default function CreateFormScreen() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [fields, setFields] = useState<NewField[]>([]);
   const [step, setStep] = useState(1);
+  const [isApplyingTemplate, setIsApplyingTemplate] = useState(false);
 
   const { user } = useAuth();
   const { data: groups } = useFormGroups();
@@ -159,6 +160,8 @@ export default function CreateFormScreen() {
   ];
 
   const applyTemplate = async (template: typeof TEMPLATES[0]) => {
+    if (isApplyingTemplate) return;
+
     const templateFields = template.fields.map((f, i) => ({
       id: `field_${Date.now()}_${i}`,
       type: f.type,
@@ -172,6 +175,7 @@ export default function CreateFormScreen() {
     }));
 
     try {
+      setIsApplyingTemplate(true);
       const { data, error } = await supabase.from('forms').insert({
         name: formName.trim() || t('templates', template.id),
         fields: templateFields,
@@ -186,6 +190,8 @@ export default function CreateFormScreen() {
       router.replace(`/form/${data.id}/edit`);
     } catch (err: any) {
       Alert.alert(t('create', 'error'), err.message || t('create', 'couldNotCreate'));
+    } finally {
+      setIsApplyingTemplate(false);
     }
   };
 
@@ -286,12 +292,15 @@ export default function CreateFormScreen() {
                 key={tmpl.id}
                 onPress={() => applyTemplate(tmpl)}
                 style={styles.templateCard}
+                disabled={isApplyingTemplate}
               >
                 <View style={[styles.templateIcon, { backgroundColor: tmpl.color + '20' }]}>
                   <MaterialCommunityIcons name={tmpl.icon} size={28} color={tmpl.color} />
                 </View>
-                <Text style={styles.templateName}>{t('templates', tmpl.id)}</Text>
-                <Text style={styles.templateDesc}>{t('templates', `${tmpl.id}Desc`)}</Text>
+                <View style={styles.templateText}>
+                  <Text style={styles.templateName}>{t('templates', tmpl.id)}</Text>
+                  <Text style={styles.templateDesc}>{t('templates', `${tmpl.id}Desc`)}</Text>
+                </View>
               </Pressable>
             ))}
           </View>
@@ -411,6 +420,10 @@ const styles = StyleSheet.create({
   templateIcon: {
     width: 52, height: 52, borderRadius: 14,
     alignItems: 'center', justifyContent: 'center',
+  },
+  templateText: {
+    flex: 1,
+    flexDirection: 'column',
   },
   templateName: { color: '#fff', fontSize: 16, fontWeight: '600' },
   templateDesc: { color: '#888', fontSize: 13, marginTop: 2 },
