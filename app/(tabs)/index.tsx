@@ -9,6 +9,7 @@ import { useForms, useFormGroups, Form } from '@/src/hooks/useForms';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { supabase } from '@/src/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRefreshOnFocus } from '@/src/hooks/useRefreshOnFocus';
 import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import FolderManager from '@/src/components/FolderManager';
@@ -33,6 +34,7 @@ export default function FormsScreen() {
   const [showFolders, setShowFolders] = useState(false);
   const { data: forms, isLoading, refetch, isRefetching } = useForms();
   const { data: groups } = useFormGroups();
+  useRefreshOnFocus(refetch);
   const router = useRouter();
   const { t } = useTranslation();
   const { language } = useLanguage();
