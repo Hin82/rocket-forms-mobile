@@ -31,7 +31,7 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
 
-  const { data: webhooks, isLoading } = useQuery({
+  const { data: webhooks, isLoading, error: queryError } = useQuery({
     queryKey: ['webhooks', formId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -47,6 +47,7 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
 
   const addMutation = useMutation({
     mutationFn: async () => {
+      if (!user?.id) throw new Error('Not authenticated');
       if (!name.trim() || !url.trim()) throw new Error(t('webhooks', 'fillFields'));
       if (!/^https?:\/\/.+/.test(url.trim())) throw new Error(t('webhooks', 'invalidUrl'));
 
@@ -55,7 +56,7 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
         name: name.trim(),
         url: url.trim(),
         method: 'POST',
-        created_by: user!.id,
+        created_by: user.id,
       });
       if (error) throw error;
     },
@@ -78,6 +79,10 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
       Haptics.selectionAsync();
       queryClient.invalidateQueries({ queryKey: ['webhooks', formId] });
     },
+    onError: (err: Error) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert(t('settings', 'error'), err.message);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -88,6 +93,10 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
     onSuccess: () => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       queryClient.invalidateQueries({ queryKey: ['webhooks', formId] });
+    },
+    onError: (err: Error) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert(t('settings', 'error'), err.message);
     },
   });
 
@@ -112,6 +121,12 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
 
         {isLoading ? (
           <ActivityIndicator size="large" color="#e8622c" style={{ padding: 40 }} />
+        ) : queryError ? (
+          <View style={styles.empty}>
+            <MaterialCommunityIcons name="alert-circle-outline" size={40} color="#cc3333" />
+            <Text style={styles.emptyText}>{t('settings', 'error')}</Text>
+            <Text style={styles.emptyDesc}>{(queryError as Error).message}</Text>
+          </View>
         ) : (
           <ScrollView style={styles.list} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
             {(!webhooks || webhooks.length === 0) && !showAdd ? (
@@ -163,7 +178,7 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
                   theme={{ colors: { onSurfaceVariant: '#888' } }}
                   autoCapitalize="none"
                   keyboardType="url"
-                  placeholder="https://example.com/webhook"
+                  placeholder={t('webhooks', 'urlPlaceholder')}
                   dense
                 />
                 <View style={styles.addActions}>
