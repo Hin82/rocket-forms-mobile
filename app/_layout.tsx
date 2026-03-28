@@ -152,6 +152,13 @@ const ChatWrapper = () => {
   return <SupportChat />;
 };
 
+const FeedbackWrapper = () => {
+  const { user } = useAuth();
+  const segments = useSegments();
+  if (!user || segments[0] === '(auth)') return null;
+  return <ShakeFeedback />;
+};
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
@@ -170,7 +177,7 @@ function RootLayoutNav() {
                     <OnboardingWrapper>
                       <TranslatedStack />
                       <ChatWrapper />
-                      <ShakeFeedback />
+                      <FeedbackWrapper />
                     </OnboardingWrapper>
                   </AuthGuard>
                 </CompanyProvider>

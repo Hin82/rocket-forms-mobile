@@ -43,7 +43,7 @@ export default function ShakeFeedback() {
     setSending(true);
 
     try {
-      await supabase.from('support_tasks').insert({
+      const { error } = await supabase.from('support_tasks').insert({
         user_id: user?.id,
         title: `[${type.toUpperCase()}] ${message.trim().slice(0, 60)}`,
         description: message.trim(),
@@ -58,6 +58,7 @@ export default function ShakeFeedback() {
           app_version: Constants.expoConfig?.version,
         },
       });
+      if (error) throw error;
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(t('feedback', 'thankYou'), t('feedback', 'feedbackSent'));
