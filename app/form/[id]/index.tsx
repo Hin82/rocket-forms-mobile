@@ -11,6 +11,7 @@ import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { FormDetailSkeleton } from '@/src/components/SkeletonLoader';
+import { useTrackAction } from '@/src/hooks/useAppRating';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -29,6 +30,7 @@ export default function FormDetailScreen() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isDuplicating, setIsDuplicating] = React.useState(false);
+  useTrackAction();
   const duplicatingRef = React.useRef(false);
 
   const { data: form, isLoading } = useQuery({
