@@ -32,6 +32,7 @@ function getDateLocale(languageCode: LanguageCode): string {
 export default function FormsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFolders, setShowFolders] = useState(false);
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'submissions'>('date');
   const { data: forms, isLoading, refetch, isRefetching } = useForms();
   const { data: groups } = useFormGroups();
   useRefreshOnFocus(refetch);
@@ -43,9 +44,16 @@ export default function FormsScreen() {
   const sections = React.useMemo(() => {
     if (!forms) return [];
 
-    const filtered = searchQuery
+    let filtered = searchQuery
       ? forms.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()))
-      : forms;
+      : [...forms];
+
+    // Sort
+    filtered.sort((a, b) => {
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'submissions') return (b.submission_count || 0) - (a.submission_count || 0);
+      return new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime();
+    });
 
     const grouped: Record<string, Form[]> = { ungrouped: [] };
 
@@ -70,7 +78,7 @@ export default function FormsScreen() {
     }
 
     return result;
-  }, [forms, searchQuery, t]);
+  }, [forms, searchQuery, sortBy, t]);
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -175,6 +183,29 @@ export default function FormsScreen() {
 
       <FolderManager visible={showFolders} onClose={() => setShowFolders(false)} />
 
+      {/* Sort chips */}
+      <View style={styles.sortRow}>
+        {(['date', 'name', 'submissions'] as const).map(s => (
+          <Pressable
+            key={s}
+            onPress={() => setSortBy(s)}
+            style={[styles.sortChip, sortBy === s && styles.sortChipActive]}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: sortBy === s }}
+            accessibilityLabel={t('forms', `sort_${s}`)}
+          >
+            <MaterialCommunityIcons
+              name={s === 'date' ? 'clock-outline' : s === 'name' ? 'sort-alphabetical-ascending' : 'chart-bar'}
+              size={14}
+              color={sortBy === s ? '#fff' : '#888'}
+            />
+            <Text style={[styles.sortChipText, sortBy === s && styles.sortChipTextActive]}>
+              {t('forms', `sort_${s}`)}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -226,6 +257,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   folderBtn: { padding: 8 },
+  sortRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
+  sortChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14,
+    backgroundColor: '#1e1e2e',
+  },
+  sortChipActive: { backgroundColor: '#e8622c' },
+  sortChipText: { color: '#888', fontSize: 12 },
+  sortChipTextActive: { color: '#fff' },
   searchInput: { color: '#fff' },
   list: { paddingHorizontal: 16, paddingBottom: 80 },
   listEmpty: { flexGrow: 1, paddingHorizontal: 16, paddingBottom: 80 },
