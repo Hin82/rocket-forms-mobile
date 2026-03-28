@@ -33,6 +33,8 @@ export default function FormsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFolders, setShowFolders] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'submissions'>('date');
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { data: forms, isLoading, refetch, isRefetching } = useForms();
   const { data: groups } = useFormGroups();
   useRefreshOnFocus(refetch);
@@ -126,41 +128,109 @@ export default function FormsScreen() {
     );
   }, [router, t, handleDeleteForm]);
 
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.size === 0) setSelectMode(false);
+      return next;
+    });
+    Haptics.selectionAsync();
+  }, []);
+
+  const handleLongPress = useCallback((id: string) => {
+    if (!selectMode) {
+      setSelectMode(true);
+      setSelectedIds(new Set([id]));
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+  }, [selectMode]);
+
+  const handleBatchDelete = useCallback(() => {
+    Alert.alert(
+      t('forms', 'deleteForm'),
+      t('forms', 'batchDeleteConfirm', { count: String(selectedIds.size) }),
+      [
+        { text: t('settings', 'cancel'), style: 'cancel' },
+        {
+          text: t('settings', 'delete'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const ids = Array.from(selectedIds);
+              await supabase.from('forms').delete().in('id', ids);
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+              queryClient.invalidateQueries({ queryKey: ['forms'] });
+              setSelectMode(false);
+              setSelectedIds(new Set());
+            } catch {}
+          },
+        },
+      ],
+    );
+  }, [selectedIds, t, queryClient]);
+
+  const cancelSelect = useCallback(() => {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  }, []);
+
   const renderFormCard = useCallback(({ item }: { item: Form }) => {
     const fieldCount = item.fields?.length || 0;
     const subCount = item.submission_count || 0;
+    const isSelected = selectedIds.has(item.id);
 
-    return (
-      <Swipeable renderRightActions={renderSwipeActions(item)} overshootRight={false}>
-        <Pressable onPress={() => router.push(`/form/${item.id}`)}>
-          <Card style={styles.card} mode="outlined">
-            <Card.Content style={styles.cardContent}>
-              <View style={styles.cardLeft}>
-                <Text variant="titleMedium" numberOfLines={1} style={styles.formName}>
-                  {item.name}
-                </Text>
-                <View style={styles.cardMeta}>
-                  <View style={styles.metaItem}>
-                    <MaterialCommunityIcons name="format-list-bulleted" size={14} color="#666" />
-                    <Text style={styles.metaText}>{fieldCount}</Text>
-                  </View>
-                  <View style={styles.metaItem}>
-                    <MaterialCommunityIcons name="file-check-outline" size={14} color={subCount > 0 ? '#e8622c' : '#666'} />
-                    <Text style={[styles.metaText, subCount > 0 && styles.metaTextActive]}>{subCount}</Text>
-                  </View>
-                  <Text style={styles.metaDot}>·</Text>
-                  <Text style={styles.metaText}>
-                    {new Date(item.updated_at || item.created_at).toLocaleDateString(dateLocale)}
-                  </Text>
+    const handlePress = () => {
+      if (selectMode) {
+        toggleSelect(item.id);
+      } else {
+        router.push(`/form/${item.id}`);
+      }
+    };
+
+    const content = (
+      <Pressable onPress={handlePress} onLongPress={() => handleLongPress(item.id)} delayLongPress={400}>
+        <Card style={[styles.card, isSelected && styles.cardSelected]} mode="outlined">
+          <Card.Content style={styles.cardContent}>
+            {selectMode && (
+              <MaterialCommunityIcons
+                name={isSelected ? 'checkbox-marked-circle' : 'checkbox-blank-circle-outline'}
+                size={22}
+                color={isSelected ? '#e8622c' : '#555'}
+                style={{ marginRight: 8 }}
+              />
+            )}
+            <View style={styles.cardLeft}>
+              <Text variant="titleMedium" numberOfLines={1} style={styles.formName}>
+                {item.name}
+              </Text>
+              <View style={styles.cardMeta}>
+                <View style={styles.metaItem}>
+                  <MaterialCommunityIcons name="format-list-bulleted" size={14} color="#666" />
+                  <Text style={styles.metaText}>{fieldCount}</Text>
                 </View>
+                <View style={styles.metaItem}>
+                  <MaterialCommunityIcons name="file-check-outline" size={14} color={subCount > 0 ? '#e8622c' : '#666'} />
+                  <Text style={[styles.metaText, subCount > 0 && styles.metaTextActive]}>{subCount}</Text>
+                </View>
+                <Text style={styles.metaDot}>·</Text>
+                <Text style={styles.metaText}>
+                  {new Date(item.updated_at || item.created_at).toLocaleDateString(dateLocale)}
+                </Text>
               </View>
-              <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />
-            </Card.Content>
-          </Card>
-        </Pressable>
+            </View>
+            {!selectMode && <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />}
+          </Card.Content>
+        </Card>
+      </Pressable>
+    );
+
+    return selectMode ? content : (
+      <Swipeable renderRightActions={renderSwipeActions(item)} overshootRight={false}>
+        {content}
       </Swipeable>
     );
-  }, [router, dateLocale, renderSwipeActions]);
+  }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress]);
 
   if (isLoading) {
     return <FormListSkeleton />;
@@ -234,13 +304,26 @@ export default function FormsScreen() {
         }
       />
 
-      <FAB
-        icon="plus"
-        label={t('forms', 'new')}
-        onPress={() => router.push('/create')}
-        style={styles.fab}
-        color="#fff"
-      />
+      {selectMode ? (
+        <View style={styles.batchBar}>
+          <Pressable onPress={cancelSelect} style={styles.batchCancelBtn}>
+            <MaterialCommunityIcons name="close" size={20} color="#ccc" />
+            <Text style={styles.batchCancelText}>{selectedIds.size} {t('forms', 'selected')}</Text>
+          </Pressable>
+          <Pressable onPress={handleBatchDelete} style={styles.batchDeleteBtn}>
+            <MaterialCommunityIcons name="delete-outline" size={20} color="#fff" />
+            <Text style={styles.batchDeleteText}>{t('settings', 'delete')}</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <FAB
+          icon="plus"
+          label={t('forms', 'new')}
+          onPress={() => router.push('/create')}
+          style={styles.fab}
+          color="#fff"
+        />
+      )}
     </View>
   );
 }
@@ -306,6 +389,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, paddingVertical: 12, marginTop: 20,
   },
   emptyCreateBtnText: { color: '#fff', fontWeight: '600' },
+  cardSelected: { borderColor: '#e8622c', backgroundColor: '#252538' },
+  batchBar: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#1e1e2e', borderTopWidth: 1, borderTopColor: '#2d2d44',
+    paddingHorizontal: 20, paddingVertical: 12, paddingBottom: 28,
+  },
+  batchCancelBtn: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  batchCancelText: { color: '#ccc', fontSize: 15 },
+  batchDeleteBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#cc3333', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10,
+  },
+  batchDeleteText: { color: '#fff', fontWeight: '600' },
   swipeActions: { flexDirection: 'row', width: 130, marginBottom: 8 },
   swipeEditBtn: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
