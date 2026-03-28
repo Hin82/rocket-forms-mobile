@@ -127,6 +127,7 @@ function TranslatedStack() {
       <Stack.Screen name="settings/api-keys" options={{ title: t('settings', 'apiKeys'), headerBackTitle: back }} />
       <Stack.Screen name="settings/domains" options={{ title: t('settings', 'domains'), headerBackTitle: back }} />
       <Stack.Screen name="settings/email-setup" options={{ title: t('settings', 'emailConfig'), headerBackTitle: back }} />
+      <Stack.Screen name="settings/about" options={{ title: t('about', 'title'), headerBackTitle: back }} />
     </Stack>
   );
 }
