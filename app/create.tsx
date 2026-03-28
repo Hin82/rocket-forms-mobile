@@ -9,6 +9,7 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useFormGroups } from '@/src/hooks/useForms';
 import * as Haptics from 'expo-haptics';
+import { trackAction } from '@/src/hooks/useAppRating';
 import { useTranslation } from '@/src/translations';
 
 interface FormTemplate {
@@ -195,6 +196,7 @@ export default function CreateFormScreen() {
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       queryClient.invalidateQueries({ queryKey: ['forms'] });
+      trackAction().catch(() => {});
       router.replace(`/form/${data.id}/edit`);
     } catch (err: any) {
       Alert.alert(t('create', 'error'), err.message || t('create', 'couldNotCreate'));
@@ -229,6 +231,7 @@ export default function CreateFormScreen() {
     onSuccess: (data) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       queryClient.invalidateQueries({ queryKey: ['forms'] });
+      trackAction().catch(() => {});
       router.replace(`/form/${data.id}`);
     },
     onError: (err: any) => {
