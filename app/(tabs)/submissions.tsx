@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Pressable, Animated } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, FlatList, RefreshControl, Pressable } from 'react-native';
 import { Text, Card, ActivityIndicator } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -7,9 +7,11 @@ import { useSubmissions } from '@/src/hooks/useSubmissions';
 import { useTranslation } from '@/src/translations';
 import { useLanguage } from '@/src/contexts/LanguageContext';
 import { useRefreshOnFocus } from '@/src/hooks/useRefreshOnFocus';
+import AnimatedItem from '@/src/components/AnimatedItem';
 
 export default function SubmissionsScreen() {
   const { data: submissions, isLoading, refetch, isRefetching } = useSubmissions();
+  const [refreshKey, setRefreshKey] = useState(0);
   useRefreshOnFocus(refetch);
   const router = useRouter();
   const { t } = useTranslation();
@@ -37,7 +39,7 @@ export default function SubmissionsScreen() {
         data={submissions}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <AnimatedItem index={index}>
+          <AnimatedItem index={index} refreshKey={refreshKey}>
             <Pressable onPress={() => router.push(`/form/${item.form_id}/submission/${item.id}`)}>
               <Card style={styles.card} mode="outlined">
                 <Card.Content>
@@ -59,7 +61,7 @@ export default function SubmissionsScreen() {
           </AnimatedItem>
         )}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#e8622c" />
+          <RefreshControl refreshing={isRefetching} onRefresh={() => { refetch(); setRefreshKey(k => k + 1); }} tintColor="#e8622c" />
         }
         contentContainerStyle={styles.list}
         ListEmptyComponent={
@@ -71,19 +73,6 @@ export default function SubmissionsScreen() {
       />
     </View>
   );
-}
-
-function AnimatedItem({ index, children }: { index: number; children: React.ReactNode }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(15)).current;
-  useEffect(() => {
-    const delay = Math.min(index * 40, 400);
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 250, delay, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 250, delay, useNativeDriver: true }),
-    ]).start();
-  }, []);
-  return <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>{children}</Animated.View>;
 }
 
 const styles = StyleSheet.create({

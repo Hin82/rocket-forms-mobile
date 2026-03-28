@@ -14,6 +14,7 @@ import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import FolderManager from '@/src/components/FolderManager';
 import { FormListSkeleton } from '@/src/components/SkeletonLoader';
+import AnimatedItem from '@/src/components/AnimatedItem';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -33,6 +34,7 @@ export default function FormsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFolders, setShowFolders] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'submissions'>('date');
+  const [refreshKey, setRefreshKey] = useState(0);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { data: forms, isLoading, refetch, isRefetching } = useForms();
@@ -231,8 +233,8 @@ export default function FormsScreen() {
       </Swipeable>
     );
 
-    return <AnimatedItem index={index}>{wrapped}</AnimatedItem>;
-  }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress]);
+    return <AnimatedItem index={index} refreshKey={refreshKey}>{wrapped}</AnimatedItem>;
+  }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress, refreshKey]);
 
   if (isLoading) {
     return <FormListSkeleton />;
@@ -290,7 +292,7 @@ export default function FormsScreen() {
           </View>
         )}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#e8622c" />
+          <RefreshControl refreshing={isRefetching} onRefresh={() => { refetch(); setRefreshKey(k => k + 1); }} tintColor="#e8622c" />
         }
         contentContainerStyle={sections.length === 0 ? styles.listEmpty : styles.list}
         ListEmptyComponent={
@@ -327,25 +329,6 @@ export default function FormsScreen() {
         />
       )}
     </View>
-  );
-}
-
-function AnimatedItem({ index, children }: { index: number; children: React.ReactNode }) {
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(15)).current;
-
-  React.useEffect(() => {
-    const delay = Math.min(index * 40, 400);
-    Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 250, delay, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 250, delay, useNativeDriver: true }),
-    ]).start();
-  }, []);
-
-  return (
-    <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-      {children}
-    </Animated.View>
   );
 }
 
