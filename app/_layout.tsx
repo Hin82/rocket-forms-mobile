@@ -4,7 +4,8 @@ import { PaperProvider } from 'react-native-paper';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import * as Linking from 'expo-linking';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
@@ -24,10 +25,46 @@ export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
 
+function extractFormId(url: string): string | null {
+  // Handle: rocketforms://form/UUID, https://rocketformspro.com/form/UUID
+  const patterns = [
+    /form\/([0-9a-f-]{36})/i,
+    /form_id=([0-9a-f-]{36})/i,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // Handle deep links
+  const handleDeepLink = useCallback((event: { url: string }) => {
+    if (!user) return;
+    const formId = extractFormId(event.url);
+    if (formId) {
+      router.push(`/form/${formId}`);
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    // Handle URL that opened the app
+    Linking.getInitialURL().then(url => {
+      if (url && user) {
+        const formId = extractFormId(url);
+        if (formId) router.push(`/form/${formId}`);
+      }
+    });
+
+    // Handle URLs while app is open
+    const sub = Linking.addEventListener('url', handleDeepLink);
+    return () => sub.remove();
+  }, [user, handleDeepLink]);
 
   useEffect(() => {
     if (loading) return;
