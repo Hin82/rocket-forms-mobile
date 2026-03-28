@@ -20,6 +20,7 @@ import SupportChat from '@/src/components/SupportChat';
 import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
 import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/OnboardingScreen';
+import OfflineBanner from '@/src/components/OfflineBanner';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -156,6 +157,7 @@ function RootLayoutNav() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+    <OfflineBanner />
     <QueryClientProvider client={queryClient}>
       <PaperProvider theme={paperTheme}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
