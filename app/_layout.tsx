@@ -20,6 +20,7 @@ import SupportChat from '@/src/components/SupportChat';
 import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
 import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/OnboardingScreen';
+import OfflineBanner from '@/src/components/OfflineBanner';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -161,6 +162,7 @@ function RootLayoutNav() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <AuthProvider>
             <LanguageProvider>
+              <OfflineBanner />
               <BiometricLock>
                 <CompanyProvider>
                   <AuthGuard>
