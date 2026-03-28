@@ -157,12 +157,12 @@ function RootLayoutNav() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <OfflineBanner />
     <QueryClientProvider client={queryClient}>
       <PaperProvider theme={paperTheme}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <AuthProvider>
             <LanguageProvider>
+              <OfflineBanner />
               <BiometricLock>
                 <CompanyProvider>
                   <AuthGuard>
