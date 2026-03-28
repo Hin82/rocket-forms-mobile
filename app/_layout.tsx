@@ -21,6 +21,7 @@ import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
 import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/OnboardingScreen';
 import OfflineBanner from '@/src/components/OfflineBanner';
+import ShakeFeedback from '@/src/components/ShakeFeedback';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -151,6 +152,13 @@ const ChatWrapper = () => {
   return <SupportChat />;
 };
 
+const FeedbackWrapper = () => {
+  const { user } = useAuth();
+  const segments = useSegments();
+  if (!user || segments[0] === '(auth)') return null;
+  return <ShakeFeedback />;
+};
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
@@ -169,6 +177,7 @@ function RootLayoutNav() {
                     <OnboardingWrapper>
                       <TranslatedStack />
                       <ChatWrapper />
+                      <FeedbackWrapper />
                     </OnboardingWrapper>
                   </AuthGuard>
                 </CompanyProvider>
