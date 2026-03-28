@@ -2,7 +2,7 @@
   "expo": {
     "name": "Rocket Forms Pro",
     "slug": "rocket-forms-pro",
-    "version": "1.6.6",
+    "version": "1.6.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rocketforms",
@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.omniwise.rocketformspro",
+      "associatedDomains": ["applinks:rocketformspro.com"],
       "infoPlist": {
         "NSCameraUsageDescription": "Used to capture photos for form fields",
         "NSPhotoLibraryUsageDescription": "Used to select images for form fields",
@@ -23,6 +24,20 @@
     },
     "android": {
       "package": "com.omniwise.rocketformspro",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "rocketformspro.com",
+              "pathPrefix": "/form/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#1a1a2e",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
