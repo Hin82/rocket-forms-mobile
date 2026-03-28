@@ -200,11 +200,12 @@ export default function SettingsScreen() {
           onPress={() => Linking.openURL('https://rocketformspro.com')}
         />
         <List.Item
-          title={t('settings', 'version')}
-          description={Constants.expoConfig?.version ?? '1.0.0'}
+          title={t('about', 'title')}
+          description={`v${Constants.expoConfig?.version ?? '1.0.0'}`}
           left={props => <List.Icon {...props} icon="information-outline" color="#e8622c" />}
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
+          onPress={() => router.push('/settings/about')}
         />
       </List.Section>
 
