@@ -14,6 +14,7 @@ import { useTranslation } from '@/src/translations';
 import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import FolderManager from '@/src/components/FolderManager';
 import { FormListSkeleton } from '@/src/components/SkeletonLoader';
+import AnimatedItem from '@/src/components/AnimatedItem';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -33,6 +34,7 @@ export default function FormsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFolders, setShowFolders] = useState(false);
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'submissions'>('date');
+  const [refreshKey, setRefreshKey] = useState(0);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { data: forms, isLoading, refetch, isRefetching } = useForms();
@@ -175,7 +177,7 @@ export default function FormsScreen() {
     setSelectedIds(new Set());
   }, []);
 
-  const renderFormCard = useCallback(({ item }: { item: Form }) => {
+  const renderFormCard = useCallback(({ item, index }: { item: Form; index: number }) => {
     const fieldCount = item.fields?.length || 0;
     const subCount = item.submission_count || 0;
     const isSelected = selectedIds.has(item.id);
@@ -225,12 +227,14 @@ export default function FormsScreen() {
       </Pressable>
     );
 
-    return selectMode ? content : (
+    const wrapped = selectMode ? content : (
       <Swipeable renderRightActions={renderSwipeActions(item)} overshootRight={false}>
         {content}
       </Swipeable>
     );
-  }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress]);
+
+    return <AnimatedItem index={index} refreshKey={refreshKey}>{wrapped}</AnimatedItem>;
+  }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress, refreshKey]);
 
   if (isLoading) {
     return <FormListSkeleton />;
@@ -288,7 +292,7 @@ export default function FormsScreen() {
           </View>
         )}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#e8622c" />
+          <RefreshControl refreshing={isRefetching} onRefresh={() => { refetch(); setRefreshKey(k => k + 1); }} tintColor="#e8622c" />
         }
         contentContainerStyle={sections.length === 0 ? styles.listEmpty : styles.list}
         ListEmptyComponent={

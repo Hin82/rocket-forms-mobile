@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Pressable } from 'react-native';
 import { Text, Card, ActivityIndicator } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -7,9 +7,11 @@ import { useSubmissions } from '@/src/hooks/useSubmissions';
 import { useTranslation } from '@/src/translations';
 import { useLanguage } from '@/src/contexts/LanguageContext';
 import { useRefreshOnFocus } from '@/src/hooks/useRefreshOnFocus';
+import AnimatedItem from '@/src/components/AnimatedItem';
 
 export default function SubmissionsScreen() {
   const { data: submissions, isLoading, refetch, isRefetching } = useSubmissions();
+  const [refreshKey, setRefreshKey] = useState(0);
   useRefreshOnFocus(refetch);
   const router = useRouter();
   const { t } = useTranslation();
@@ -36,28 +38,30 @@ export default function SubmissionsScreen() {
       <FlatList
         data={submissions}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Pressable onPress={() => router.push(`/form/${item.form_id}/submission/${item.id}`)}>
-            <Card style={styles.card} mode="outlined">
-              <Card.Content>
-                <View style={styles.header}>
-                  <Text variant="titleSmall" style={styles.formName} numberOfLines={1}>
-                    {item.form_name || t('nav', 'form')}
+        renderItem={({ item, index }) => (
+          <AnimatedItem index={index} refreshKey={refreshKey}>
+            <Pressable onPress={() => router.push(`/form/${item.form_id}/submission/${item.id}`)}>
+              <Card style={styles.card} mode="outlined">
+                <Card.Content>
+                  <View style={styles.header}>
+                    <Text variant="titleSmall" style={styles.formName} numberOfLines={1}>
+                      {item.form_name || t('nav', 'form')}
+                    </Text>
+                    <Text variant="bodySmall" style={styles.date}>
+                      {new Date(item.submitted_at).toLocaleDateString(dateLocale)}{' '}
+                      {new Date(item.submitted_at).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+                  <Text variant="bodySmall" style={styles.preview} numberOfLines={1}>
+                    {getPreview(item.form_data)}
                   </Text>
-                  <Text variant="bodySmall" style={styles.date}>
-                    {new Date(item.submitted_at).toLocaleDateString(dateLocale)}{' '}
-                    {new Date(item.submitted_at).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </View>
-                <Text variant="bodySmall" style={styles.preview} numberOfLines={1}>
-                  {getPreview(item.form_data)}
-                </Text>
-              </Card.Content>
-            </Card>
-          </Pressable>
+                </Card.Content>
+              </Card>
+            </Pressable>
+          </AnimatedItem>
         )}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#e8622c" />
+          <RefreshControl refreshing={isRefetching} onRefresh={() => { refetch(); setRefreshKey(k => k + 1); }} tintColor="#e8622c" />
         }
         contentContainerStyle={styles.list}
         ListEmptyComponent={
