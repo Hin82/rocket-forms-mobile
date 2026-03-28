@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+import { useHaptic } from '@/src/hooks/useHaptic';
 
 const AVATAR_OPTIONS = [
   'Alex', 'Sarah', 'David', 'Emma', 'Michael', 'Lisa', 'James', 'Sophie',
@@ -19,6 +20,7 @@ function getAvatarUrl(seed: string) {
 
 export default function ProfileScreen() {
   const { user } = useAuth();
+  const haptic = useHaptic();
   const { t } = useTranslation();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -66,6 +68,7 @@ export default function ProfileScreen() {
   };
 
   const handleSelectAvatar = async (seed: string) => {
+    haptic.selection();
     setAvatarSeed(seed);
     try {
       const { error } = await supabase
@@ -100,6 +103,7 @@ export default function ProfileScreen() {
         });
       if (error) throw error;
 
+      haptic.success();
       Alert.alert(t('settings', 'saved'), t('settings', 'profileUpdated'));
     } catch (err: any) {
       Alert.alert(t('settings', 'error'), err.message ?? t('settings', 'couldNotSaveProfile'));

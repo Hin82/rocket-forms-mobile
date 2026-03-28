@@ -3,6 +3,7 @@ import { View, StyleSheet, Image, AppState, AppStateStatus } from 'react-native'
 import { Text, Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as Haptics from 'expo-haptics';
 import * as SecureStore from 'expo-secure-store';
 import { useTranslation } from '@/src/translations';
 
@@ -42,6 +43,7 @@ export default function BiometricLock({ children }: BiometricLockProps) {
         disableDeviceFallback: false,
       });
       if (result.success) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         setLocked(false);
       }
     } catch {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, Image, Pressable } from 'react-native';
+import { useHaptic } from '@/src/hooks/useHaptic';
 import { TextInput, Button, Text, HelperText, Menu, Checkbox } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const haptic = useHaptic();
 
   const currentLang = LANGUAGES.find(l => l.code === language);
 
@@ -86,6 +88,7 @@ export default function LoginScreen() {
 
     try {
       const result = await signIn(email.trim(), password);
+      haptic.success();
 
       if (result.mfaRequired && result.factorId) {
         // Defer credential save until MFA verification completes
