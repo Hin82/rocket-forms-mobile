@@ -12,6 +12,7 @@ import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { FormDetailSkeleton } from '@/src/components/SkeletonLoader';
 import { useTrackAction } from '@/src/hooks/useAppRating';
+import WebhookManager from '@/src/components/WebhookManager';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -30,6 +31,7 @@ export default function FormDetailScreen() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isDuplicating, setIsDuplicating] = React.useState(false);
+  const [showWebhooks, setShowWebhooks] = React.useState(false);
   useTrackAction(id);
   const duplicatingRef = React.useRef(false);
 
@@ -238,10 +240,15 @@ export default function FormDetailScreen() {
         <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={styles.actionButtonOutline} textColor="#e8622c" disabled={isDuplicating} loading={isDuplicating}>
           {t('forms', 'duplicateForm')}
         </Button>
+        <Button mode="outlined" icon="webhook" onPress={() => setShowWebhooks(true)} style={styles.actionButtonOutline} textColor="#e8622c">
+          {t('webhooks', 'title')}
+        </Button>
         <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={styles.deleteButton} textColor="#ef4444">
           {t('forms', 'deleteForm')}
         </Button>
       </View>
+
+      <WebhookManager visible={showWebhooks} onClose={() => setShowWebhooks(false)} formId={id!} />
 
       <Divider style={styles.divider} />
 
