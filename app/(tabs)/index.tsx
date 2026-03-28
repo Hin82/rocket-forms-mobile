@@ -175,7 +175,7 @@ export default function FormsScreen() {
     setSelectedIds(new Set());
   }, []);
 
-  const renderFormCard = useCallback(({ item }: { item: Form }) => {
+  const renderFormCard = useCallback(({ item, index }: { item: Form; index: number }) => {
     const fieldCount = item.fields?.length || 0;
     const subCount = item.submission_count || 0;
     const isSelected = selectedIds.has(item.id);
@@ -225,11 +225,13 @@ export default function FormsScreen() {
       </Pressable>
     );
 
-    return selectMode ? content : (
+    const wrapped = selectMode ? content : (
       <Swipeable renderRightActions={renderSwipeActions(item)} overshootRight={false}>
         {content}
       </Swipeable>
     );
+
+    return <AnimatedItem index={index}>{wrapped}</AnimatedItem>;
   }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress]);
 
   if (isLoading) {
@@ -325,6 +327,25 @@ export default function FormsScreen() {
         />
       )}
     </View>
+  );
+}
+
+function AnimatedItem({ index, children }: { index: number; children: React.ReactNode }) {
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(15)).current;
+
+  React.useEffect(() => {
+    const delay = Math.min(index * 40, 400);
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 250, delay, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 250, delay, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  return (
+    <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+      {children}
+    </Animated.View>
   );
 }
 

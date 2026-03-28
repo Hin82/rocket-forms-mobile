@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, Pressable } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, StyleSheet, FlatList, RefreshControl, Pressable, Animated } from 'react-native';
 import { Text, Card, ActivityIndicator } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -36,25 +36,27 @@ export default function SubmissionsScreen() {
       <FlatList
         data={submissions}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Pressable onPress={() => router.push(`/form/${item.form_id}/submission/${item.id}`)}>
-            <Card style={styles.card} mode="outlined">
-              <Card.Content>
-                <View style={styles.header}>
-                  <Text variant="titleSmall" style={styles.formName} numberOfLines={1}>
-                    {item.form_name || t('nav', 'form')}
+        renderItem={({ item, index }) => (
+          <AnimatedItem index={index}>
+            <Pressable onPress={() => router.push(`/form/${item.form_id}/submission/${item.id}`)}>
+              <Card style={styles.card} mode="outlined">
+                <Card.Content>
+                  <View style={styles.header}>
+                    <Text variant="titleSmall" style={styles.formName} numberOfLines={1}>
+                      {item.form_name || t('nav', 'form')}
+                    </Text>
+                    <Text variant="bodySmall" style={styles.date}>
+                      {new Date(item.submitted_at).toLocaleDateString(dateLocale)}{' '}
+                      {new Date(item.submitted_at).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+                  <Text variant="bodySmall" style={styles.preview} numberOfLines={1}>
+                    {getPreview(item.form_data)}
                   </Text>
-                  <Text variant="bodySmall" style={styles.date}>
-                    {new Date(item.submitted_at).toLocaleDateString(dateLocale)}{' '}
-                    {new Date(item.submitted_at).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </View>
-                <Text variant="bodySmall" style={styles.preview} numberOfLines={1}>
-                  {getPreview(item.form_data)}
-                </Text>
-              </Card.Content>
-            </Card>
-          </Pressable>
+                </Card.Content>
+              </Card>
+            </Pressable>
+          </AnimatedItem>
         )}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#e8622c" />
@@ -69,6 +71,19 @@ export default function SubmissionsScreen() {
       />
     </View>
   );
+}
+
+function AnimatedItem({ index, children }: { index: number; children: React.ReactNode }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(15)).current;
+  useEffect(() => {
+    const delay = Math.min(index * 40, 400);
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 250, delay, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 250, delay, useNativeDriver: true }),
+    ]).start();
+  }, []);
+  return <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>{children}</Animated.View>;
 }
 
 const styles = StyleSheet.create({
