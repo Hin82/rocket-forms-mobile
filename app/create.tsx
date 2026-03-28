@@ -196,6 +196,7 @@ export default function CreateFormScreen() {
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       queryClient.invalidateQueries({ queryKey: ['forms'] });
+      trackAction().catch(() => {});
       router.replace(`/form/${data.id}/edit`);
     } catch (err: any) {
       Alert.alert(t('create', 'error'), err.message || t('create', 'couldNotCreate'));
@@ -230,7 +231,7 @@ export default function CreateFormScreen() {
     onSuccess: (data) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       queryClient.invalidateQueries({ queryKey: ['forms'] });
-      trackAction();
+      trackAction().catch(() => {});
       router.replace(`/form/${data.id}`);
     },
     onError: (err: any) => {

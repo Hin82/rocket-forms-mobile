@@ -30,7 +30,7 @@ export default function FormDetailScreen() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isDuplicating, setIsDuplicating] = React.useState(false);
-  useTrackAction();
+  useTrackAction(id);
   const duplicatingRef = React.useRef(false);
 
   const { data: form, isLoading } = useQuery({
