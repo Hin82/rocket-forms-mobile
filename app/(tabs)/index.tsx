@@ -190,6 +190,9 @@ export default function FormsScreen() {
             key={s}
             onPress={() => setSortBy(s)}
             style={[styles.sortChip, sortBy === s && styles.sortChipActive]}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: sortBy === s }}
+            accessibilityLabel={t('forms', `sort_${s}`)}
           >
             <MaterialCommunityIcons
               name={s === 'date' ? 'clock-outline' : s === 'name' ? 'sort-alphabetical-ascending' : 'chart-bar'}
