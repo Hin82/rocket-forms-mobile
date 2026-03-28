@@ -7,6 +7,7 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
 import { useLanguage } from '@/src/contexts/LanguageContext';
+import { useRefreshOnFocus } from '@/src/hooks/useRefreshOnFocus';
 
 interface Notification {
   id: string;
@@ -41,6 +42,8 @@ export default function NotificationsScreen() {
     enabled: !!user,
     staleTime: 30 * 1000,
   });
+
+  useRefreshOnFocus(refetch);
 
   const markRead = useMutation({
     mutationFn: async (id: string) => {

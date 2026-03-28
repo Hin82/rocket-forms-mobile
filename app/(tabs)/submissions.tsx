@@ -6,9 +6,11 @@ import { useRouter } from 'expo-router';
 import { useSubmissions } from '@/src/hooks/useSubmissions';
 import { useTranslation } from '@/src/translations';
 import { useLanguage } from '@/src/contexts/LanguageContext';
+import { useRefreshOnFocus } from '@/src/hooks/useRefreshOnFocus';
 
 export default function SubmissionsScreen() {
   const { data: submissions, isLoading, refetch, isRefetching } = useSubmissions();
+  useRefreshOnFocus(refetch);
   const router = useRouter();
   const { t } = useTranslation();
   const { language } = useLanguage();
