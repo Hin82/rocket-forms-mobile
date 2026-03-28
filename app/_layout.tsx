@@ -21,6 +21,7 @@ import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
 import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/OnboardingScreen';
 import OfflineBanner from '@/src/components/OfflineBanner';
+import { usePushNotifications } from '@/src/hooks/usePushNotifications';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -130,6 +131,11 @@ function TranslatedStack() {
   );
 }
 
+const PushNotificationHandler = () => {
+  usePushNotifications();
+  return null;
+};
+
 const OnboardingWrapper = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
@@ -166,6 +172,7 @@ function RootLayoutNav() {
               <BiometricLock>
                 <CompanyProvider>
                   <AuthGuard>
+                    <PushNotificationHandler />
                     <OnboardingWrapper>
                       <TranslatedStack />
                       <ChatWrapper />
