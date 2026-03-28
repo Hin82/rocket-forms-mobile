@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, Pressable } from 'react-native';
+import { useHaptic } from '@/src/hooks/useHaptic';
 import { Text, Card, ActivityIndicator, IconButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -22,6 +23,7 @@ interface Notification {
 export default function NotificationsScreen() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const haptic = useHaptic();
   const { t } = useTranslation();
   const { language } = useLanguage();
   const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
@@ -46,7 +48,7 @@ export default function NotificationsScreen() {
     mutationFn: async (id: string) => {
       await supabase.from('notifications').update({ read: true }).eq('id', id);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onSuccess: () => { haptic.selection(); queryClient.invalidateQueries({ queryKey: ['notifications'] }); },
   });
 
   const markAllRead = useMutation({

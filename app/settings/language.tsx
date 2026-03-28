@@ -5,10 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
 import { useTranslation } from '@/src/translations';
+import { useHaptic } from '@/src/hooks/useHaptic';
 
 export default function LanguageScreen() {
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const haptic = useHaptic();
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -21,7 +23,7 @@ export default function LanguageScreen() {
               <List.Item
                 title={`${lang.flag}  ${lang.name}`}
                 titleStyle={styles.itemTitle}
-                onPress={() => setLanguage(lang.code)}
+                onPress={() => { haptic.selection(); setLanguage(lang.code); }}
                 right={() =>
                   language === lang.code ? (
                     <List.Icon icon="check" color="#e8622c" />
