@@ -21,6 +21,7 @@ import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
 import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/OnboardingScreen';
 import OfflineBanner from '@/src/components/OfflineBanner';
+import ShakeFeedback from '@/src/components/ShakeFeedback';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -169,6 +170,7 @@ function RootLayoutNav() {
                     <OnboardingWrapper>
                       <TranslatedStack />
                       <ChatWrapper />
+                      <ShakeFeedback />
                     </OnboardingWrapper>
                   </AuthGuard>
                 </CompanyProvider>
