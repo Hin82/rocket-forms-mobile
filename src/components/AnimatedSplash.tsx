@@ -15,48 +15,44 @@ export default function AnimatedSplash({ onFinish }: AnimatedSplashProps) {
   const fadeOut = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
+    const mounted = { current: true };
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     // Phase 1: Logo appears with scale + fade + slight rotation
-    Animated.parallel([
-      Animated.spring(logoScale, {
-        toValue: 1,
-        friction: 6,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-      Animated.timing(logoOpacity, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.timing(logoRotate, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
+    const phase1 = Animated.parallel([
+      Animated.spring(logoScale, { toValue: 1, friction: 6, tension: 40, useNativeDriver: true }),
+      Animated.timing(logoOpacity, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(logoRotate, { toValue: 0, duration: 800, useNativeDriver: true }),
+    ]);
+
+    phase1.start(() => {
+      if (!mounted.current) return;
       // Phase 2: Shimmer pulse
-      Animated.sequence([
-        Animated.timing(shimmerOpacity, {
-          toValue: 0.6,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shimmerOpacity, {
-          toValue: 0,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        // Phase 3: Fade out entire splash
-        setTimeout(() => {
-          Animated.timing(fadeOut, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }).start(onFinish);
+      const phase2 = Animated.sequence([
+        Animated.timing(shimmerOpacity, { toValue: 0.6, duration: 400, useNativeDriver: true }),
+        Animated.timing(shimmerOpacity, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]);
+
+      phase2.start(() => {
+        if (!mounted.current) return;
+        // Phase 3: Fade out
+        timeoutId = setTimeout(() => {
+          if (!mounted.current) return;
+          Animated.timing(fadeOut, { toValue: 0, duration: 300, useNativeDriver: true })
+            .start(() => { if (mounted.current) onFinish(); });
         }, 200);
       });
     });
+
+    return () => {
+      mounted.current = false;
+      clearTimeout(timeoutId);
+      logoScale.stopAnimation();
+      logoOpacity.stopAnimation();
+      logoRotate.stopAnimation();
+      shimmerOpacity.stopAnimation();
+      fadeOut.stopAnimation();
+    };
   }, []);
 
   const rotateInterpolation = logoRotate.interpolate({
