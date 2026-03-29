@@ -71,26 +71,44 @@ const ThemeContext = createContext<ThemeState | undefined>(undefined);
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
-  const [mode, setModeState] = useState<ThemeMode>('system');
+  const [mode, setModeState] = useState<ThemeMode | undefined>(undefined);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    SecureStore.getItemAsync(THEME_KEY).then(saved => {
-      if (saved === 'light' || saved === 'dark' || saved === 'system') {
-        setModeState(saved);
+    (async () => {
+      try {
+        const saved = await SecureStore.getItemAsync(THEME_KEY);
+        if (saved === 'light' || saved === 'dark' || saved === 'system') {
+          setModeState(saved);
+        } else {
+          setModeState('system');
+        }
+      } catch {
+        setModeState('system');
+      } finally {
+        setIsHydrated(true);
       }
-    });
+    })();
   }, []);
 
   const setMode = async (newMode: ThemeMode) => {
     setModeState(newMode);
-    await SecureStore.setItemAsync(THEME_KEY, newMode);
+    try {
+      await SecureStore.setItemAsync(THEME_KEY, newMode);
+    } catch (err) {
+      if (__DEV__) console.warn('Failed to save theme:', err);
+    }
   };
 
-  const isDark = mode === 'system' ? systemScheme === 'dark' : mode === 'dark';
+  const resolvedMode = mode ?? 'system';
+  const isDark = resolvedMode === 'system' ? systemScheme === 'dark' : resolvedMode === 'dark';
   const colors = isDark ? darkColors : lightColors;
 
+  // Prevent flash by not rendering until theme is loaded
+  if (!isHydrated) return null;
+
   return (
-    <ThemeContext.Provider value={{ mode, isDark, colors, setMode }}>
+    <ThemeContext.Provider value={{ mode: resolvedMode, isDark, colors, setMode }}>
       {children}
     </ThemeContext.Provider>
   );
