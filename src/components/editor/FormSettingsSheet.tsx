@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState, useEffect, forwardRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, StyleSheet, Image, ScrollView, Pressable } from 'react-native';
 import { Text, TextInput, Switch, Button, SegmentedButtons } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -202,20 +202,20 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             {/* Category / Group */}
             <Text style={styles.subLabel}>{t('formSettings', 'categoryGroup')}</Text>
             <View style={styles.chipGrid}>
-              <TouchableOpacity
+              <Pressable
                 style={[styles.chip, !formGroupId && styles.chipActive]}
                 onPress={() => onUpdateFormMeta({ form_group_id: null, group_name: null })}
               >
                 <Text style={styles.chipText}>{t('formSettings', 'noGroup')}</Text>
-              </TouchableOpacity>
+              </Pressable>
               {groups.map(g => (
-                <TouchableOpacity
+                <Pressable
                   key={g.id}
                   style={[styles.chip, formGroupId === g.id && styles.chipActive]}
                   onPress={() => onUpdateFormMeta({ form_group_id: g.id, group_name: g.name })}
                 >
                   <Text style={styles.chipText}>{g.name}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -223,14 +223,14 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'defaultLanguage')}</Text>
             <View style={styles.chipGrid}>
               {LANGUAGES.map(lang => (
-                <TouchableOpacity
+                <Pressable
                   key={lang.code}
                   style={[styles.langChip, settings.defaultLanguage === lang.code && styles.chipActive]}
                   onPress={() => onUpdateSettings({ defaultLanguage: lang.code })}
                 >
                   <Text style={styles.langFlag}>{lang.flag}</Text>
                   <Text style={styles.chipText}>{lang.label}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </CollapsibleSection>
@@ -262,20 +262,20 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
                   resizeMode="cover"
                 />
                 <View style={styles.bgPreviewActions}>
-                  <TouchableOpacity onPress={() => setShowBgLibrary(true)} style={styles.bgChangeBtn}>
+                  <Pressable onPress={() => setShowBgLibrary(true)} style={styles.bgChangeBtn}>
                     <MaterialCommunityIcons name="image-edit-outline" size={16} color="#fff" />
                     <Text style={styles.bgChangeBtnText}>{t('formSettings', 'changeBackground')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => onUpdateSettings({ backgroundImage: undefined })} style={styles.bgRemoveBtn}>
+                  </Pressable>
+                  <Pressable onPress={() => onUpdateSettings({ backgroundImage: undefined })} style={styles.bgRemoveBtn}>
                     <MaterialCommunityIcons name="close" size={16} color="#cc3333" />
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </View>
             ) : (
-              <TouchableOpacity onPress={() => setShowBgLibrary(true)} style={styles.bgBrowseBtn}>
+              <Pressable onPress={() => setShowBgLibrary(true)} style={styles.bgBrowseBtn}>
                 <MaterialCommunityIcons name="image-plus" size={24} color="#e8622c" />
                 <Text style={styles.bgBrowseBtnText}>{t('formSettings', 'browseBackgrounds')}</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
 
             <BackgroundLibrary
@@ -289,13 +289,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'backgroundSize')}</Text>
             <View style={styles.chipGrid}>
               {bgSizes.map(s => (
-                <TouchableOpacity
+                <Pressable
                   key={s.value}
                   style={[styles.chip, settings.backgroundSize === s.value && styles.chipActive]}
                   onPress={() => onUpdateSettings({ backgroundSize: s.value })}
                 >
                   <Text style={styles.chipText}>{s.label}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -303,13 +303,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'backgroundPosition')}</Text>
             <View style={styles.positionGrid}>
               {BG_POSITIONS.map(p => (
-                <TouchableOpacity
+                <Pressable
                   key={p.value}
                   style={[styles.positionCell, settings.backgroundPosition === p.value && styles.positionCellActive]}
                   onPress={() => onUpdateSettings({ backgroundPosition: p.value })}
                 >
                   <Text style={styles.positionLabel}>{p.label}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -317,13 +317,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'backgroundScroll')}</Text>
             <View style={styles.chipGrid}>
               {bgAttachments.map(a => (
-                <TouchableOpacity
+                <Pressable
                   key={a.value}
                   style={[styles.chip, settings.backgroundAttachment === a.value && styles.chipActive]}
                   onPress={() => onUpdateSettings({ backgroundAttachment: a.value })}
                 >
                   <Text style={styles.chipText}>{a.label}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -331,13 +331,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'animatedBackground')}</Text>
             <View style={styles.chipGrid}>
               {animatedBackgrounds.map(a => (
-                <TouchableOpacity
+                <Pressable
                   key={a.value}
                   style={[styles.chip, (settings.animatedBackground || 'none') === a.value && styles.chipActive]}
                   onPress={() => onUpdateSettings({ animatedBackground: a.value === 'none' ? undefined : a.value })}
                 >
                   <Text style={styles.chipText}>{a.label}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -393,7 +393,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={[styles.subLabel, { marginTop: 14 }]}>{t('formSettings', 'logoAlignment')}</Text>
             <View style={styles.segmentedRow}>
               {(['left', 'center', 'right'] as const).map(align => (
-                <TouchableOpacity
+                <Pressable
                   key={align}
                   style={[styles.segmentBtn, (settings.logoAlignment || 'center') === align && styles.segmentBtnActive]}
                   onPress={() => onUpdateSettings({ logoAlignment: align })}
@@ -403,7 +403,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
                     size={20}
                     color={(settings.logoAlignment || 'center') === align ? '#fff' : '#888'}
                   />
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -433,13 +433,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'fontSize')}</Text>
             <View style={styles.chipGrid}>
               {FONT_SIZES.map(fs => (
-                <TouchableOpacity
+                <Pressable
                   key={fs.value}
                   style={[styles.chip, (settings.titleFontSize || '3xl') === fs.value && styles.chipActive]}
                   onPress={() => onUpdateSettings({ titleFontSize: fs.value })}
                 >
                   <Text style={styles.chipText}>{fs.label}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -447,13 +447,13 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'fontFamily')}</Text>
             <View style={styles.chipGrid}>
               {FONT_FAMILIES.map(ff => (
-                <TouchableOpacity
+                <Pressable
                   key={ff}
                   style={[styles.chip, (settings.titleFontFamily || 'Inter') === ff && styles.chipActive]}
                   onPress={() => onUpdateSettings({ titleFontFamily: ff })}
                 >
                   <Text style={styles.chipText}>{ff}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -468,7 +468,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
             <Text style={styles.subLabel}>{t('formSettings', 'titleAlignment')}</Text>
             <View style={styles.segmentedRow}>
               {(['left', 'center', 'right'] as const).map(align => (
-                <TouchableOpacity
+                <Pressable
                   key={align}
                   style={[styles.segmentBtn, (settings.titleAlignment || 'center') === align && styles.segmentBtnActive]}
                   onPress={() => onUpdateSettings({ titleAlignment: align })}
@@ -478,7 +478,7 @@ const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
                     size={20}
                     color={(settings.titleAlignment || 'center') === align ? '#fff' : '#888'}
                   />
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </CollapsibleSection>
@@ -624,14 +624,14 @@ function CollapsibleSection({
 }) {
   return (
     <View style={styles.section}>
-      <TouchableOpacity style={styles.sectionHeader} onPress={() => onToggle(sectionKey)} activeOpacity={0.7}>
+      <Pressable style={styles.sectionHeader} onPress={() => onToggle(sectionKey)} activeOpacity={0.7}>
         <Text variant="labelLarge" style={styles.sectionTitle}>{title}</Text>
         <MaterialCommunityIcons
           name={expanded ? 'chevron-up' : 'chevron-down'}
           size={20}
           color="#999"
         />
-      </TouchableOpacity>
+      </Pressable>
       {expanded && <View style={styles.sectionContent}>{children}</View>}
     </View>
   );
