@@ -13,6 +13,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { FormDetailSkeleton } from '@/src/components/SkeletonLoader';
 import { useTrackAction } from '@/src/hooks/useAppRating';
 import WebhookManager from '@/src/components/WebhookManager';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -30,6 +31,7 @@ export default function FormDetailScreen() {
   const dateLocale = getDateLocale(language);
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { colors } = useAppTheme();
   const [isDuplicating, setIsDuplicating] = React.useState(false);
   const [showWebhooks, setShowWebhooks] = React.useState(false);
   useTrackAction(id);
@@ -161,31 +163,31 @@ export default function FormDetailScreen() {
   }
 
   if (!form) {
-    return <View style={styles.centered}><Text style={{ color: '#888' }}>{t('forms', 'formNotFound')}</Text></View>;
+    return <View style={styles.centered}><Text style={{ color: colors.textSecondary }}>{t('forms', 'formNotFound')}</Text></View>;
   }
 
   const fieldCount = form.fields?.length || 0;
   const groupName = (form as any).form_groups?.name || form.group_name;
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.headerCard}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Card style={[styles.headerCard, { backgroundColor: colors.surface }]}>
         <Card.Content>
-          <Text variant="headlineSmall" style={styles.formName}>{form.name}</Text>
+          <Text variant="headlineSmall" style={[styles.formName, { color: colors.text }]}>{form.name}</Text>
           <View style={styles.chips}>
-            <Chip icon="format-list-numbered" style={styles.chip} textStyle={styles.chipText}>
+            <Chip icon="format-list-numbered" style={[styles.chip, { backgroundColor: colors.surfaceSecondary }]} textStyle={[styles.chipText, { color: colors.text }]}>
               {fieldCount} {t('forms', 'fields')}
             </Chip>
-            <Chip icon="file-check-outline" style={styles.chip} textStyle={styles.chipText}>
+            <Chip icon="file-check-outline" style={[styles.chip, { backgroundColor: colors.surfaceSecondary }]} textStyle={[styles.chipText, { color: colors.text }]}>
               {submissionCount ?? 0} {t('forms', 'submittedCount')}
             </Chip>
             {groupName && (
-              <Chip icon="folder-outline" style={styles.chip} textStyle={styles.chipText}>
+              <Chip icon="folder-outline" style={[styles.chip, { backgroundColor: colors.surfaceSecondary }]} textStyle={[styles.chipText, { color: colors.text }]}>
                 {groupName}
               </Chip>
             )}
           </View>
-          <Text variant="bodySmall" style={styles.date}>
+          <Text variant="bodySmall" style={[styles.date, { color: colors.textTertiary }]}>
             {t('forms', 'created')} {new Date(form.created_at).toLocaleDateString(dateLocale)}
           </Text>
         </Card.Content>
@@ -194,31 +196,31 @@ export default function FormDetailScreen() {
       {/* Stats */}
       {stats && stats.total > 0 && (
         <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.today}</Text>
-            <Text style={styles.statLabel}>{t('forms', 'today')}</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.today}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('forms', 'today')}</Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.thisWeek}</Text>
-            <Text style={styles.statLabel}>{t('forms', 'thisWeek')}</Text>
+          <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.thisWeek}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('forms', 'thisWeek')}</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.trendRow}>
-              <Text style={styles.statValue}>{stats.total}</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{stats.total}</Text>
               {stats.thisWeek > stats.lastWeek ? (
                 <MaterialCommunityIcons name="trending-up" size={16} color="#22c55e" />
               ) : stats.thisWeek < stats.lastWeek ? (
                 <MaterialCommunityIcons name="trending-down" size={16} color="#ef4444" />
               ) : null}
             </View>
-            <Text style={styles.statLabel}>{t('forms', 'totalSubs')}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('forms', 'totalSubs')}</Text>
           </View>
           {stats.lastSubmission && (
-            <View style={styles.statCard}>
-              <Text style={styles.statValueSmall}>
+            <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[styles.statValueSmall, { color: colors.text }]}>
                 {new Date(stats.lastSubmission).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}
               </Text>
-              <Text style={styles.statLabel}>{t('forms', 'lastSub')}</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('forms', 'lastSub')}</Text>
             </View>
           )}
         </View>
@@ -231,38 +233,38 @@ export default function FormDetailScreen() {
         <Button mode="contained" icon="eye-outline" onPress={() => router.push(`/form/${id}/submissions`)} style={styles.actionButton} contentStyle={styles.actionContent}>
           {t('forms', 'viewSubmissions')}
         </Button>
-        <Button mode="outlined" icon="share-variant-outline" onPress={handleShare} style={styles.actionButtonOutline} textColor="#e8622c">
+        <Button mode="outlined" icon="share-variant-outline" onPress={handleShare} style={[styles.actionButtonOutline, { borderColor: colors.accent }]} textColor={colors.accent}>
           {t('forms', 'shareForm')}
         </Button>
-        <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={styles.actionButtonOutline} textColor="#e8622c">
+        <Button mode="outlined" icon="content-copy" onPress={handleCopyLink} style={[styles.actionButtonOutline, { borderColor: colors.accent }]} textColor={colors.accent}>
           {t('forms', 'copyLink')}
         </Button>
-        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={styles.actionButtonOutline} textColor="#e8622c" disabled={isDuplicating} loading={isDuplicating}>
+        <Button mode="outlined" icon="content-duplicate" onPress={handleDuplicate} style={[styles.actionButtonOutline, { borderColor: colors.accent }]} textColor={colors.accent} disabled={isDuplicating} loading={isDuplicating}>
           {t('forms', 'duplicateForm')}
         </Button>
-        <Button mode="outlined" icon="webhook" onPress={() => setShowWebhooks(true)} style={styles.actionButtonOutline} textColor="#e8622c">
+        <Button mode="outlined" icon="webhook" onPress={() => setShowWebhooks(true)} style={[styles.actionButtonOutline, { borderColor: colors.accent }]} textColor={colors.accent}>
           {t('webhooks', 'title')}
         </Button>
-        <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={styles.deleteButton} textColor="#ef4444">
+        <Button mode="outlined" icon="delete-outline" onPress={handleDelete} style={[styles.deleteButton, { borderColor: '#ef4444' }]} textColor="#ef4444">
           {t('forms', 'deleteForm')}
         </Button>
       </View>
 
       <WebhookManager visible={showWebhooks} onClose={() => setShowWebhooks(false)} formId={id!} />
 
-      <Divider style={styles.divider} />
+      <Divider style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <View style={styles.fieldsSection}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>{t('forms', 'formFields')}</Text>
+        <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.text }]}>{t('forms', 'formFields')}</Text>
         {(form.fields || []).slice(0, 10).map((field: any, index: number) => (
-          <View key={field.id || index} style={styles.fieldRow}>
-            <MaterialCommunityIcons name={getFieldIcon(field.type) as any} size={20} color="#e8622c" />
-            <Text style={styles.fieldLabel} numberOfLines={1}>{field.label || field.type}</Text>
-            {field.required && <Text style={styles.required}>*</Text>}
+          <View key={field.id || index} style={[styles.fieldRow, { borderBottomColor: colors.border }]}>
+            <MaterialCommunityIcons name={getFieldIcon(field.type) as any} size={20} color={colors.accent} />
+            <Text style={[styles.fieldLabel, { color: colors.text }]} numberOfLines={1}>{field.label || field.type}</Text>
+            {field.required && <Text style={[styles.required, { color: colors.accent }]}>*</Text>}
           </View>
         ))}
         {fieldCount > 10 && (
-          <Text style={styles.moreFields}>{t('forms', 'moreFields', { count: String(fieldCount - 10) })}</Text>
+          <Text style={[styles.moreFields, { color: colors.textSecondary }]}>{t('forms', 'moreFields', { count: String(fieldCount - 10) })}</Text>
         )}
       </View>
 
@@ -284,38 +286,38 @@ function getFieldIcon(type: string): string {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  headerCard: { margin: 16, backgroundColor: '#1e1e2e', borderRadius: 16 },
-  formName: { color: '#fff', fontWeight: 'bold', marginBottom: 12 },
+  headerCard: { margin: 16, borderRadius: 16 },
+  formName: { fontWeight: 'bold', marginBottom: 12 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
-  chip: { backgroundColor: '#2d2d44' },
-  chipText: { color: '#ccc', fontSize: 12 },
-  date: { color: '#666' },
+  chip: {},
+  chipText: { fontSize: 12 },
+  date: {},
   statsRow: {
     flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginBottom: 16,
   },
   statCard: {
-    flex: 1, backgroundColor: '#1e1e2e', borderRadius: 12, padding: 12,
-    alignItems: 'center', borderWidth: 1, borderColor: '#2d2d44',
+    flex: 1, borderRadius: 12, padding: 12,
+    alignItems: 'center', borderWidth: 1,
   },
-  statValue: { color: '#fff', fontSize: 22, fontWeight: '700' },
-  statValueSmall: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  statLabel: { color: '#888', fontSize: 11, marginTop: 2 },
+  statValue: { fontSize: 22, fontWeight: '700' },
+  statValueSmall: { fontSize: 14, fontWeight: '600' },
+  statLabel: { fontSize: 11, marginTop: 2 },
   trendRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   actions: { paddingHorizontal: 16, gap: 10 },
   editButton: { borderRadius: 12, backgroundColor: '#e8622c', marginBottom: 4 },
   editContent: { paddingVertical: 8 },
   editLabel: { fontSize: 16, fontWeight: '700' },
   actionButton: { borderRadius: 12, backgroundColor: '#e8622c' },
-  actionButtonOutline: { borderRadius: 12, borderColor: '#e8622c' },
-  deleteButton: { borderRadius: 12, borderColor: '#ef4444' },
+  actionButtonOutline: { borderRadius: 12 },
+  deleteButton: { borderRadius: 12 },
   actionContent: { paddingVertical: 4 },
-  divider: { backgroundColor: '#2d2d44', marginVertical: 20, marginHorizontal: 16 },
+  divider: { marginVertical: 20, marginHorizontal: 16 },
   fieldsSection: { paddingHorizontal: 16 },
-  sectionTitle: { color: '#fff', marginBottom: 12 },
-  fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#2d2d44' },
-  fieldLabel: { color: '#ccc', flex: 1 },
-  required: { color: '#e8622c', fontWeight: 'bold' },
-  moreFields: { color: '#888', marginTop: 12, textAlign: 'center' },
+  sectionTitle: { marginBottom: 12 },
+  fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: 1 },
+  fieldLabel: { flex: 1 },
+  required: { fontWeight: 'bold' },
+  moreFields: { marginTop: 12, textAlign: 'center' },
 });

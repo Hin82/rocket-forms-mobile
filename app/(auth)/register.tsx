@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -17,6 +18,7 @@ export default function RegisterScreen() {
   const { signUp } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   const handleRegister = async () => {
     if (!email.trim() || !password.trim()) {
@@ -47,10 +49,10 @@ export default function RegisterScreen() {
 
   if (success) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.headerBg }]}>
         <View style={styles.content}>
-          <Text variant="headlineMedium" style={styles.successTitle}>{t('auth', 'accountCreated')}</Text>
-          <Text variant="bodyLarge" style={styles.successText}>
+          <Text variant="headlineMedium" style={[styles.successTitle, { color: colors.text }]}>{t('auth', 'accountCreated')}</Text>
+          <Text variant="bodyLarge" style={[styles.successText, { color: colors.textSecondary }]}>
             {t('auth', 'checkEmail')}
           </Text>
           <Button mode="contained" onPress={() => router.replace('/(auth)/login')} style={styles.button}>
@@ -62,18 +64,29 @@ export default function RegisterScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.headerBg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.content}>
-        <Text variant="headlineLarge" style={styles.title}>{t('auth', 'createAccountTitle')}</Text>
+        <Text variant="headlineLarge" style={[styles.title, { color: colors.text }]}>{t('auth', 'createAccountTitle')}</Text>
 
         <View style={styles.form}>
           <TextInput label={t('auth', 'email')} value={email} onChangeText={setEmail}
             autoCapitalize="none" keyboardType="email-address" mode="outlined"
+            textColor={colors.text} outlineColor={colors.border} activeOutlineColor={colors.accent}
+            style={[styles.input, { backgroundColor: colors.headerBg }]}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
             left={<TextInput.Icon icon="email-outline" />} />
           <TextInput label={t('auth', 'password')} value={password} onChangeText={setPassword}
-            secureTextEntry mode="outlined" left={<TextInput.Icon icon="lock-outline" />} />
+            secureTextEntry mode="outlined"
+            textColor={colors.text} outlineColor={colors.border} activeOutlineColor={colors.accent}
+            style={[styles.input, { backgroundColor: colors.headerBg }]}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
+            left={<TextInput.Icon icon="lock-outline" />} />
           <TextInput label={t('auth', 'confirmPassword')} value={confirmPassword} onChangeText={setConfirmPassword}
-            secureTextEntry mode="outlined" left={<TextInput.Icon icon="lock-check-outline" />} />
+            secureTextEntry mode="outlined"
+            textColor={colors.text} outlineColor={colors.border} activeOutlineColor={colors.accent}
+            style={[styles.input, { backgroundColor: colors.headerBg }]}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
+            left={<TextInput.Icon icon="lock-check-outline" />} />
 
           {error ? <HelperText type="error" visible>{error}</HelperText> : null}
 
@@ -89,12 +102,13 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1a2e' },
+  container: { flex: 1 },
   content: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
-  title: { color: '#ffffff', fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
+  title: { fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
   form: { gap: 12 },
+  input: {},
   button: { marginTop: 8, borderRadius: 12, backgroundColor: '#e8622c' },
   buttonContent: { paddingVertical: 6 },
-  successTitle: { color: '#ffffff', fontWeight: 'bold', textAlign: 'center', marginBottom: 12 },
-  successText: { color: '#a0a0b0', textAlign: 'center', marginBottom: 24 },
+  successTitle: { fontWeight: 'bold', textAlign: 'center', marginBottom: 12 },
+  successText: { textAlign: 'center', marginBottom: 24 },
 });

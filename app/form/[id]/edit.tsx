@@ -27,6 +27,7 @@ import ShareSheet from '@/src/components/editor/ShareSheet';
 import VersionHistorySheet from '@/src/components/editor/VersionHistorySheet';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 // Map field type identifiers (with hyphens) to translation keys (camelCase)
 const FIELD_TYPE_KEYS: Record<string, string> = {
@@ -97,6 +98,7 @@ export default function FormEditorScreen() {
 
   const { data: groups = [] } = useFormGroups();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   // Sheet refs
   const paletteRef = useRef<BottomSheet>(null);
@@ -190,20 +192,20 @@ export default function FormEditorScreen() {
   // ---- Render ----
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#e8622c" />
-        <Text style={styles.loadingText}>{t('editor', 'loadingForm')}</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.accent} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('editor', 'loadingForm')}</Text>
       </View>
     );
   }
 
   if (error || !form) {
     return (
-      <View style={styles.centered}>
-        <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#cc3333" />
-        <Text style={styles.errorText}>{error || t('editor', 'couldNotLoadForm')}</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>{t('editor', 'goBack')}</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <MaterialCommunityIcons name="alert-circle-outline" size={48} color={colors.error} />
+        <Text style={[styles.errorText, { color: colors.error }]}>{error || t('editor', 'couldNotLoadForm')}</Text>
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surfaceSecondary }]}>
+          <Text style={[styles.backBtnText, { color: colors.text }]}>{t('editor', 'goBack')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -225,44 +227,44 @@ export default function FormEditorScreen() {
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <GestureHandlerRootView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBackBtn}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle} numberOfLines={1}>{form.name}</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>{form.name}</Text>
           <View style={styles.headerMeta}>
-            <Text style={styles.fieldCount}>{form.fields.length} {t('editor', 'fieldsCount')}</Text>
-            {dirty && <Text style={styles.unsavedBadge}>{t('editor', 'unsaved')}</Text>}
+            <Text style={[styles.fieldCount, { color: colors.textTertiary }]}>{form.fields.length} {t('editor', 'fieldsCount')}</Text>
+            {dirty && <Text style={[styles.unsavedBadge, { color: colors.accent }]}>{t('editor', 'unsaved')}</Text>}
           </View>
         </View>
         <View style={styles.headerRight}>
           <IconButton
             icon="eye-outline"
-            iconColor="#ccc"
+            iconColor={colors.text}
             size={22}
             onPress={handlePreview}
             style={styles.headerIconBtn}
           />
           <IconButton
             icon="share-variant-outline"
-            iconColor="#ccc"
+            iconColor={colors.text}
             size={22}
             onPress={handleShare}
             style={styles.headerIconBtn}
           />
           <IconButton
             icon="history"
-            iconColor="#ccc"
+            iconColor={colors.text}
             size={22}
             onPress={handleVersionHistory}
             style={styles.headerIconBtn}
           />
           <IconButton
             icon="cog-outline"
-            iconColor="#ccc"
+            iconColor={colors.text}
             size={24}
             onPress={handleOpenSettings}
             style={styles.headerIconBtn}
@@ -284,22 +286,22 @@ export default function FormEditorScreen() {
       {/* Fields list */}
       {form.fields.length === 0 ? (
         <View style={styles.emptyState}>
-          <MaterialCommunityIcons name="form-textbox" size={64} color="#2d2d44" />
-          <Text style={styles.emptyTitle}>{t('editor', 'noFields')}</Text>
-          <Text style={styles.emptySubtitle}>{t('editor', 'tapToAddFields')}</Text>
+          <MaterialCommunityIcons name="form-textbox" size={64} color={colors.border} />
+          <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>{t('editor', 'noFields')}</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>{t('editor', 'tapToAddFields')}</Text>
 
           <View style={styles.tipsList}>
             <View style={styles.tipRow}>
-              <MaterialCommunityIcons name="plus-circle-outline" size={18} color="#e8622c" />
-              <Text style={styles.tipText}>{t('editor', 'tipAdd')}</Text>
+              <MaterialCommunityIcons name="plus-circle-outline" size={18} color={colors.accent} />
+              <Text style={[styles.tipText, { color: colors.textSecondary }]}>{t('editor', 'tipAdd')}</Text>
             </View>
             <View style={styles.tipRow}>
-              <MaterialCommunityIcons name="drag" size={18} color="#e8622c" />
-              <Text style={styles.tipText}>{t('editor', 'tipDrag')}</Text>
+              <MaterialCommunityIcons name="drag" size={18} color={colors.accent} />
+              <Text style={[styles.tipText, { color: colors.textSecondary }]}>{t('editor', 'tipDrag')}</Text>
             </View>
             <View style={styles.tipRow}>
-              <MaterialCommunityIcons name="gesture-swipe-left" size={18} color="#e8622c" />
-              <Text style={styles.tipText}>{t('editor', 'tipSwipe')}</Text>
+              <MaterialCommunityIcons name="gesture-swipe-left" size={18} color={colors.accent} />
+              <Text style={[styles.tipText, { color: colors.textSecondary }]}>{t('editor', 'tipSwipe')}</Text>
             </View>
           </View>
 
@@ -402,6 +404,7 @@ function SwipeableFieldRow({
   onDuplicate: () => void;
 }) {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const renderRightActions = (
     progress: Animated.AnimatedInterpolation<number>,
     dragX: Animated.AnimatedInterpolation<number>,
@@ -417,7 +420,7 @@ function SwipeableFieldRow({
           <MaterialCommunityIcons name="content-copy" size={22} color="#fff" />
           <Text style={styles.swipeDuplicateText}>{t('editor', 'copy')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onDelete} style={styles.swipeDeleteBtn}>
+        <TouchableOpacity onPress={onDelete} style={[styles.swipeDeleteBtn, { backgroundColor: colors.error }]}>
           <MaterialCommunityIcons name="delete-outline" size={22} color="#fff" />
           <Text style={styles.swipeDeleteText}>{t('editor', 'delete')}</Text>
         </TouchableOpacity>
@@ -432,38 +435,38 @@ function SwipeableFieldRow({
         onLongPress={onLongPress}
         delayLongPress={200}
         activeOpacity={0.7}
-        style={[styles.fieldCard, isActive && styles.fieldCardActive]}
+        style={[styles.fieldCard, { backgroundColor: colors.surface, borderColor: colors.border }, isActive && { borderColor: colors.accent, backgroundColor: colors.surfaceSecondary }]}
       >
         <View style={styles.dragHandle}>
-          <MaterialCommunityIcons name="drag-horizontal-variant" size={20} color="#555" />
+          <MaterialCommunityIcons name="drag-horizontal-variant" size={20} color={colors.textTertiary} />
         </View>
         <View style={styles.fieldIcon}>
           <MaterialCommunityIcons
             name={(FIELD_ICONS[field.type] || 'form-textbox') as any}
             size={22}
-            color="#e8622c"
+            color={colors.accent}
           />
         </View>
         <View style={styles.fieldInfo}>
-          <Text style={styles.fieldLabel} numberOfLines={1}>{field.label}</Text>
-          <Text style={styles.fieldType}>{t('fieldTypes', FIELD_TYPE_KEYS[field.type] || field.type)}</Text>
+          <Text style={[styles.fieldLabel, { color: colors.text }]} numberOfLines={1}>{field.label}</Text>
+          <Text style={[styles.fieldType, { color: colors.textTertiary }]}>{t('fieldTypes', FIELD_TYPE_KEYS[field.type] || field.type)}</Text>
         </View>
         {field.required && (
-          <View style={styles.requiredDot} />
+          <View style={[styles.requiredDot, { backgroundColor: colors.accent }]} />
         )}
-        <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />
+        <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textTertiary} />
       </TouchableOpacity>
     </Swipeable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121220' },
-  loadingText: { color: '#888', marginTop: 12 },
-  errorText: { color: '#cc3333', marginTop: 12, fontSize: 16 },
-  backBtn: { marginTop: 20, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, backgroundColor: '#2d2d44' },
-  backBtnText: { color: '#fff' },
+  container: { flex: 1 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 12 },
+  errorText: { marginTop: 12, fontSize: 16 },
+  backBtn: { marginTop: 20, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
+  backBtnText: {},
 
   // Header
   header: {
@@ -472,16 +475,14 @@ const styles = StyleSheet.create({
     paddingTop: 56,
     paddingBottom: 12,
     paddingHorizontal: 12,
-    backgroundColor: '#1e1e2e',
     borderBottomWidth: 1,
-    borderBottomColor: '#2d2d44',
   },
   headerBackBtn: { padding: 4 },
   headerCenter: { flex: 1, marginHorizontal: 4 },
-  headerTitle: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  headerTitle: { fontSize: 16, fontWeight: '600' },
   headerMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
-  fieldCount: { color: '#666', fontSize: 11 },
-  unsavedBadge: { color: '#e8622c', fontSize: 11 },
+  fieldCount: { fontSize: 11 },
+  unsavedBadge: { fontSize: 11 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 0 },
   headerIconBtn: { margin: 0, width: 36, height: 36 },
   saveBtn: {
@@ -499,11 +500,11 @@ const styles = StyleSheet.create({
 
   // Empty state
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
-  emptyTitle: { color: '#888', fontSize: 18, fontWeight: '600', marginTop: 16 },
-  emptySubtitle: { color: '#555', fontSize: 14, marginTop: 4, textAlign: 'center' },
+  emptyTitle: { fontSize: 18, fontWeight: '600', marginTop: 16 },
+  emptySubtitle: { fontSize: 14, marginTop: 4, textAlign: 'center' },
   tipsList: { marginTop: 24, gap: 10, alignSelf: 'stretch' },
   tipRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 },
-  tipText: { color: '#888', fontSize: 13 },
+  tipText: { fontSize: 13 },
   emptyAddBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: '#e8622c', borderRadius: 12,
@@ -515,17 +516,10 @@ const styles = StyleSheet.create({
   fieldCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1e1e2e',
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#2d2d44',
-  },
-  fieldCardActive: {
-    borderColor: '#e8622c',
-    backgroundColor: '#252538',
-    transform: [{ scale: 1.02 }],
   },
   dragHandle: { marginRight: 8 },
   fieldIcon: {
@@ -538,9 +532,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   fieldInfo: { flex: 1 },
-  fieldLabel: { color: '#fff', fontSize: 15, fontWeight: '500' },
-  fieldType: { color: '#666', fontSize: 12, marginTop: 2 },
-  requiredDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#e8622c', marginRight: 8 },
+  fieldLabel: { fontSize: 15, fontWeight: '500' },
+  fieldType: { fontSize: 12, marginTop: 2 },
+  requiredDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
 
   // Swipe
   swipeActions: { flexDirection: 'row', width: 160 },
@@ -557,7 +551,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: 80,
-    backgroundColor: '#cc3333',
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
   },

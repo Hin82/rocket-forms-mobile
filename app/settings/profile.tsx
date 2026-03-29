@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 const AVATAR_OPTIONS = [
   'Alex', 'Sarah', 'David', 'Emma', 'Michael', 'Lisa', 'James', 'Sophie',
@@ -20,6 +21,7 @@ function getAvatarUrl(seed: string) {
 export default function ProfileScreen() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
@@ -110,10 +112,10 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
         <Stack.Screen options={{ title: t('settings', 'profile'), headerBackTitle: t('auth', 'back') }} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#e8622c" />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
@@ -121,42 +123,42 @@ export default function ProfileScreen() {
 
   const inputProps = {
     mode: 'outlined' as const,
-    textColor: '#fff',
-    outlineColor: '#2d2d44',
-    activeOutlineColor: '#e8622c',
-    theme: { colors: { onSurfaceVariant: '#888' } },
+    textColor: colors.text,
+    outlineColor: colors.border,
+    activeOutlineColor: colors.accent,
+    theme: { colors: { onSurfaceVariant: colors.textSecondary } },
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <Stack.Screen options={{ title: t('settings', 'profile'), headerBackTitle: t('auth', 'back') }} />
       <ScrollView contentContainerStyle={styles.content}>
         {/* Current avatar */}
         <View style={styles.avatarSection}>
           <Image
             source={{ uri: getAvatarUrl(avatarSeed) }}
-            style={styles.currentAvatar}
+            style={[styles.currentAvatar, { backgroundColor: colors.border }]}
           />
         </View>
 
         {/* Avatar grid */}
-        <View style={styles.avatarGrid}>
+        <View style={[styles.avatarGrid, { backgroundColor: colors.surface }]}>
           {AVATAR_OPTIONS.map((seed) => (
             <Pressable
               key={seed}
               onPress={() => handleSelectAvatar(seed)}
               style={[
                 styles.avatarOption,
-                avatarSeed === seed && styles.avatarOptionSelected,
+                avatarSeed === seed && { borderColor: colors.accent },
               ]}
             >
               <Image
                 source={{ uri: getAvatarUrl(seed) }}
-                style={styles.avatarOptionImage}
+                style={[styles.avatarOptionImage, { backgroundColor: colors.border }]}
               />
               {avatarSeed === seed && (
-                <View style={styles.checkBadge}>
-                  <MaterialCommunityIcons name="check" size={12} color="#fff" />
+                <View style={[styles.checkBadge, { backgroundColor: colors.accent, borderColor: colors.surface }]}>
+                  <MaterialCommunityIcons name="check" size={12} color={colors.text} />
                 </View>
               )}
             </Pressable>
@@ -164,45 +166,45 @@ export default function ProfileScreen() {
         </View>
 
         {/* Personal information */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <View style={styles.sectionHeader}>
-            <MaterialCommunityIcons name="account-outline" size={20} color="#e8622c" />
-            <Text style={styles.sectionTitle}>{t('settings', 'personalInfo')}</Text>
+            <MaterialCommunityIcons name="account-outline" size={20} color={colors.accent} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('settings', 'personalInfo')}</Text>
           </View>
-          <Text style={styles.sectionSubtitle}>{t('settings', 'personalInfoDesc')}</Text>
+          <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>{t('settings', 'personalInfoDesc')}</Text>
 
           <View style={styles.row}>
             <TextInput
               label={t('settings', 'firstName')}
               value={firstName}
               onChangeText={setFirstName}
-              style={[styles.input, styles.halfInput]}
+              style={[styles.input, styles.halfInput, { backgroundColor: colors.surface }]}
               {...inputProps}
             />
             <TextInput
               label={t('settings', 'lastName')}
               value={lastName}
               onChangeText={setLastName}
-              style={[styles.input, styles.halfInput]}
+              style={[styles.input, styles.halfInput, { backgroundColor: colors.surface }]}
               {...inputProps}
             />
           </View>
           <TextInput
             label={t('auth', 'email')}
             value={user?.email ?? ''}
-            style={styles.input}
-            textColor="#666"
-            outlineColor="#2d2d44"
+            style={[styles.input, { backgroundColor: colors.surface }]}
+            textColor={colors.textTertiary}
+            outlineColor={colors.border}
             disabled
             mode="outlined"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
             left={<TextInput.Icon icon="email-outline" />}
           />
           <TextInput
             label={t('settings', 'phone')}
             value={phone}
             onChangeText={setPhone}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.surface }]}
             keyboardType="phone-pad"
             left={<TextInput.Icon icon="phone-outline" />}
             {...inputProps}
@@ -210,18 +212,18 @@ export default function ProfileScreen() {
         </View>
 
         {/* Address information */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <View style={styles.sectionHeader}>
-            <MaterialCommunityIcons name="map-marker-outline" size={20} color="#e8622c" />
-            <Text style={styles.sectionTitle}>{t('settings', 'addressInfo')}</Text>
+            <MaterialCommunityIcons name="map-marker-outline" size={20} color={colors.accent} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('settings', 'addressInfo')}</Text>
           </View>
-          <Text style={styles.sectionSubtitle}>{t('settings', 'addressInfoDesc')}</Text>
+          <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>{t('settings', 'addressInfoDesc')}</Text>
 
           <TextInput
             label={t('settings', 'streetAddress')}
             value={address}
             onChangeText={setAddress}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.surface }]}
             multiline
             numberOfLines={2}
             {...inputProps}
@@ -231,14 +233,14 @@ export default function ProfileScreen() {
               label={t('settings', 'city')}
               value={city}
               onChangeText={setCity}
-              style={[styles.input, styles.halfInput]}
+              style={[styles.input, styles.halfInput, { backgroundColor: colors.surface }]}
               {...inputProps}
             />
             <TextInput
               label={t('settings', 'postalCode')}
               value={postalCode}
               onChangeText={setPostalCode}
-              style={[styles.input, styles.halfInput]}
+              style={[styles.input, styles.halfInput, { backgroundColor: colors.surface }]}
               keyboardType="number-pad"
               {...inputProps}
             />
@@ -247,7 +249,7 @@ export default function ProfileScreen() {
             label={t('settings', 'country')}
             value={country}
             onChangeText={setCountry}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.surface }]}
             {...inputProps}
           />
         </View>
@@ -258,8 +260,8 @@ export default function ProfileScreen() {
           loading={saving}
           disabled={saving}
           style={styles.saveButton}
-          buttonColor="#e8622c"
-          textColor="#fff"
+          buttonColor={colors.accent}
+          textColor={colors.text}
           icon="content-save"
         >
           {t('settings', 'saveChanges')}
@@ -272,7 +274,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121220',
   },
   centered: {
     flex: 1,
@@ -291,7 +292,6 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: '#2d2d44',
   },
   avatarGrid: {
     flexDirection: 'row',
@@ -299,7 +299,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     marginBottom: 24,
-    backgroundColor: '#1e1e2e',
     borderRadius: 12,
     padding: 16,
   },
@@ -311,30 +310,23 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  avatarOptionSelected: {
-    borderColor: '#e8622c',
-  },
   avatarOptionImage: {
     width: '100%',
     height: '100%',
     borderRadius: 26,
-    backgroundColor: '#2d2d44',
   },
   checkBadge: {
     position: 'absolute',
     top: -2,
     right: -2,
-    backgroundColor: '#e8622c',
     width: 20,
     height: 20,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#1e1e2e',
   },
   card: {
-    backgroundColor: '#1e1e2e',
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -346,12 +338,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: '700',
   },
   sectionSubtitle: {
-    color: '#888',
     fontSize: 13,
     marginBottom: 4,
   },
@@ -360,7 +350,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   input: {
-    backgroundColor: '#1e1e2e',
   },
   halfInput: {
     flex: 1,

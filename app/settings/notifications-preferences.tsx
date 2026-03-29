@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 // Match web app's notification_preferences table exactly
 interface NotificationPrefs {
@@ -45,6 +46,7 @@ export default function NotificationsPreferencesScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   useEffect(() => {
     loadPreferences();
@@ -172,13 +174,13 @@ export default function NotificationsPreferencesScreen() {
     <List.Item
       title={title}
       description={description}
-      titleStyle={styles.itemTitle}
-      descriptionStyle={styles.itemDesc}
+      titleStyle={{ color: colors.text }}
+      descriptionStyle={{ color: colors.textSecondary }}
       right={() => (
         <Switch
           value={prefs[key]}
           onValueChange={(value) => updatePref(key, value)}
-          color="#e8622c"
+          color={colors.accent}
         />
       )}
       style={styles.toggleItem}
@@ -187,32 +189,32 @@ export default function NotificationsPreferencesScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
         <Stack.Screen options={{ title: t('settings', 'notifications'), headerBackTitle: t('auth', 'back') }} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#e8622c" />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <Stack.Screen options={{ title: t('settings', 'notifications'), headerBackTitle: t('auth', 'back') }} />
       <ScrollView contentContainerStyle={styles.content}>
         {/* Channels */}
         <List.Section>
-          <List.Subheader style={styles.subheader}>{t('settings', 'channels')}</List.Subheader>
+          <List.Subheader style={{ color: colors.textSecondary }}>{t('settings', 'channels')}</List.Subheader>
           {renderToggle('email_notifications', t('settings', 'emailNotifications'), t('settings', 'receiveViaEmail'))}
           {renderToggle('push_notifications', t('settings', 'pushNotifications'), t('settings', 'pushToDevice'))}
           {renderToggle('in_app_notifications', t('settings', 'inAppNotifications'), t('settings', 'showInApp'))}
         </List.Section>
 
-        <Divider style={styles.divider} />
+        <Divider style={{ backgroundColor: colors.border }} />
 
         {/* Events */}
         <List.Section>
-          <List.Subheader style={styles.subheader}>{t('settings', 'events')}</List.Subheader>
+          <List.Subheader style={{ color: colors.textSecondary }}>{t('settings', 'events')}</List.Subheader>
           {renderToggle('form_submissions', t('settings', 'formSubmissions'), t('settings', 'whenFormSubmitted'))}
           {renderToggle('system_alerts', t('settings', 'systemAlerts'), t('settings', 'importantMessages'))}
           {renderToggle('webhook_failures', t('settings', 'webhookErrors'), t('settings', 'whenWebhookFails'))}
@@ -220,38 +222,38 @@ export default function NotificationsPreferencesScreen() {
           {renderToggle('mentions', t('settings', 'mentionsTitle'), t('settings', 'mentionsDesc'))}
         </List.Section>
 
-        <Divider style={styles.divider} />
+        <Divider style={{ backgroundColor: colors.border }} />
 
         {/* Team */}
         <List.Section>
-          <List.Subheader style={styles.subheader}>{t('settings', 'teamSection')}</List.Subheader>
+          <List.Subheader style={{ color: colors.textSecondary }}>{t('settings', 'teamSection')}</List.Subheader>
           {renderToggle('team_announcements', t('settings', 'teamAnnouncements'), t('settings', 'teamAnnouncementsDesc'))}
           {renderToggle('team_invitations', t('settings', 'teamInvitations'), t('settings', 'teamInvitationsDesc'))}
         </List.Section>
 
-        <Divider style={styles.divider} />
+        <Divider style={{ backgroundColor: colors.border }} />
 
         {/* Summaries */}
         <List.Section>
-          <List.Subheader style={styles.subheader}>{t('settings', 'summaries')}</List.Subheader>
+          <List.Subheader style={{ color: colors.textSecondary }}>{t('settings', 'summaries')}</List.Subheader>
           {renderToggle('daily_digest', t('settings', 'dailySummary'), t('settings', 'dailyOverview'))}
           {renderToggle('weekly_report', t('settings', 'weeklyReport'), t('settings', 'weeklySummary'))}
         </List.Section>
 
-        <Divider style={styles.divider} />
+        <Divider style={{ backgroundColor: colors.border }} />
 
         <Button
           mode="outlined"
           icon="bell-ring"
           onPress={handleTestNotification}
-          style={styles.testButton}
-          textColor="#e8622c"
+          style={[styles.testButton, { borderColor: colors.accent }]}
+          textColor={colors.accent}
         >
           {t('settings', 'testNotification')}
         </Button>
 
         {saving && (
-          <Text style={styles.savingText}>{t('settings', 'saving')}</Text>
+          <Text style={[styles.savingText, { color: colors.textSecondary }]}>{t('settings', 'saving')}</Text>
         )}
 
         <View style={{ height: 40 }} />
@@ -261,22 +263,16 @@ export default function NotificationsPreferencesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { paddingBottom: 16 },
-  subheader: { color: '#888' },
   toggleItem: { paddingVertical: 4 },
-  itemTitle: { color: '#fff' },
-  itemDesc: { color: '#888' },
-  divider: { backgroundColor: '#2d2d44' },
   testButton: {
     marginHorizontal: 16,
     marginTop: 24,
-    borderColor: '#e8622c',
     borderRadius: 12,
   },
   savingText: {
-    color: '#888',
     textAlign: 'center',
     marginTop: 12,
     fontSize: 13,

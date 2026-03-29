@@ -11,6 +11,7 @@ import { Stack } from 'expo-router';
 import { format } from 'date-fns';
 import { sv, nb, da, fi, de, fr, es, enUS, type Locale } from 'date-fns/locale';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 const DATE_LOCALES: Record<string, Locale> = { sv, no: nb, da, fi, de, fr, es, en: enUS };
 
@@ -58,6 +59,7 @@ export default function ApiKeysScreen() {
   const [keyName, setKeyName] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const { t, language } = useTranslation();
+  const { colors } = useAppTheme();
   const dateLocale = DATE_LOCALES[language] || enUS;
 
   const { data: keys, isLoading, error } = useQuery({
@@ -135,10 +137,10 @@ export default function ApiKeysScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#e8622c" />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
@@ -146,50 +148,50 @@ export default function ApiKeysScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
         <View style={styles.centered}>
           <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#ef4444" />
-          <Text style={styles.errorText}>{t('settings', 'couldNotLoadApiKeys')}</Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{t('settings', 'couldNotLoadApiKeys')}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+      <Stack.Screen options={{ title: t('settings', 'apiKeys'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <Text style={styles.infoText}>{t('settings', 'apiKeysInfo')}</Text>
+        <Text style={[styles.infoText, { color: colors.textSecondary }]}>{t('settings', 'apiKeysInfo')}</Text>
 
         {!showCreate ? (
           <Button
             mode="contained"
             onPress={() => setShowCreate(true)}
             style={styles.createButton}
-            buttonColor="#e8622c"
+            buttonColor={colors.accent}
             icon="plus"
           >
             {t('settings', 'generateNewKey')}
           </Button>
         ) : (
-          <View style={styles.createCard}>
-            <Text style={styles.createTitle}>{t('settings', 'newApiKey')}</Text>
+          <View style={[styles.createCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.createTitle, { color: colors.text }]}>{t('settings', 'newApiKey')}</Text>
             <TextInput
               label={t('settings', 'nameOptional')}
               value={keyName}
               onChangeText={setKeyName}
-              style={styles.input}
-              textColor="#fff"
-              placeholderTextColor="#666"
-              theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }}
+              style={[styles.input, { backgroundColor: colors.surfaceSecondary }]}
+              textColor={colors.text}
+              placeholderTextColor={colors.textTertiary}
+              theme={{ colors: { primary: colors.accent, onSurfaceVariant: colors.textSecondary } }}
             />
             <View style={styles.createActions}>
               <Button
                 mode="outlined"
                 onPress={() => { setShowCreate(false); setKeyName(''); }}
-                textColor="#888"
-                style={styles.cancelButton}
+                textColor={colors.textSecondary}
+                style={[styles.cancelButton, { borderColor: colors.border }]}
               >
                 {t('settings', 'cancel')}
               </Button>
@@ -198,7 +200,7 @@ export default function ApiKeysScreen() {
                 onPress={() => createMutation.mutate(keyName.trim())}
                 loading={createMutation.isPending}
                 disabled={createMutation.isPending}
-                buttonColor="#e8622c"
+                buttonColor={colors.accent}
                 style={styles.generateButton}
               >
                 {t('settings', 'generate')}
@@ -209,19 +211,19 @@ export default function ApiKeysScreen() {
 
         {(!keys || keys.length === 0) ? (
           <View style={styles.emptyState}>
-            <MaterialCommunityIcons name="key-outline" size={64} color="#2d2d44" />
-            <Text style={styles.emptyTitle}>{t('settings', 'noApiKeys')}</Text>
-            <Text style={styles.emptyDesc}>{t('settings', 'createFirstKey')}</Text>
+            <MaterialCommunityIcons name="key-outline" size={64} color={colors.border} />
+            <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>{t('settings', 'noApiKeys')}</Text>
+            <Text style={[styles.emptyDesc, { color: colors.textTertiary }]}>{t('settings', 'createFirstKey')}</Text>
           </View>
         ) : (
           <View style={styles.keysList}>
-            <Text style={styles.sectionLabel}>{t('settings', 'yourKeys')}</Text>
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{t('settings', 'yourKeys')}</Text>
             {keys.map((key) => (
-              <View key={key.id} style={styles.keyCard}>
+              <View key={key.id} style={[styles.keyCard, { backgroundColor: colors.surface }]}>
                 <View style={styles.keyHeader}>
                   <View style={styles.keyInfo}>
-                    <Text style={styles.keyPrefix}>{key.key_prefix}…</Text>
-                    {key.name && <Text style={styles.keyName}>{key.name}</Text>}
+                    <Text style={[styles.keyPrefix, { color: colors.text }]}>{key.key_prefix}…</Text>
+                    {key.name && <Text style={[styles.keyName, { color: colors.textSecondary }]}>{key.name}</Text>}
                   </View>
                   <Chip
                     style={[styles.statusChip, { backgroundColor: key.is_active ? '#16432a' : '#442020' }]}
@@ -232,10 +234,10 @@ export default function ApiKeysScreen() {
                 </View>
 
                 <View style={styles.keyMeta}>
-                  <Text style={styles.keyMetaText}>
+                  <Text style={[styles.keyMetaText, { color: colors.textTertiary }]}>
                     {t('settings', 'created')}: {format(new Date(key.created_at), 'd MMM yyyy', { locale: dateLocale })}
                   </Text>
-                  <Text style={styles.keyMetaText}>
+                  <Text style={[styles.keyMetaText, { color: colors.textTertiary }]}>
                     {t('settings', 'lastUsed')}:{' '}
                     {key.last_used_at
                       ? format(new Date(key.last_used_at), 'd MMM yyyy', { locale: dateLocale })
@@ -265,31 +267,31 @@ export default function ApiKeysScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#ef4444', marginTop: 12, fontSize: 16 },
-  infoText: { color: '#888', fontSize: 13, marginBottom: 16, lineHeight: 20 },
+  errorText: { marginTop: 12, fontSize: 16 },
+  infoText: { fontSize: 13, marginBottom: 16, lineHeight: 20 },
   createButton: { borderRadius: 12, marginBottom: 24 },
-  createCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16, marginBottom: 24 },
-  createTitle: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 12 },
-  input: { backgroundColor: '#2d2d44', marginBottom: 12, borderRadius: 8 },
+  createCard: { borderRadius: 16, padding: 16, marginBottom: 24 },
+  createTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
+  input: { marginBottom: 12, borderRadius: 8 },
   createActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
-  cancelButton: { borderColor: '#2d2d44', borderRadius: 8 },
+  cancelButton: { borderRadius: 8 },
   generateButton: { borderRadius: 8 },
   emptyState: { alignItems: 'center', paddingVertical: 48 },
-  emptyTitle: { color: '#888', fontSize: 18, fontWeight: '600', marginTop: 16 },
-  emptyDesc: { color: '#666', fontSize: 14, marginTop: 8, textAlign: 'center' },
+  emptyTitle: { fontSize: 18, fontWeight: '600', marginTop: 16 },
+  emptyDesc: { fontSize: 14, marginTop: 8, textAlign: 'center' },
   keysList: { gap: 12 },
-  sectionLabel: { color: '#888', fontSize: 13, marginBottom: 4 },
-  keyCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16 },
+  sectionLabel: { fontSize: 13, marginBottom: 4 },
+  keyCard: { borderRadius: 16, padding: 16 },
   keyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   keyInfo: { flex: 1 },
-  keyPrefix: { color: '#fff', fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
-  keyName: { color: '#aaa', fontSize: 13, marginTop: 2 },
+  keyPrefix: { fontSize: 15, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
+  keyName: { fontSize: 13, marginTop: 2 },
   statusChip: { borderRadius: 8 },
   keyMeta: { gap: 2, marginBottom: 8 },
-  keyMetaText: { color: '#666', fontSize: 12 },
+  keyMetaText: { fontSize: 12 },
   revokeButton: { borderColor: '#ef4444', borderRadius: 8, alignSelf: 'flex-start' },
 });

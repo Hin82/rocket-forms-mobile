@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 const BIOMETRIC_ENABLED_KEY = 'biometric_lock_enabled';
 
@@ -30,6 +31,7 @@ interface BiometricLockProps {
 
 export default function BiometricLock({ children }: BiometricLockProps) {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const [locked, setLocked] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -83,20 +85,20 @@ export default function BiometricLock({ children }: BiometricLockProps) {
 
   if (locked) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Image
           source={require('../../assets/images/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Rocket Forms Pro</Text>
-        <MaterialCommunityIcons name="lock-outline" size={48} color="#e8622c" style={styles.lockIcon} />
-        <Text style={styles.message}>{t('biometric', 'lockedMessage')}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Rocket Forms Pro</Text>
+        <MaterialCommunityIcons name="lock-outline" size={48} color={colors.accent} style={styles.lockIcon} />
+        <Text style={[styles.message, { color: colors.textSecondary }]}>{t('biometric', 'lockedMessage')}</Text>
         <Button
           mode="contained"
           onPress={authenticate}
           style={styles.unlockBtn}
-          buttonColor="#e8622c"
+          buttonColor={colors.accent}
           icon="fingerprint"
         >
           {t('biometric', 'unlock')}
@@ -111,14 +113,13 @@ export default function BiometricLock({ children }: BiometricLockProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121220',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
   },
   logo: { width: 80, height: 80, borderRadius: 40, marginBottom: 12 },
-  title: { color: '#fff', fontSize: 22, fontWeight: '700', marginBottom: 40 },
+  title: { fontSize: 22, fontWeight: '700', marginBottom: 40 },
   lockIcon: { marginBottom: 16 },
-  message: { color: '#888', fontSize: 15, textAlign: 'center', marginBottom: 30 },
+  message: { fontSize: 15, textAlign: 'center', marginBottom: 30 },
   unlockBtn: { borderRadius: 12, paddingHorizontal: 24 },
 });

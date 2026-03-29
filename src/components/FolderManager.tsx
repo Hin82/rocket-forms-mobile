@@ -8,6 +8,7 @@ import { useFormGroups, type FormGroup } from '@/src/hooks/useForms';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 interface FolderManagerProps {
   visible: boolean;
@@ -19,6 +20,7 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
   const { data: groups, refetch } = useFormGroups();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -101,26 +103,26 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
 
   return (
     <Portal>
-      <Modal visible={visible} onDismiss={onClose} contentContainerStyle={styles.modal}>
+      <Modal visible={visible} onDismiss={onClose} contentContainerStyle={[styles.modal, { backgroundColor: colors.headerBg }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>{t('folders', 'manageFolders')}</Text>
-          <IconButton icon="close" iconColor="#888" size={20} onPress={onClose} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
+          <Text style={[styles.title, { color: colors.text }]}>{t('folders', 'manageFolders')}</Text>
+          <IconButton icon="close" iconColor={colors.textSecondary} size={20} onPress={onClose} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
         </View>
 
         {/* Create new */}
         <View style={styles.createRow}>
           <TextInput
             placeholder={t('folders', 'newFolderName')}
-            placeholderTextColor="#666"
+            placeholderTextColor={colors.textTertiary}
             value={newName}
             onChangeText={setNewName}
             onSubmitEditing={handleCreate}
-            style={styles.createInput}
+            style={[styles.createInput, { backgroundColor: colors.headerBg }]}
             mode="outlined"
-            outlineColor="#2d2d44"
-            activeOutlineColor="#e8622c"
-            textColor="#fff"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.accent}
+            textColor={colors.text}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
             dense
           />
           <Button
@@ -128,7 +130,7 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
             onPress={handleCreate}
             disabled={!newName.trim() || creating}
             loading={creating}
-            buttonColor="#e8622c"
+            buttonColor={colors.accent}
             compact
             style={styles.createBtn}
           >
@@ -139,38 +141,38 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
         {/* Existing groups */}
         {(!groups || groups.length === 0) ? (
           <View style={styles.empty}>
-            <MaterialCommunityIcons name="folder-outline" size={40} color="#2d2d44" />
-            <Text style={styles.emptyText}>{t('folders', 'noFolders')}</Text>
+            <MaterialCommunityIcons name="folder-outline" size={40} color={colors.border} />
+            <Text style={[styles.emptyText, { color: colors.textTertiary }]}>{t('folders', 'noFolders')}</Text>
           </View>
         ) : (
           <ScrollView style={styles.list} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
             {groups.map(group => (
-              <View key={group.id} style={styles.groupRow}>
+              <View key={group.id} style={[styles.groupRow, { borderBottomColor: colors.border }]}>
                 {editingId === group.id ? (
                   <View style={styles.editRow}>
                     <TextInput
                       value={editName}
                       onChangeText={setEditName}
                       onSubmitEditing={() => handleRename(group)}
-                      style={styles.editInput}
+                      style={[styles.editInput, { backgroundColor: colors.headerBg }]}
                       mode="outlined"
-                      outlineColor="#2d2d44"
-                      activeOutlineColor="#e8622c"
-                      textColor="#fff"
+                      outlineColor={colors.border}
+                      activeOutlineColor={colors.accent}
+                      textColor={colors.text}
                       dense
                       autoFocus
-                      theme={{ colors: { onSurfaceVariant: '#888' } }}
+                      theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
                     />
-                    <IconButton icon="check" iconColor="#22c55e" size={20} onPress={() => handleRename(group)} accessibilityLabel={t('settings', 'save')} accessibilityRole="button" />
-                    <IconButton icon="close" iconColor="#888" size={20} onPress={() => setEditingId(null)} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
+                    <IconButton icon="check" iconColor={colors.success} size={20} onPress={() => handleRename(group)} accessibilityLabel={t('settings', 'save')} accessibilityRole="button" />
+                    <IconButton icon="close" iconColor={colors.textSecondary} size={20} onPress={() => setEditingId(null)} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
                   </View>
                 ) : (
                   <>
-                    <MaterialCommunityIcons name="folder-outline" size={20} color="#e8622c" />
-                    <Text style={styles.groupName} numberOfLines={1}>{group.name}</Text>
+                    <MaterialCommunityIcons name="folder-outline" size={20} color={colors.accent} />
+                    <Text style={[styles.groupName, { color: colors.text }]} numberOfLines={1}>{group.name}</Text>
                     <IconButton
                       icon="pencil-outline"
-                      iconColor="#888"
+                      iconColor={colors.textSecondary}
                       size={18}
                       onPress={() => { setEditingId(group.id); setEditName(group.name); }}
                       style={styles.iconBtn}
@@ -179,7 +181,7 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
                     />
                     <IconButton
                       icon="delete-outline"
-                      iconColor="#cc3333"
+                      iconColor={colors.error}
                       size={18}
                       onPress={() => handleDelete(group)}
                       style={styles.iconBtn}
@@ -199,7 +201,6 @@ export default function FolderManager({ visible, onClose }: FolderManagerProps) 
 
 const styles = StyleSheet.create({
   modal: {
-    backgroundColor: '#1a1a2e',
     margin: 20,
     borderRadius: 16,
     padding: 20,
@@ -211,9 +212,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  title: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  title: { fontSize: 18, fontWeight: '700' },
   createRow: { flexDirection: 'row', gap: 8, marginBottom: 20, alignItems: 'center' },
-  createInput: { flex: 1, backgroundColor: '#1a1a2e', height: 42 },
+  createInput: { flex: 1, height: 42 },
   createBtn: { borderRadius: 8 },
   list: { maxHeight: 300 },
   listContent: { paddingBottom: 16 },
@@ -224,12 +225,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: '#2d2d44',
   },
-  groupName: { color: '#ccc', flex: 1, fontSize: 15 },
+  groupName: { flex: 1, fontSize: 15 },
   iconBtn: { margin: 0, width: 32, height: 32 },
   editRow: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  editInput: { flex: 1, backgroundColor: '#1a1a2e', height: 38 },
+  editInput: { flex: 1, height: 38 },
   empty: { alignItems: 'center', paddingVertical: 30 },
-  emptyText: { color: '#666', marginTop: 8 },
+  emptyText: { marginTop: 8 },
 });

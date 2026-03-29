@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -12,6 +13,7 @@ interface SkeletonProps {
 
 function SkeletonBox({ width = '100%', height = 16, borderRadius = 8, style }: SkeletonProps) {
   const shimmer = useRef(new Animated.Value(0)).current;
+  const { colors } = useAppTheme();
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -32,7 +34,7 @@ function SkeletonBox({ width = '100%', height = 16, borderRadius = 8, style }: S
   return (
     <Animated.View
       style={[
-        { width: width as any, height, borderRadius, backgroundColor: '#2d2d44', opacity },
+        { width: width as any, height, borderRadius, backgroundColor: colors.border, opacity },
         style,
       ]}
     />
@@ -40,8 +42,9 @@ function SkeletonBox({ width = '100%', height = 16, borderRadius = 8, style }: S
 }
 
 export function FormListSkeleton() {
+  const { colors } = useAppTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Search bar skeleton */}
       <SkeletonBox height={48} borderRadius={12} style={styles.searchSkeleton} />
 
@@ -53,7 +56,7 @@ export function FormListSkeleton() {
 
       {/* Form cards */}
       {[1, 2, 3, 4, 5].map(i => (
-        <View key={i} style={styles.cardSkeleton}>
+        <View key={i} style={[styles.cardSkeleton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <SkeletonBox width="70%" height={18} />
           <View style={styles.metaSkeleton}>
             <SkeletonBox width={40} height={14} />
@@ -67,10 +70,11 @@ export function FormListSkeleton() {
 }
 
 export function FormDetailSkeleton() {
+  const { colors } = useAppTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header card */}
-      <View style={styles.detailCard}>
+      <View style={[styles.detailCard, { backgroundColor: colors.surface }]}>
         <SkeletonBox width="60%" height={24} />
         <View style={styles.chipsSkeleton}>
           <SkeletonBox width={80} height={28} borderRadius={14} />
@@ -90,10 +94,11 @@ export function FormDetailSkeleton() {
 }
 
 export function SubmissionsSkeleton() {
+  const { colors } = useAppTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {[1, 2, 3, 4, 5, 6].map(i => (
-        <View key={i} style={styles.submissionCard}>
+        <View key={i} style={[styles.submissionCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <SkeletonBox width={36} height={36} borderRadius={18} />
           <View style={styles.submissionDetails}>
             <SkeletonBox width={140} height={14} />
@@ -106,8 +111,9 @@ export function SubmissionsSkeleton() {
 }
 
 export function SettingsSkeleton() {
+  const { colors } = useAppTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Avatar */}
       <View style={styles.avatarSkeleton}>
         <SkeletonBox width={80} height={80} borderRadius={40} />
@@ -116,7 +122,7 @@ export function SettingsSkeleton() {
 
       {/* Settings items */}
       {[1, 2, 3, 4, 5, 6].map(i => (
-        <View key={i} style={styles.settingItem}>
+        <View key={i} style={[styles.settingItem, { borderBottomColor: colors.border }]}>
           <SkeletonBox width={24} height={24} borderRadius={12} />
           <View style={{ flex: 1, gap: 4 }}>
             <SkeletonBox width="50%" height={16} />
@@ -129,28 +135,28 @@ export function SettingsSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220', padding: 16 },
+  container: { flex: 1, padding: 16 },
   searchSkeleton: { marginBottom: 16 },
   sectionSkeleton: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, marginTop: 8 },
   cardSkeleton: {
-    backgroundColor: '#1e1e2e', borderRadius: 12, padding: 16, marginBottom: 8, gap: 10,
-    borderWidth: 1, borderColor: '#2d2d44',
+    borderRadius: 12, padding: 16, marginBottom: 8, gap: 10,
+    borderWidth: 1,
   },
   metaSkeleton: { flexDirection: 'row', gap: 12 },
   detailCard: {
-    backgroundColor: '#1e1e2e', borderRadius: 16, padding: 20, marginBottom: 16, gap: 12,
+    borderRadius: 16, padding: 20, marginBottom: 16, gap: 12,
   },
   chipsSkeleton: { flexDirection: 'row', gap: 8 },
   actionsSkeleton: { gap: 10 },
   submissionCard: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#1e1e2e', borderRadius: 12, padding: 14, marginBottom: 8,
-    borderWidth: 1, borderColor: '#2d2d44',
+    borderRadius: 12, padding: 14, marginBottom: 8,
+    borderWidth: 1,
   },
   submissionDetails: { flex: 1 },
   avatarSkeleton: { alignItems: 'center', paddingVertical: 24 },
   settingItem: {
     flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: '#2d2d44',
+    borderBottomWidth: 1,
   },
 });

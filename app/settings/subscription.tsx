@@ -8,6 +8,7 @@ import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 // Match web app tiers exactly
 const STANDARD_PRICES: Record<string, number> = {
@@ -51,6 +52,7 @@ function getFeatures(t: (section: string, key: string) => string, tier: string):
 export default function SubscriptionScreen() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   const { data: subscription, isLoading, error } = useQuery({
     queryKey: ['subscription-full', user?.id],
@@ -104,10 +106,10 @@ export default function SubscriptionScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: t('settings', 'subscription'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <Stack.Screen options={{ title: t('settings', 'subscription'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#e8622c" />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
@@ -115,35 +117,35 @@ export default function SubscriptionScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: t('settings', 'subscription'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <Stack.Screen options={{ title: t('settings', 'subscription'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
         <View style={styles.centered}>
           <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#ef4444" />
-          <Text style={styles.errorText}>{t('settings', 'couldNotLoadSubscription')}</Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{t('settings', 'couldNotLoadSubscription')}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: t('settings', 'subscription'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+      <Stack.Screen options={{ title: t('settings', 'subscription'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Current plan card - matches web app */}
-        <View style={styles.planCard}>
+        <View style={[styles.planCard, { backgroundColor: colors.surface }]}>
           <View style={styles.planHeader}>
             <View>
-              <Text style={styles.planLabel}>{t('tiers', 'currentPlan')}</Text>
-              <Text style={styles.planSublabel}>{t('tiers', 'currentPlanDesc')}</Text>
+              <Text style={[styles.planLabel, { color: colors.text }]}>{t('tiers', 'currentPlan')}</Text>
+              <Text style={[styles.planSublabel, { color: colors.textSecondary }]}>{t('tiers', 'currentPlanDesc')}</Text>
             </View>
             <Chip style={[styles.tierBadge, { backgroundColor: tierColor }]} textStyle={styles.tierBadgeText}>
               {getTierDisplayName(t, tier)}
             </Chip>
           </View>
 
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>{t('tiers', 'monthlyCost')}</Text>
-            <Text style={styles.priceValue}>
+          <View style={[styles.priceRow, { borderTopColor: colors.border }]}>
+            <Text style={[styles.priceLabel, { color: colors.text }]}>{t('tiers', 'monthlyCost')}</Text>
+            <Text style={[styles.priceValue, { color: colors.text }]}>
               {subscription?.effectivePrice !== undefined
                 ? `${subscription.effectivePrice.toFixed(2)} SEK`
                 : t('tiers', 'tier_free')}
@@ -176,14 +178,14 @@ export default function SubscriptionScreen() {
         </View>
 
         {/* Features card - matches web app */}
-        <View style={styles.featuresCard}>
-          <Text style={styles.featuresTitle}>{t('tiers', 'includedFeatures')}</Text>
-          <Text style={styles.featuresSublabel}>{t('tiers', 'includedFeaturesDesc')}</Text>
+        <View style={[styles.featuresCard, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.featuresTitle, { color: colors.text }]}>{t('tiers', 'includedFeatures')}</Text>
+          <Text style={[styles.featuresSublabel, { color: colors.textSecondary }]}>{t('tiers', 'includedFeaturesDesc')}</Text>
           <View style={styles.featuresList}>
             {getFeatures(t, tier).map((feature, index) => (
               <View key={index} style={styles.featureRow}>
                 <MaterialCommunityIcons name="check-circle" size={20} color="#22c55e" />
-                <Text style={styles.featureText}>{feature}</Text>
+                <Text style={[styles.featureText, { color: colors.text }]}>{feature}</Text>
               </View>
             ))}
           </View>
@@ -191,16 +193,16 @@ export default function SubscriptionScreen() {
 
         {/* Upgrade card - only show if not enterprise/complimentary (same as web app) */}
         {tier !== 'enterprise' && tier !== 'complimentary' && tier !== 'superadmin' && (
-          <View style={styles.upgradeCard}>
-            <Text style={styles.upgradeTitle}>{t('subscription', 'wantToUpgrade')}</Text>
-            <Text style={styles.upgradeDesc}>
+          <View style={[styles.upgradeCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.upgradeTitle, { color: colors.text }]}>{t('subscription', 'wantToUpgrade')}</Text>
+            <Text style={[styles.upgradeDesc, { color: colors.textSecondary }]}>
               {t('subscription', 'upgradeDesc')}
             </Text>
             <Button
               mode="contained"
               onPress={() => Linking.openURL('https://rocketformspro.com/pricing')}
               style={styles.upgradeButton}
-              buttonColor="#e8622c"
+              buttonColor={colors.accent}
               icon="arrow-right"
               contentStyle={{ flexDirection: 'row-reverse' }}
             >
@@ -211,16 +213,16 @@ export default function SubscriptionScreen() {
 
         {/* Manage payment - only for paid tiers without custom pricing (same as web app) */}
         {tier && !['complimentary', 'free', 'superadmin'].includes(tier) && subscription?.customPrice === null && (
-          <View style={styles.paymentCard}>
-            <Text style={styles.paymentTitle}>{t('subscription', 'managePaymentTitle')}</Text>
-            <Text style={styles.paymentDesc}>
+          <View style={[styles.paymentCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.paymentTitle, { color: colors.text }]}>{t('subscription', 'managePaymentTitle')}</Text>
+            <Text style={[styles.paymentDesc, { color: colors.textSecondary }]}>
               {t('subscription', 'managePaymentDesc')}
             </Text>
             <Button
               mode="outlined"
               onPress={() => Linking.openURL('https://rocketformspro.com/billing')}
-              style={styles.paymentButton}
-              textColor="#e8622c"
+              style={[styles.paymentButton, { borderColor: colors.accent }]}
+              textColor={colors.accent}
               icon="credit-card-outline"
             >
               {t('subscription', 'openStripePortal')}
@@ -233,15 +235,14 @@ export default function SubscriptionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#ef4444', marginTop: 12, fontSize: 16 },
+  errorText: { marginTop: 12, fontSize: 16 },
 
   // Plan card
   planCard: {
-    backgroundColor: '#1e1e2e',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -252,8 +253,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 16,
   },
-  planLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  planSublabel: { color: '#888', fontSize: 13, marginTop: 4 },
+  planLabel: { fontSize: 18, fontWeight: '700' },
+  planSublabel: { fontSize: 13, marginTop: 4 },
   tierBadge: { borderRadius: 8 },
   tierBadgeText: { color: '#fff', fontWeight: '700', fontSize: 14 },
   priceRow: {
@@ -262,10 +263,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#2d2d44',
   },
-  priceLabel: { color: '#ccc', fontSize: 14, fontWeight: '500' },
-  priceValue: { color: '#fff', fontSize: 22, fontWeight: '700' },
+  priceLabel: { fontSize: 14, fontWeight: '500' },
+  priceValue: { fontSize: 22, fontWeight: '700' },
 
   // Info box (blue)
   infoBox: {
@@ -300,36 +300,33 @@ const styles = StyleSheet.create({
 
   // Features card
   featuresCard: {
-    backgroundColor: '#1e1e2e',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
   },
-  featuresTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  featuresSublabel: { color: '#888', fontSize: 13, marginTop: 4, marginBottom: 16 },
+  featuresTitle: { fontSize: 18, fontWeight: '700' },
+  featuresSublabel: { fontSize: 13, marginTop: 4, marginBottom: 16 },
   featuresList: { gap: 12 },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  featureText: { color: '#ddd', fontSize: 14 },
+  featureText: { fontSize: 14 },
 
   // Upgrade card
   upgradeCard: {
-    backgroundColor: '#1e1e2e',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
   },
-  upgradeTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  upgradeDesc: { color: '#888', fontSize: 13, lineHeight: 20, marginBottom: 16 },
+  upgradeTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
+  upgradeDesc: { fontSize: 13, lineHeight: 20, marginBottom: 16 },
   upgradeButton: { borderRadius: 12 },
 
   // Payment card
   paymentCard: {
-    backgroundColor: '#1e1e2e',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
   },
-  paymentTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  paymentDesc: { color: '#888', fontSize: 13, lineHeight: 20, marginBottom: 16 },
-  paymentButton: { borderRadius: 12, borderColor: '#e8622c' },
+  paymentTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
+  paymentDesc: { fontSize: 13, lineHeight: 20, marginBottom: 16 },
+  paymentButton: { borderRadius: 12 },
 });

@@ -11,6 +11,7 @@ import { useFormGroups } from '@/src/hooks/useForms';
 import * as Haptics from 'expo-haptics';
 import { trackAction } from '@/src/hooks/useAppRating';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 interface FormTemplate {
   id: string;
@@ -71,6 +72,7 @@ export default function CreateFormScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   // Fetch templates from database
   const { data: templates, isLoading: templatesLoading } = useQuery({
@@ -263,35 +265,35 @@ export default function CreateFormScreen() {
 
   if (step === 1) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Text variant="headlineMedium" style={styles.title}>{t('create', 'newForm')}</Text>
-          <Text variant="bodyMedium" style={styles.subtitle}>{t('create', 'nameYourForm')}</Text>
+          <Text variant="headlineMedium" style={[styles.title, { color: colors.text }]}>{t('create', 'newForm')}</Text>
+          <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.textSecondary }]}>{t('create', 'nameYourForm')}</Text>
 
           <TextInput
             label={t('create', 'formName')}
             value={formName}
             onChangeText={setFormName}
             mode="outlined"
-            style={styles.input}
-            textColor="#fff"
-            outlineColor="#2d2d44"
-            activeOutlineColor="#e8622c"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            style={[styles.input, { backgroundColor: colors.background }]}
+            textColor={colors.text}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.accent}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
             autoFocus
           />
 
           {groups && groups.length > 0 && (
             <>
-              <Text variant="titleSmall" style={styles.groupLabel}>{t('create', 'folderOptional')}</Text>
+              <Text variant="titleSmall" style={[styles.groupLabel, { color: colors.text }]}>{t('create', 'folderOptional')}</Text>
               <View style={styles.groupChips}>
                 {groups.map(g => (
                   <Chip
                     key={g.id}
                     selected={selectedGroup === g.id}
                     onPress={() => setSelectedGroup(selectedGroup === g.id ? null : g.id)}
-                    style={styles.groupChip}
-                    textStyle={styles.groupChipText}
+                    style={[styles.groupChip, { backgroundColor: colors.border }]}
+                    textStyle={[styles.groupChipText, { color: colors.text }]}
                   >
                     {g.name}
                   </Chip>
@@ -301,11 +303,11 @@ export default function CreateFormScreen() {
           )}
 
           {/* Templates from database */}
-          <Text variant="titleSmall" style={styles.sectionLabel}>{t('templates', 'quickStart')}</Text>
-          <Text style={styles.sectionHint}>{t('templates', 'quickStartDesc')}</Text>
+          <Text variant="titleSmall" style={[styles.sectionLabel, { color: colors.text }]}>{t('templates', 'quickStart')}</Text>
+          <Text style={[styles.sectionHint, { color: colors.textTertiary }]}>{t('templates', 'quickStartDesc')}</Text>
 
           {templatesLoading ? (
-            <ActivityIndicator size="small" color="#e8622c" style={{ marginVertical: 20 }} />
+            <ActivityIndicator size="small" color={colors.accent} style={{ marginVertical: 20 }} />
           ) : templates && templates.length > 0 ? (
             <View style={styles.templateGrid}>
               {templates.map(tmpl => {
@@ -315,15 +317,15 @@ export default function CreateFormScreen() {
                   <Pressable
                     key={tmpl.id}
                     onPress={() => applyTemplate(tmpl)}
-                    style={styles.templateCard}
+                    style={[styles.templateCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
                   >
                     <View style={[styles.templateIcon, { backgroundColor: color + '20' }]}>
                       <MaterialCommunityIcons name={icon as any} size={28} color={color} />
                     </View>
                     <View style={styles.templateTextCol}>
-                      <Text style={styles.templateName}>{tmpl.name}</Text>
+                      <Text style={[styles.templateName, { color: colors.text }]}>{tmpl.name}</Text>
                       {tmpl.description ? (
-                        <Text style={styles.templateDesc} numberOfLines={2}>{tmpl.description}</Text>
+                        <Text style={[styles.templateDesc, { color: colors.textSecondary }]} numberOfLines={2}>{tmpl.description}</Text>
                       ) : null}
                     </View>
                   </Pressable>
@@ -333,7 +335,7 @@ export default function CreateFormScreen() {
           ) : null}
 
           {/* Or create from scratch */}
-          <Text variant="titleSmall" style={[styles.sectionLabel, { marginTop: 24 }]}>{t('templates', 'orFromScratch')}</Text>
+          <Text variant="titleSmall" style={[styles.sectionLabel, { color: colors.text, marginTop: 24 }]}>{t('templates', 'orFromScratch')}</Text>
 
           <Button
             mode="contained"
@@ -354,10 +356,10 @@ export default function CreateFormScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text variant="headlineSmall" style={styles.title}>{formName}</Text>
-        <Text variant="bodyMedium" style={styles.subtitle}>
+        <Text variant="headlineSmall" style={[styles.title, { color: colors.text }]}>{formName}</Text>
+        <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.textSecondary }]}>
           {t('create', 'tapToAdd', { count: String(fields.length) })}
         </Text>
 
@@ -367,8 +369,8 @@ export default function CreateFormScreen() {
               <Chip
                 key={f.id}
                 onClose={() => removeField(f.id)}
-                style={styles.addedChip}
-                textStyle={styles.addedChipText}
+                style={[styles.addedChip, { backgroundColor: colors.surface }]}
+                textStyle={[styles.addedChipText, { color: colors.text }]}
               >
                 {i + 1}. {f.label}
               </Chip>
@@ -378,15 +380,15 @@ export default function CreateFormScreen() {
 
         {FIELD_CATEGORIES.map(cat => (
           <View key={cat.titleKey} style={styles.categorySection}>
-            <Text style={styles.categoryTitle}>{t('fieldPalette', cat.titleKey)}</Text>
+            <Text style={[styles.categoryTitle, { color: colors.accent }]}>{t('fieldPalette', cat.titleKey)}</Text>
             <View style={styles.fieldGrid}>
               {cat.items.map(f => (
                 <Chip
                   key={f.type}
                   icon={f.icon}
                   onPress={() => addField(f.type, t('fieldTypes', f.labelKey))}
-                  style={styles.fieldChip}
-                  textStyle={styles.fieldChipText}
+                  style={[styles.fieldChip, { backgroundColor: colors.border }]}
+                  textStyle={[styles.fieldChipText, { color: colors.text }]}
                 >
                   {t('fieldTypes', f.labelKey)}
                 </Chip>
@@ -414,44 +416,42 @@ export default function CreateFormScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   content: { padding: 24, paddingBottom: 40 },
-  title: { color: '#fff', fontWeight: 'bold', marginBottom: 8 },
-  subtitle: { color: '#888', marginBottom: 24 },
-  input: { marginBottom: 16, backgroundColor: '#121220' },
-  groupLabel: { color: '#ccc', marginBottom: 8 },
+  title: { fontWeight: 'bold', marginBottom: 8 },
+  subtitle: { marginBottom: 24 },
+  input: { marginBottom: 16 },
+  groupLabel: { marginBottom: 8 },
   groupChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
-  groupChip: { backgroundColor: '#2d2d44' },
-  groupChipText: { color: '#ccc' },
+  groupChip: {},
+  groupChipText: {},
   nextButton: { marginTop: 16, borderRadius: 12, backgroundColor: '#e8622c' },
   buttonContent: { paddingVertical: 6 },
   buttonLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },
   addedFields: { gap: 6, marginBottom: 24 },
-  addedChip: { backgroundColor: '#1e1e2e' },
-  addedChipText: { color: '#fff' },
+  addedChip: {},
+  addedChipText: {},
   fieldGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   categorySection: { marginBottom: 16 },
-  categoryTitle: { color: '#e8622c', fontSize: 13, fontWeight: '600', textTransform: 'uppercase', marginBottom: 8, letterSpacing: 1 },
-  fieldChip: { backgroundColor: '#2d2d44' },
-  fieldChipText: { color: '#ccc' },
-  sectionLabel: { color: '#fff', marginBottom: 4, fontWeight: '600' },
-  sectionHint: { color: '#666', fontSize: 13, marginBottom: 12 },
+  categoryTitle: { fontSize: 13, fontWeight: '600', textTransform: 'uppercase', marginBottom: 8, letterSpacing: 1 },
+  fieldChip: {},
+  fieldChipText: {},
+  sectionLabel: { marginBottom: 4, fontWeight: '600' },
+  sectionHint: { fontSize: 13, marginBottom: 12 },
   templateGrid: { gap: 12 },
   templateCard: {
-    backgroundColor: '#1e1e2e',
     borderRadius: 14,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
     borderWidth: 1,
-    borderColor: '#2d2d44',
   },
   templateIcon: {
     width: 52, height: 52, borderRadius: 14,
     alignItems: 'center', justifyContent: 'center',
   },
   templateTextCol: { flex: 1 },
-  templateName: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  templateDesc: { color: '#888', fontSize: 13, marginTop: 2 },
+  templateName: { fontSize: 16, fontWeight: '600' },
+  templateDesc: { fontSize: 13, marginTop: 2 },
 });
