@@ -21,6 +21,7 @@ import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
 import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/OnboardingScreen';
 import OfflineBanner from '@/src/components/OfflineBanner';
+import AnimatedSplash from '@/src/components/AnimatedSplash';
 import ShakeFeedback from '@/src/components/ShakeFeedback';
 
 export { ErrorBoundary } from 'expo-router';
@@ -162,6 +163,7 @@ const FeedbackWrapper = () => {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
+  const [showSplash, setShowSplash] = useState(true);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -187,6 +189,7 @@ function RootLayoutNav() {
         </ThemeProvider>
       </PaperProvider>
     </QueryClientProvider>
+    {showSplash && <AnimatedSplash onFinish={() => setShowSplash(false)} />}
     </GestureHandlerRootView>
   );
 }
