@@ -9,12 +9,14 @@ import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
 import { useTranslation } from '@/src/translations';
 import { supabase } from '@/src/lib/supabase';
 import { isBiometricEnabled, setBiometricEnabled, hasBiometricHardware } from '@/src/components/BiometricLock';
+import { useAppTheme, type ThemeMode } from '@/src/contexts/ThemeContext';
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const { language } = useLanguage();
   const { t } = useTranslation();
+  const { mode: themeMode, setMode: setThemeMode, colors } = useAppTheme();
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricOn, setBiometricOn] = useState(false);
 
@@ -53,7 +55,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Profile section */}
       <View style={styles.profileSection}>
         {avatarSeed && avatarSeed !== 'default' ? (
@@ -95,6 +97,18 @@ export default function SettingsScreen() {
           titleStyle={styles.itemTitle}
           descriptionStyle={styles.itemDesc}
           onPress={() => router.push('/settings/language')}
+        />
+        <List.Item
+          title={t('settings', 'appearance')}
+          description={themeMode === 'light' ? t('settings', 'lightMode') : themeMode === 'dark' ? t('settings', 'darkMode') : t('settings', 'systemMode')}
+          left={props => <List.Icon {...props} icon={themeMode === 'light' ? 'white-balance-sunny' : themeMode === 'dark' ? 'moon-waning-crescent' : 'theme-light-dark'} color="#e8622c" />}
+          titleStyle={styles.itemTitle}
+          descriptionStyle={styles.itemDesc}
+          onPress={() => {
+            const modes: ThemeMode[] = ['system', 'light', 'dark'];
+            const next = modes[(modes.indexOf(themeMode) + 1) % modes.length];
+            setThemeMode(next);
+          }}
         />
       </List.Section>
 

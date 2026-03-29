@@ -2,23 +2,25 @@ import { Tabs } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from '@/src/translations';
 import HeaderLogo from '@/src/components/HeaderLogo';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#e8622c',
-        tabBarInactiveTintColor: '#888',
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: '#1a1a2e',
-          borderTopColor: '#2d2d44',
+          backgroundColor: colors.tabBar,
+          borderTopColor: colors.border,
         },
         headerStyle: {
-          backgroundColor: '#1a1a2e',
+          backgroundColor: colors.headerBg,
         },
-        headerTintColor: '#ffffff',
+        headerTintColor: colors.text,
         headerRight: () => <HeaderLogo />,
         headerRightContainerStyle: { paddingRight: 16 },
       }}
