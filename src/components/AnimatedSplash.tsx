@@ -79,7 +79,7 @@ export default function AnimatedSplash({ onFinish }: AnimatedSplashProps) {
         ]}
       >
         <Image
-          source={require('../../assets/images/logo.png')}
+          source={require('../../assets/images/rfpLogoUnderText.png')}
           style={styles.logo}
           resizeMode="contain"
         />
