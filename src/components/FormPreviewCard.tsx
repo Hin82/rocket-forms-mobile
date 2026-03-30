@@ -19,8 +19,8 @@ export default function FormPreviewCard({
   backgroundImage,
 }: FormPreviewCardProps) {
   const { t } = useTranslation();
-  const content = (
-    <View style={[styles.inner, { backgroundColor: backgroundImage ? 'transparent' : backgroundColor }]}>
+  const formContent = (
+    <View style={[styles.inner, { backgroundColor }]}>
       {logoUri && (
         <Image source={{ uri: logoUri }} style={styles.logo} resizeMode="contain" />
       )}
@@ -54,13 +54,15 @@ export default function FormPreviewCard({
           imageStyle={styles.bgImageInner}
           resizeMode="cover"
         >
-          {content}
+          <View style={styles.formCardWrapper}>
+            {formContent}
+          </View>
         </ImageBackground>
       </View>
     );
   }
 
-  return <View style={styles.container}>{content}</View>;
+  return <View style={styles.container}>{formContent}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -74,11 +76,15 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
   },
-  bgImage: { width: '100%' },
+  bgImage: { width: '100%', paddingVertical: 20, paddingHorizontal: 12 },
   bgImageInner: { borderRadius: 16 },
+  formCardWrapper: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
   inner: {
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 12,
     minHeight: 200,
   },
   logo: {

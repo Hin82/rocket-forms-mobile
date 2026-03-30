@@ -56,11 +56,10 @@ export default function FormPreviewSheet({
   const logoUrl = settings.logoUrl || settings.logo;
   const bgImageUrl = settings.backgroundImageUrl || settings.backgroundImage;
 
-  const renderContent = () => (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: bgColor }]}
-      contentContainerStyle={styles.scrollContent}
-    >
+  const hasPageBg = !!bgImageUrl;
+
+  const renderFormFields = () => (
+    <>
       {/* Logo */}
       {logoUrl ? (
         <View
@@ -113,6 +112,21 @@ export default function FormPreviewSheet({
           {settings.submitButtonText || t('preview', 'submitBtn')}
         </Text>
       </TouchableOpacity>
+    </>
+  );
+
+  const renderContent = () => (
+    <ScrollView
+      style={[styles.scrollView, !hasPageBg && { backgroundColor: bgColor }]}
+      contentContainerStyle={[styles.scrollContent, hasPageBg && styles.scrollContentWithBg]}
+    >
+      {hasPageBg ? (
+        <View style={[styles.formCard, { backgroundColor: bgColor, borderRadius: settings.borderRadius || 8 }]}>
+          {renderFormFields()}
+        </View>
+      ) : (
+        renderFormFields()
+      )}
     </ScrollView>
   );
 
@@ -585,6 +599,8 @@ const styles = StyleSheet.create({
   bgImage: { flex: 1 },
   scrollView: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 60 },
+  scrollContentWithBg: { paddingVertical: 40 },
+  formCard: { padding: 20, overflow: 'hidden' },
 
   logoContainer: { marginBottom: 16 },
   logo: { width: 120, height: 60 },
