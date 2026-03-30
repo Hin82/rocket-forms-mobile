@@ -273,6 +273,7 @@ export default function CreateFormScreen() {
 
   // Step 4 – Email
   const [notificationEmail, setNotificationEmail] = useState('');
+  const [notificationEmailError, setNotificationEmailError] = useState('');
   const [senderName, setSenderName] = useState('');
 
   // Step 5 – Fields
@@ -359,6 +360,24 @@ export default function CreateFormScreen() {
     }
   };
 
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const handleNotificationEmailChange = (text: string) => {
+    setNotificationEmail(text);
+    if (notificationEmailError && (text.trim() === '' || isValidEmail(text))) {
+      setNotificationEmailError('');
+    }
+  };
+
+  const handleNotificationEmailBlur = () => {
+    const trimmed = notificationEmail.trim();
+    if (trimmed && !isValidEmail(trimmed)) {
+      setNotificationEmailError(t('create', 'invalidEmail'));
+    } else {
+      setNotificationEmailError('');
+    }
+  };
+
   const fetchUnsplash = async (category: string) => {
     if (activeUnsplashCategory === category) return;
     setActiveUnsplashCategory(category);
@@ -400,6 +419,11 @@ export default function CreateFormScreen() {
 
   const createForm = useMutation({
     mutationFn: async () => {
+      if (!user?.id) throw new Error(t('create', 'couldNotCreate'));
+      const emailTrimmed = notificationEmail.trim();
+      if (emailTrimmed && !isValidEmail(emailTrimmed)) {
+        throw new Error(t('create', 'invalidEmail'));
+      }
       const formFields = fields.map((f, i) => ({
         id: f.id,
         type: f.type,
@@ -434,7 +458,7 @@ export default function CreateFormScreen() {
           },
           notification_email: notificationEmail.trim() || null,
           sender_name: senderName.trim() || null,
-          user_id: user!.id,
+          user_id: user.id,
           form_group_id: selectedGroup,
         })
         .select()
@@ -634,15 +658,14 @@ export default function CreateFormScreen() {
             key={color}
             onPress={() => {
               setBackgroundColor(color);
-              setBackgroundImage(null);
             }}
             style={[
               styles.colorCircle,
               { backgroundColor: color },
-              backgroundColor === color && !backgroundImage && styles.colorCircleActive,
+              backgroundColor === color && styles.colorCircleActive,
             ]}
           >
-            {backgroundColor === color && !backgroundImage && (
+            {backgroundColor === color && (
               <MaterialCommunityIcons
                 name="check"
                 size={16}
@@ -783,17 +806,22 @@ export default function CreateFormScreen() {
       <TextInput
         label={t('create', 'notificationEmail')}
         value={notificationEmail}
-        onChangeText={setNotificationEmail}
+        onChangeText={handleNotificationEmailChange}
+        onBlur={handleNotificationEmailBlur}
         mode="outlined"
         style={styles.input}
         textColor="#fff"
-        outlineColor="#2d2d44"
-        activeOutlineColor="#e8622c"
-        theme={{ colors: { onSurfaceVariant: '#888' } }}
+        outlineColor={notificationEmailError ? '#ef4444' : '#2d2d44'}
+        activeOutlineColor={notificationEmailError ? '#ef4444' : '#e8622c'}
+        error={!!notificationEmailError}
+        theme={{ colors: { onSurfaceVariant: '#888', error: '#ef4444' } }}
         keyboardType="email-address"
         autoCapitalize="none"
-        left={<TextInput.Icon icon="email-outline" color="#888" />}
+        left={<TextInput.Icon icon="email-outline" color={notificationEmailError ? '#ef4444' : '#888'} />}
       />
+      {notificationEmailError ? (
+        <Text style={styles.emailError}>{notificationEmailError}</Text>
+      ) : null}
 
       <TextInput
         label={t('create', 'senderName')}
@@ -979,6 +1007,7 @@ const styles = StyleSheet.create({
 
   // Inputs
   input: { marginBottom: 16, backgroundColor: '#121220' },
+  emailError: { color: '#ef4444', fontSize: 12, marginTop: -12, marginBottom: 12, marginLeft: 4 },
 
   // Groups / folders
   groupLabel: { color: '#ccc', marginBottom: 8 },
