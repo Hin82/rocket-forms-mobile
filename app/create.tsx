@@ -308,6 +308,10 @@ export default function CreateFormScreen() {
     CATEGORY_COLORS[category.toLowerCase()] || '#667eea';
 
   const applyTemplate = async (template: FormTemplate) => {
+    if (!user?.id) {
+      Alert.alert(t('settings', 'error'), t('create', 'couldNotCreate'));
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('forms')
@@ -315,7 +319,7 @@ export default function CreateFormScreen() {
           name: formName.trim() || template.name,
           fields: template.fields,
           settings: template.settings,
-          user_id: user!.id,
+          user_id: user.id,
           form_group_id: selectedGroup,
         })
         .select()
@@ -339,8 +343,13 @@ export default function CreateFormScreen() {
   };
 
   const pickLogo = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(t('settings', 'error'), t('create', 'photoPermissionDenied'));
+      return;
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [3, 1],
       quality: 0.8,
@@ -363,8 +372,8 @@ export default function CreateFormScreen() {
       } else if (Array.isArray(data)) {
         setUnsplashPhotos(data);
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      if (__DEV__) console.warn('Unsplash fetch failed:', err);
     } finally {
       setUnsplashLoading(false);
     }
@@ -414,12 +423,17 @@ export default function CreateFormScreen() {
             textColor,
             backgroundImage: backgroundImage || undefined,
             logoUrl: logoUri || undefined,
-            notificationEmail: notificationEmail.trim() || undefined,
-            senderName: senderName.trim() || undefined,
             submitButtonText: t('fieldEditor', 'defaultSubmitButton'),
             successMessage: t('fieldEditor', 'defaultSuccessMessage'),
             borderRadius: 8,
+            emailNotifications: !!notificationEmail.trim(),
+            allowMultipleSubmissions: true,
+            showProgressBar: false,
+            requireAuthentication: false,
+            collectAnalytics: false,
           },
+          notification_email: notificationEmail.trim() || null,
+          sender_name: senderName.trim() || null,
           user_id: user!.id,
           form_group_id: selectedGroup,
         })

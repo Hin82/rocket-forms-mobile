@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Image, ImageBackground } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useTranslation } from '@/src/translations';
 
 interface FormPreviewCardProps {
   formName: string;
@@ -17,13 +18,14 @@ export default function FormPreviewCard({
   textColor = '#000000',
   backgroundImage,
 }: FormPreviewCardProps) {
+  const { t } = useTranslation();
   const content = (
     <View style={[styles.inner, { backgroundColor: backgroundImage ? 'transparent' : backgroundColor }]}>
       {logoUri && (
         <Image source={{ uri: logoUri }} style={styles.logo} resizeMode="contain" />
       )}
       <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
-        {formName || 'My form'}
+        {formName || t('create', 'newForm')}
       </Text>
 
       {/* Placeholder fields */}
@@ -38,7 +40,7 @@ export default function FormPreviewCard({
 
       {/* Submit button placeholder */}
       <View style={styles.submitBtn}>
-        <Text style={styles.submitText}>Submit</Text>
+        <Text style={styles.submitText}>{t('fieldEditor', 'defaultSubmitButton')}</Text>
       </View>
     </View>
   );
