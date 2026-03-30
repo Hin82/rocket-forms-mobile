@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 import * as Haptics from 'expo-haptics';
 
 interface Webhook {
@@ -26,6 +27,7 @@ interface WebhookManagerProps {
 export default function WebhookManager({ visible, onClose, formId }: WebhookManagerProps) {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState('');
@@ -113,41 +115,41 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
 
   return (
     <Portal>
-      <Modal visible={visible} onDismiss={onClose} contentContainerStyle={styles.modal}>
+      <Modal visible={visible} onDismiss={onClose} contentContainerStyle={[styles.modal, { backgroundColor: colors.headerBg }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>{t('webhooks', 'title')}</Text>
-          <IconButton icon="close" iconColor="#888" size={20} onPress={onClose} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
+          <Text style={[styles.title, { color: colors.text }]}>{t('webhooks', 'title')}</Text>
+          <IconButton icon="close" iconColor={colors.textSecondary} size={20} onPress={onClose} accessibilityLabel={t('settings', 'cancel')} accessibilityRole="button" />
         </View>
 
         {isLoading ? (
-          <ActivityIndicator size="large" color="#e8622c" style={{ padding: 40 }} />
+          <ActivityIndicator size="large" color={colors.accent} style={{ padding: 40 }} />
         ) : queryError ? (
           <View style={styles.empty}>
-            <MaterialCommunityIcons name="alert-circle-outline" size={40} color="#cc3333" />
-            <Text style={styles.emptyText}>{t('settings', 'error')}</Text>
-            <Text style={styles.emptyDesc}>{(queryError as Error).message}</Text>
+            <MaterialCommunityIcons name="alert-circle-outline" size={40} color={colors.error} />
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('settings', 'error')}</Text>
+            <Text style={[styles.emptyDesc, { color: colors.textTertiary }]}>{(queryError as Error).message}</Text>
           </View>
         ) : (
           <ScrollView style={styles.list} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
             {(!webhooks || webhooks.length === 0) && !showAdd ? (
               <View style={styles.empty}>
-                <MaterialCommunityIcons name="webhook" size={40} color="#2d2d44" />
-                <Text style={styles.emptyText}>{t('webhooks', 'noWebhooks')}</Text>
-                <Text style={styles.emptyDesc}>{t('webhooks', 'noWebhooksDesc')}</Text>
+                <MaterialCommunityIcons name="webhook" size={40} color={colors.border} />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('webhooks', 'noWebhooks')}</Text>
+                <Text style={[styles.emptyDesc, { color: colors.textTertiary }]}>{t('webhooks', 'noWebhooksDesc')}</Text>
               </View>
             ) : (
               webhooks?.map(wh => (
-                <View key={wh.id} style={styles.webhookRow}>
+                <View key={wh.id} style={[styles.webhookRow, { borderBottomColor: colors.border }]}>
                   <View style={styles.webhookInfo}>
-                    <Text style={styles.webhookName} numberOfLines={1}>{wh.name}</Text>
-                    <Text style={styles.webhookUrl} numberOfLines={1}>{wh.url}</Text>
+                    <Text style={[styles.webhookName, { color: colors.text }]} numberOfLines={1}>{wh.name}</Text>
+                    <Text style={[styles.webhookUrl, { color: colors.textTertiary }]} numberOfLines={1}>{wh.url}</Text>
                   </View>
                   <Switch
                     value={wh.is_active}
                     onValueChange={v => toggleMutation.mutate({ id: wh.id, active: v })}
-                    color="#e8622c"
+                    color={colors.accent}
                   />
-                  <IconButton icon="delete-outline" iconColor="#cc3333" size={18} onPress={() => handleDelete(wh)} style={styles.deleteBtn} accessibilityLabel={t('webhooks', 'deleteWebhook')} accessibilityRole="button" />
+                  <IconButton icon="delete-outline" iconColor={colors.error} size={18} onPress={() => handleDelete(wh)} style={styles.deleteBtn} accessibilityLabel={t('webhooks', 'deleteWebhook')} accessibilityRole="button" />
                 </View>
               ))
             )}
@@ -159,11 +161,11 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
                   value={name}
                   onChangeText={setName}
                   mode="outlined"
-                  style={styles.input}
-                  textColor="#fff"
-                  outlineColor="#2d2d44"
-                  activeOutlineColor="#e8622c"
-                  theme={{ colors: { onSurfaceVariant: '#888' } }}
+                  style={[styles.input, { backgroundColor: colors.headerBg }]}
+                  textColor={colors.text}
+                  outlineColor={colors.border}
+                  activeOutlineColor={colors.accent}
+                  theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
                   dense
                 />
                 <TextInput
@@ -171,19 +173,19 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
                   value={url}
                   onChangeText={setUrl}
                   mode="outlined"
-                  style={styles.input}
-                  textColor="#fff"
-                  outlineColor="#2d2d44"
-                  activeOutlineColor="#e8622c"
-                  theme={{ colors: { onSurfaceVariant: '#888' } }}
+                  style={[styles.input, { backgroundColor: colors.headerBg }]}
+                  textColor={colors.text}
+                  outlineColor={colors.border}
+                  activeOutlineColor={colors.accent}
+                  theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
                   autoCapitalize="none"
                   keyboardType="url"
                   placeholder={t('webhooks', 'urlPlaceholder')}
                   dense
                 />
                 <View style={styles.addActions}>
-                  <Button mode="text" onPress={() => setShowAdd(false)} textColor="#888">{t('settings', 'cancel')}</Button>
-                  <Button mode="contained" onPress={() => addMutation.mutate()} loading={addMutation.isPending} disabled={!name.trim() || !url.trim()} buttonColor="#e8622c">{t('webhooks', 'add')}</Button>
+                  <Button mode="text" onPress={() => setShowAdd(false)} textColor={colors.textSecondary}>{t('settings', 'cancel')}</Button>
+                  <Button mode="contained" onPress={() => addMutation.mutate()} loading={addMutation.isPending} disabled={!name.trim() || !url.trim()} buttonColor={colors.accent}>{t('webhooks', 'add')}</Button>
                 </View>
               </View>
             )}
@@ -191,9 +193,9 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
         )}
 
         {!showAdd && (
-          <Pressable onPress={() => setShowAdd(true)} style={styles.addBtn}>
-            <MaterialCommunityIcons name="plus" size={18} color="#e8622c" />
-            <Text style={styles.addBtnText}>{t('webhooks', 'addWebhook')}</Text>
+          <Pressable onPress={() => setShowAdd(true)} style={[styles.addBtn, { borderTopColor: colors.border }]}>
+            <MaterialCommunityIcons name="plus" size={18} color={colors.accent} />
+            <Text style={[styles.addBtnText, { color: colors.accent }]}>{t('webhooks', 'addWebhook')}</Text>
           </Pressable>
         )}
       </Modal>
@@ -202,22 +204,22 @@ export default function WebhookManager({ visible, onClose, formId }: WebhookMana
 }
 
 const styles = StyleSheet.create({
-  modal: { backgroundColor: '#1a1a2e', margin: 20, borderRadius: 16, padding: 20, maxHeight: '75%' },
+  modal: { margin: 20, borderRadius: 16, padding: 20, maxHeight: '75%' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  title: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  title: { fontSize: 18, fontWeight: '700' },
   list: { maxHeight: 300 },
   listContent: { paddingBottom: 8 },
   empty: { alignItems: 'center', paddingVertical: 30 },
-  emptyText: { color: '#888', marginTop: 8, fontWeight: '600' },
-  emptyDesc: { color: '#555', fontSize: 13, marginTop: 4, textAlign: 'center' },
-  webhookRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#2d2d44' },
+  emptyText: { marginTop: 8, fontWeight: '600' },
+  emptyDesc: { fontSize: 13, marginTop: 4, textAlign: 'center' },
+  webhookRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1 },
   webhookInfo: { flex: 1 },
-  webhookName: { color: '#fff', fontSize: 15, fontWeight: '500' },
-  webhookUrl: { color: '#666', fontSize: 12, marginTop: 2 },
+  webhookName: { fontSize: 15, fontWeight: '500' },
+  webhookUrl: { fontSize: 12, marginTop: 2 },
   deleteBtn: { margin: 0, width: 32, height: 32 },
   addForm: { marginTop: 12, gap: 8 },
-  input: { backgroundColor: '#1a1a2e' },
+  input: {},
   addActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 },
-  addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#2d2d44', marginTop: 8 },
-  addBtnText: { color: '#e8622c', fontWeight: '600' },
+  addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderTopWidth: 1, marginTop: 8 },
+  addBtnText: { fontWeight: '600' },
 });

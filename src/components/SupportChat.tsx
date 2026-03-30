@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 import * as Crypto from 'expo-crypto';
 
 interface ChatMessage {
@@ -23,6 +24,7 @@ const CHAT_HEIGHT = SCREEN_HEIGHT * 0.65;
 export default function SupportChat() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -134,13 +136,13 @@ export default function SupportChat() {
     return (
       <View style={[styles.messageBubbleRow, isUser && styles.messageBubbleRowUser]}>
         {!isUser && (
-          <View style={styles.botIcon}>
-            <MaterialCommunityIcons name="robot-outline" size={16} color="#e8622c" />
+          <View style={[styles.botIcon, { backgroundColor: colors.accentLight }]}>
+            <MaterialCommunityIcons name="robot-outline" size={16} color={colors.accent} />
           </View>
         )}
-        <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.assistantBubble]}>
-          <Text style={[styles.messageText, isUser && styles.userMessageText]}>{item.message}</Text>
-          <Text style={[styles.messageTime, isUser && styles.userMessageTime]}>{formatTime(item.created_at)}</Text>
+        <View style={[styles.messageBubble, isUser ? styles.userBubble : [styles.assistantBubble, { backgroundColor: colors.surfaceSecondary }]]}>
+          <Text style={[styles.messageText, { color: colors.text }, isUser && styles.userMessageText]}>{item.message}</Text>
+          <Text style={[styles.messageTime, { color: colors.textTertiary }, isUser && styles.userMessageTime]}>{formatTime(item.created_at)}</Text>
         </View>
       </View>
     );
@@ -160,6 +162,8 @@ export default function SupportChat() {
         <Animated.View style={[
           styles.chatContainer,
           {
+            backgroundColor: colors.headerBg,
+            borderColor: colors.border,
             transform: [{ scale: scaleAnim }],
             opacity: scaleAnim,
           },
@@ -170,14 +174,14 @@ export default function SupportChat() {
             keyboardVerticalOffset={0}
           >
             {/* Header */}
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: colors.border }]}>
               <View style={styles.headerLeft}>
-                <View style={styles.headerIcon}>
-                  <MaterialCommunityIcons name="robot-outline" size={20} color="#e8622c" />
+                <View style={[styles.headerIcon, { backgroundColor: colors.accentLight }]}>
+                  <MaterialCommunityIcons name="robot-outline" size={20} color={colors.accent} />
                 </View>
-                <Text style={styles.headerTitle}>{t('chat', 'title')}</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>{t('chat', 'title')}</Text>
               </View>
-              <IconButton icon="close" iconColor="#888" size={20} onPress={toggleChat} accessibilityLabel={t('chat', 'closeChat')} accessibilityRole="button" />
+              <IconButton icon="close" iconColor={colors.textSecondary} size={20} onPress={toggleChat} accessibilityLabel={t('chat', 'closeChat')} accessibilityRole="button" />
             </View>
 
             {/* Messages */}
@@ -192,11 +196,11 @@ export default function SupportChat() {
             />
 
             {/* Input */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, { borderTopColor: colors.border }]}>
               <TextInput
-                style={styles.textInput}
+                style={[styles.textInput, { backgroundColor: colors.inputBg, color: colors.text }]}
                 placeholder={t('chat', 'placeholder')}
-                placeholderTextColor="#666"
+                placeholderTextColor={colors.textTertiary}
                 value={input}
                 onChangeText={setInput}
                 onSubmitEditing={sendMessage}
@@ -227,7 +231,7 @@ export default function SupportChat() {
               accessibilityRole="link"
               accessibilityLabel="support@rocketformspro.com"
             >
-              <Text style={styles.footerText}>
+              <Text style={[styles.footerText, { color: colors.textSecondary }]}>
                 {t('chat', 'urgentSupport')}
               </Text>
             </Pressable>
@@ -264,10 +268,8 @@ const styles = StyleSheet.create({
     right: 12,
     left: 12,
     height: CHAT_HEIGHT,
-    backgroundColor: '#1a1a2e',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#2d2d44',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
@@ -287,7 +289,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#2d2d44',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -298,12 +299,10 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'rgba(232, 98, 44, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '700',
   },
@@ -326,7 +325,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(232, 98, 44, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
@@ -339,7 +337,6 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   assistantBubble: {
-    backgroundColor: '#252540',
     borderBottomLeftRadius: 4,
   },
   userBubble: {
@@ -347,7 +344,6 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   messageText: {
-    color: '#ddd',
     fontSize: 14,
     lineHeight: 20,
   },
@@ -355,7 +351,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   messageTime: {
-    color: '#666',
     fontSize: 11,
     marginTop: 4,
   },
@@ -370,16 +365,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     gap: 8,
     borderTopWidth: 1,
-    borderTopColor: '#2d2d44',
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#fff',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#1a1a2e',
     maxHeight: 40,
   },
   sendButton: {
@@ -394,7 +386,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   footerText: {
-    color: '#888',
     fontSize: 12,
     textAlign: 'center',
     paddingBottom: 12,

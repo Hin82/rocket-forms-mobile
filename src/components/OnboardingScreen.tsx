@@ -6,6 +6,7 @@ import { Text, Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ONBOARDING_KEY = 'onboarding_completed';
@@ -31,6 +32,7 @@ const SLIDES = [
 
 export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -52,10 +54,10 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   const isLast = currentIndex === SLIDES.length - 1;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.logoRow}>
         <Image source={require('../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.appName}>Rocket Forms Pro</Text>
+        <Text style={[styles.appName, { color: colors.text }]}>Rocket Forms Pro</Text>
       </View>
 
       <FlatList
@@ -67,8 +69,8 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
             <View style={[styles.iconCircle, { backgroundColor: item.color + '20' }]}>
               <MaterialCommunityIcons name={item.icon as any} size={64} color={item.color} />
             </View>
-            <Text style={styles.slideTitle}>{t('onboarding', item.titleKey)}</Text>
-            <Text style={styles.slideDesc}>{t('onboarding', item.descKey)}</Text>
+            <Text style={[styles.slideTitle, { color: colors.text }]}>{t('onboarding', item.titleKey)}</Text>
+            <Text style={[styles.slideDesc, { color: colors.textSecondary }]}>{t('onboarding', item.descKey)}</Text>
           </View>
         )}
         horizontal
@@ -84,6 +86,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
           const inputRange = [(i - 1) * SCREEN_WIDTH, i * SCREEN_WIDTH, (i + 1) * SCREEN_WIDTH];
           return (
             <Animated.View key={i} style={[styles.dot, {
+              backgroundColor: colors.accent,
               width: scrollX.interpolate({ inputRange, outputRange: [8, 24, 8], extrapolate: 'clamp' }),
               opacity: scrollX.interpolate({ inputRange, outputRange: [0.3, 1, 0.3], extrapolate: 'clamp' }),
             }]} />
@@ -95,14 +98,14 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
         {!isLast ? (
           <>
             <Pressable onPress={handleFinish} style={styles.skipBtn}>
-              <Text style={styles.skipText}>{t('onboarding', 'skip')}</Text>
+              <Text style={[styles.skipText, { color: colors.textSecondary }]}>{t('onboarding', 'skip')}</Text>
             </Pressable>
-            <Button mode="contained" onPress={handleNext} buttonColor="#e8622c" style={styles.nextBtn}>
+            <Button mode="contained" onPress={handleNext} buttonColor={colors.accent} style={styles.nextBtn}>
               {t('onboarding', 'next')}
             </Button>
           </>
         ) : (
-          <Button mode="contained" onPress={handleFinish} buttonColor="#e8622c" style={styles.getStartedBtn} icon="arrow-right">
+          <Button mode="contained" onPress={handleFinish} buttonColor={colors.accent} style={styles.getStartedBtn} icon="arrow-right">
             {t('onboarding', 'getStarted')}
           </Button>
         )}
@@ -112,19 +115,19 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220', paddingTop: 60, paddingBottom: 40 },
+  container: { flex: 1, paddingTop: 60, paddingBottom: 40 },
   logoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 20 },
   logo: { width: 36, height: 36, borderRadius: 18 },
-  appName: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  appName: { fontSize: 18, fontWeight: '700' },
   slide: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 },
   iconCircle: { width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', marginBottom: 32 },
-  slideTitle: { color: '#fff', fontSize: 26, fontWeight: '700', textAlign: 'center', marginBottom: 16 },
-  slideDesc: { color: '#aaa', fontSize: 16, textAlign: 'center', lineHeight: 24 },
+  slideTitle: { fontSize: 26, fontWeight: '700', textAlign: 'center', marginBottom: 16 },
+  slideDesc: { fontSize: 16, textAlign: 'center', lineHeight: 24 },
   dotsRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginVertical: 30 },
-  dot: { height: 8, borderRadius: 4, backgroundColor: '#e8622c' },
+  dot: { height: 8, borderRadius: 4 },
   buttonsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 30 },
   skipBtn: { padding: 12 },
-  skipText: { color: '#888', fontSize: 16 },
+  skipText: { fontSize: 16 },
   nextBtn: { borderRadius: 12, paddingHorizontal: 16 },
   getStartedBtn: { flex: 1, borderRadius: 12, paddingVertical: 4 },
 });

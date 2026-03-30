@@ -7,6 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 const SAVED_EMAIL_KEY = 'saved_login_email';
 const REMEMBER_KEY = 'remember_login';
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   const currentLang = LANGUAGES.find(l => l.code === language);
 
@@ -108,20 +110,20 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.headerBg }]}>
       {/* Language selector */}
       <View style={styles.langRow}>
         <Menu
           visible={langMenuVisible}
           onDismiss={() => setLangMenuVisible(false)}
           anchor={
-            <Pressable onPress={() => setLangMenuVisible(true)} style={styles.langButton}>
-              <Text style={styles.langButtonText}>
+            <Pressable onPress={() => setLangMenuVisible(true)} style={[styles.langButton, { backgroundColor: colors.border }]}>
+              <Text style={[styles.langButtonText, { color: colors.text }]}>
                 {currentLang?.flag}  {currentLang?.name}
               </Text>
             </Pressable>
           }
-          contentStyle={styles.langMenu}
+          contentStyle={[styles.langMenu, { backgroundColor: colors.border }]}
         >
           {LANGUAGES.map(lang => (
             <Menu.Item
@@ -131,7 +133,7 @@ export default function LoginScreen() {
                 setLanguage(lang.code);
                 setLangMenuVisible(false);
               }}
-              titleStyle={lang.code === language ? styles.langSelected : styles.langMenuItem}
+              titleStyle={lang.code === language ? [styles.langSelected, { color: colors.accent }] : [styles.langMenuItem, { color: colors.text }]}
             />
           ))}
         </Menu>
@@ -147,8 +149,8 @@ export default function LoginScreen() {
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text variant="headlineLarge" style={styles.title}>Rocket Forms Pro</Text>
-          <Text variant="bodyMedium" style={styles.subtitle}>{t('auth', 'loginSubtitle')}</Text>
+          <Text variant="headlineLarge" style={[styles.title, { color: colors.text }]}>Rocket Forms Pro</Text>
+          <Text variant="bodyMedium" style={[styles.subtitle, { color: colors.textSecondary }]}>{t('auth', 'loginSubtitle')}</Text>
         </View>
 
         <View style={styles.form}>
@@ -160,11 +162,11 @@ export default function LoginScreen() {
             keyboardType="email-address"
             textContentType="emailAddress"
             mode="outlined"
-            textColor="#fff"
-            outlineColor="#2d2d44"
-            activeOutlineColor="#e8622c"
-            style={styles.input}
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            textColor={colors.text}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.accent}
+            style={[styles.input, { backgroundColor: colors.headerBg }]}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
             left={<TextInput.Icon icon="email-outline" />}
           />
 
@@ -175,11 +177,11 @@ export default function LoginScreen() {
             secureTextEntry={!showPassword}
             textContentType="password"
             mode="outlined"
-            textColor="#fff"
-            outlineColor="#2d2d44"
-            activeOutlineColor="#e8622c"
-            style={styles.input}
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            textColor={colors.text}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.accent}
+            style={[styles.input, { backgroundColor: colors.headerBg }]}
+            theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
             left={<TextInput.Icon icon="lock-outline" />}
             right={<TextInput.Icon icon={showPassword ? 'eye-off' : 'eye'} onPress={() => setShowPassword(!showPassword)} />}
           />
@@ -187,10 +189,10 @@ export default function LoginScreen() {
           <Pressable onPress={() => setRememberMe(!rememberMe)} style={styles.rememberRow}>
             <Checkbox
               status={rememberMe ? 'checked' : 'unchecked'}
-              color="#e8622c"
-              uncheckedColor="#666"
+              color={colors.accent}
+              uncheckedColor={colors.textTertiary}
             />
-            <Text style={styles.rememberText}>{t('auth', 'rememberMe')}</Text>
+            <Text style={[styles.rememberText, { color: colors.textSecondary }]}>{t('auth', 'rememberMe')}</Text>
           </Pressable>
 
           {error ? <HelperText type="error" visible>{error}</HelperText> : null}
@@ -228,22 +230,22 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1a2e' },
+  container: { flex: 1 },
   langRow: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 16, paddingTop: 8 },
-  langButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#2d2d44', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
-  langButtonText: { color: '#fff', fontSize: 14 },
-  langMenu: { backgroundColor: '#2d2d44' },
-  langMenuItem: { color: '#ccc' },
-  langSelected: { color: '#e8622c', fontWeight: '600' },
+  langButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
+  langButtonText: { fontSize: 14 },
+  langMenu: {},
+  langMenuItem: {},
+  langSelected: { fontWeight: '600' },
   content: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
   header: { alignItems: 'center', marginBottom: 40 },
   logo: { width: 80, height: 80, borderRadius: 20, marginBottom: 16 },
-  title: { color: '#ffffff', fontWeight: 'bold', marginBottom: 8 },
-  subtitle: { color: '#a0a0b0' },
+  title: { fontWeight: 'bold', marginBottom: 8 },
+  subtitle: {},
   form: { gap: 12 },
-  input: { backgroundColor: '#1a1a2e' },
+  input: {},
   rememberRow: { flexDirection: 'row', alignItems: 'center', marginTop: -4 },
-  rememberText: { color: '#aaa', fontSize: 14 },
+  rememberText: { fontSize: 14 },
   button: { marginTop: 8, borderRadius: 12, backgroundColor: '#e8622c' },
   buttonContent: { paddingVertical: 6 },
   link: { marginTop: 4 },

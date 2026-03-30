@@ -5,35 +5,37 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 export default function LanguageScreen() {
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <Stack.Screen options={{ title: t('settings', 'language'), headerBackTitle: t('auth', 'back') }} />
       <ScrollView>
         <List.Section>
-          <List.Subheader style={styles.subheader}>{t('settings', 'chooseLanguage')}</List.Subheader>
+          <List.Subheader style={{ color: colors.textSecondary }}>{t('settings', 'chooseLanguage')}</List.Subheader>
           {LANGUAGES.map((lang, index) => (
             <React.Fragment key={lang.code}>
               <List.Item
                 title={`${lang.flag}  ${lang.name}`}
-                titleStyle={styles.itemTitle}
+                titleStyle={{ color: colors.text, fontSize: 17 }}
                 onPress={() => setLanguage(lang.code)}
                 right={() =>
                   language === lang.code ? (
-                    <List.Icon icon="check" color="#e8622c" />
+                    <List.Icon icon="check" color={colors.accent} />
                   ) : null
                 }
                 style={[
                   styles.item,
-                  language === lang.code && styles.selectedItem,
+                  language === lang.code && { backgroundColor: colors.surface },
                 ]}
               />
               {index < LANGUAGES.length - 1 && (
-                <Divider style={styles.divider} />
+                <Divider style={{ backgroundColor: colors.border }} />
               )}
             </React.Fragment>
           ))}
@@ -46,22 +48,8 @@ export default function LanguageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121220',
-  },
-  subheader: {
-    color: '#888',
   },
   item: {
     paddingVertical: 12,
-  },
-  selectedItem: {
-    backgroundColor: '#1e1e2e',
-  },
-  itemTitle: {
-    color: '#fff',
-    fontSize: 17,
-  },
-  divider: {
-    backgroundColor: '#2d2d44',
   },
 });

@@ -16,6 +16,7 @@ import { useTranslation } from '@/src/translations';
 import { CompanyProvider } from '@/src/contexts/CompanyContext';
 import { queryClient } from '@/src/lib/queryClient';
 import { lightTheme, darkTheme } from '@/src/constants/theme';
+import { AppThemeProvider, useAppTheme } from '@/src/contexts/ThemeContext';
 import SupportChat from '@/src/components/SupportChat';
 import HeaderLogo from '@/src/components/HeaderLogo';
 import BiometricLock from '@/src/components/BiometricLock';
@@ -104,12 +105,13 @@ export default function RootLayout() {
 
 function TranslatedStack() {
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const back = t('nav', 'back');
 
   return (
     <Stack screenOptions={{
-      headerStyle: { backgroundColor: '#1a1a2e' },
-      headerTintColor: '#ffffff',
+      headerStyle: { backgroundColor: colors.headerBg },
+      headerTintColor: colors.text,
       headerRight: () => <HeaderLogo />,
       headerRightContainerStyle: { paddingRight: 16 },
     }}>
@@ -160,34 +162,43 @@ const FeedbackWrapper = () => {
   return <ShakeFeedback />;
 };
 
+function ThemedApp() {
+  const { isDark } = useAppTheme();
+  const paperTheme = isDark ? darkTheme : lightTheme;
+
+  return (
+    <PaperProvider theme={paperTheme}>
+      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+        <AuthProvider>
+          <LanguageProvider>
+            <OfflineBanner />
+            <BiometricLock>
+              <CompanyProvider>
+                <AuthGuard>
+                  <OnboardingWrapper>
+                    <TranslatedStack />
+                    <ChatWrapper />
+                    <FeedbackWrapper />
+                  </OnboardingWrapper>
+                </AuthGuard>
+              </CompanyProvider>
+            </BiometricLock>
+          </LanguageProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </PaperProvider>
+  );
+}
+
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-  const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
   const [showSplash, setShowSplash] = useState(true);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <QueryClientProvider client={queryClient}>
-      <PaperProvider theme={paperTheme}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <AuthProvider>
-            <LanguageProvider>
-              <OfflineBanner />
-              <BiometricLock>
-                <CompanyProvider>
-                  <AuthGuard>
-                    <OnboardingWrapper>
-                      <TranslatedStack />
-                      <ChatWrapper />
-                      <FeedbackWrapper />
-                    </OnboardingWrapper>
-                  </AuthGuard>
-                </CompanyProvider>
-              </BiometricLock>
-            </LanguageProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </PaperProvider>
+      <AppThemeProvider>
+        <ThemedApp />
+      </AppThemeProvider>
     </QueryClientProvider>
     {showSplash && <AnimatedSplash onFinish={() => setShowSplash(false)} />}
     </GestureHandlerRootView>

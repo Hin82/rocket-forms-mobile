@@ -12,6 +12,7 @@ import { Stack } from 'expo-router';
 import { format } from 'date-fns';
 import { sv, nb, da, fi, de, fr, es, enUS, type Locale } from 'date-fns/locale';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 const DATE_LOCALES: Record<string, Locale> = { sv, no: nb, da, fi, de, fr, es, en: enUS };
 
@@ -55,6 +56,7 @@ export default function EmailSetupScreen() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { t, language } = useTranslation();
+  const { colors } = useAppTheme();
   const dateLocale = DATE_LOCALES[language] || enUS;
 
   const PROVIDER_LABELS: Record<ProviderType, string> = {
@@ -202,12 +204,14 @@ export default function EmailSetupScreen() {
     setSmtpEncryption('tls'); setTenantId(''); setClientId(''); setClientSecret('');
   };
 
+  const inputTheme = { colors: { primary: colors.accent, onSurfaceVariant: colors.textSecondary } };
+
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#e8622c" />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
@@ -215,40 +219,40 @@ export default function EmailSetupScreen() {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
-        <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+        <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
         <View style={styles.centered}>
           <MaterialCommunityIcons name="alert-circle-outline" size={48} color="#ef4444" />
-          <Text style={styles.errorText}>{t('settings', 'couldNotLoadEmailConfigs')}</Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>{t('settings', 'couldNotLoadEmailConfigs')}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: '#1e1e2e' }, headerTintColor: '#fff' }} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
+      <Stack.Screen options={{ title: t('settings', 'emailConfig'), headerBackTitle: t('auth', 'back'), headerStyle: { backgroundColor: colors.surface }, headerTintColor: colors.text }} />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Existing configurations */}
         {configs && configs.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>{t('settings', 'configurations')}</Text>
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{t('settings', 'configurations')}</Text>
             {configs.map((config) => (
-              <View key={config.id} style={styles.configCard}>
+              <View key={config.id} style={[styles.configCard, { backgroundColor: colors.surface }]}>
                 <View style={styles.configHeader}>
                   <View style={styles.configInfo}>
                     <View style={styles.providerRow}>
                       <MaterialCommunityIcons
                         name={PROVIDER_ICONS[config.provider_type] as any || 'email-outline'}
                         size={20}
-                        color="#e8622c"
+                        color={colors.accent}
                       />
-                      <Text style={styles.configProvider}>{PROVIDER_LABELS[config.provider_type] || config.provider_type}</Text>
+                      <Text style={[styles.configProvider, { color: colors.text }]}>{PROVIDER_LABELS[config.provider_type] || config.provider_type}</Text>
                     </View>
-                    <Text style={styles.configEmail}>{config.from_email}</Text>
-                    {config.from_name && <Text style={styles.configName}>{config.from_name}</Text>}
+                    <Text style={[styles.configEmail, { color: colors.accent }]}>{config.from_email}</Text>
+                    {config.from_name && <Text style={[styles.configName, { color: colors.textSecondary }]}>{config.from_name}</Text>}
                     {config.smtp_host && (
-                      <Text style={styles.configDetail}>{config.smtp_host}:{config.smtp_port} ({config.smtp_encryption?.toUpperCase()})</Text>
+                      <Text style={[styles.configDetail, { color: colors.textTertiary }]}>{config.smtp_host}:{config.smtp_port} ({config.smtp_encryption?.toUpperCase()})</Text>
                     )}
                   </View>
                   <View style={styles.configBadges}>
@@ -264,12 +268,12 @@ export default function EmailSetupScreen() {
                   </View>
                 </View>
                 {config.last_test_at && (
-                  <Text style={styles.lastTest}>
+                  <Text style={[styles.lastTest, { color: colors.textTertiary }]}>
                     {config.last_test_success ? '✓' : '✗'} {t('settings', 'tested')} {format(new Date(config.last_test_at), 'd MMM HH:mm', { locale: dateLocale })}
                   </Text>
                 )}
                 <View style={styles.configActions}>
-                  <Button mode="outlined" onPress={() => testMutation.mutate(config.id)} textColor="#e8622c" style={styles.testButton} icon="email-send-outline" loading={testMutation.isPending} compact>
+                  <Button mode="outlined" onPress={() => testMutation.mutate(config.id)} textColor={colors.accent} style={[styles.testButton, { borderColor: colors.accent }]} icon="email-send-outline" loading={testMutation.isPending} compact>
                     {t('settings', 'testEmail')}
                   </Button>
                   <Button mode="outlined" onPress={() => handleDelete(config)} textColor="#ef4444" style={styles.deleteConfigButton} icon="delete-outline" compact>
@@ -283,15 +287,15 @@ export default function EmailSetupScreen() {
 
         {/* Add configuration */}
         {!showAdd ? (
-          <Button mode="contained" onPress={() => setShowAdd(true)} style={styles.addButton} buttonColor="#e8622c" icon="plus">
+          <Button mode="contained" onPress={() => setShowAdd(true)} style={styles.addButton} buttonColor={colors.accent} icon="plus">
             {t('settings', 'addConfiguration')}
           </Button>
         ) : (
-          <View style={styles.addCard}>
-            <Text style={styles.addTitle}>{t('settings', 'newEmailConfig')}</Text>
+          <View style={[styles.addCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.addTitle, { color: colors.text }]}>{t('settings', 'newEmailConfig')}</Text>
 
             {/* Provider selector - use individual chips instead of SegmentedButtons for better visibility */}
-            <Text style={styles.fieldLabel}>{t('settings', 'provider')}</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('settings', 'provider')}</Text>
             <View style={styles.providerGrid}>
               {(['brevo', 'microsoft365', 'google', 'smtp'] as ProviderType[]).map((p) => (
                 <Chip
@@ -299,8 +303,8 @@ export default function EmailSetupScreen() {
                   selected={provider === p}
                   onPress={() => setProvider(p)}
                   icon={PROVIDER_ICONS[p]}
-                  style={[styles.providerChip, provider === p && styles.providerChipActive]}
-                  textStyle={[styles.providerChipText, provider === p && styles.providerChipTextActive]}
+                  style={[{ backgroundColor: colors.border }, provider === p && { backgroundColor: colors.accent }]}
+                  textStyle={[{ color: colors.text }, provider === p && { color: '#fff' }]}
                   showSelectedOverlay={false}
                 >
                   {PROVIDER_LABELS[p]}
@@ -320,19 +324,19 @@ export default function EmailSetupScreen() {
               <>
                 <TextInput label={t('settings', 'smtpHost')} value={smtpHost} onChangeText={setSmtpHost}
                   placeholder={provider === 'google' ? 'smtp.gmail.com' : 'smtp.example.com'}
-                  style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                  style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} theme={inputTheme} />
                 <TextInput label={t('settings', 'port')} value={smtpPort} onChangeText={setSmtpPort}
-                  keyboardType="numeric" style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                  keyboardType="numeric" style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} theme={inputTheme} />
                 <TextInput label={t('settings', 'username')} value={smtpUsername} onChangeText={setSmtpUsername}
-                  style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                  style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} autoCapitalize="none" theme={inputTheme} />
                 <TextInput label={t('settings', 'smtpPassword')} value={smtpPassword} onChangeText={setSmtpPassword}
-                  secureTextEntry style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
-                <Text style={styles.fieldLabel}>{t('settings', 'encryption')}</Text>
+                  secureTextEntry style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} theme={inputTheme} />
+                <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('settings', 'encryption')}</Text>
                 <RadioButton.Group onValueChange={(v) => setSmtpEncryption(v as Encryption)} value={smtpEncryption}>
                   <View style={styles.radioRow}>
-                    <View style={styles.radioOption}><RadioButton value="tls" color="#e8622c" uncheckedColor="#666" /><Text style={styles.radioLabel}>TLS</Text></View>
-                    <View style={styles.radioOption}><RadioButton value="ssl" color="#e8622c" uncheckedColor="#666" /><Text style={styles.radioLabel}>SSL</Text></View>
-                    <View style={styles.radioOption}><RadioButton value="none" color="#e8622c" uncheckedColor="#666" /><Text style={styles.radioLabel}>{t('settings', 'none')}</Text></View>
+                    <View style={styles.radioOption}><RadioButton value="tls" color={colors.accent} uncheckedColor={colors.textTertiary} /><Text style={[styles.radioLabel, { color: colors.text }]}>TLS</Text></View>
+                    <View style={styles.radioOption}><RadioButton value="ssl" color={colors.accent} uncheckedColor={colors.textTertiary} /><Text style={[styles.radioLabel, { color: colors.text }]}>SSL</Text></View>
+                    <View style={styles.radioOption}><RadioButton value="none" color={colors.accent} uncheckedColor={colors.textTertiary} /><Text style={[styles.radioLabel, { color: colors.text }]}>{t('settings', 'none')}</Text></View>
                   </View>
                 </RadioButton.Group>
               </>
@@ -341,24 +345,24 @@ export default function EmailSetupScreen() {
             {provider === 'microsoft365' && (
               <>
                 <TextInput label={t('settings', 'tenantId')} value={tenantId} onChangeText={setTenantId}
-                  style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                  style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} autoCapitalize="none" theme={inputTheme} />
                 <TextInput label={t('settings', 'clientId')} value={clientId} onChangeText={setClientId}
-                  style={styles.input} textColor="#fff" autoCapitalize="none" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                  style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} autoCapitalize="none" theme={inputTheme} />
                 <TextInput label={t('settings', 'clientSecret')} value={clientSecret} onChangeText={setClientSecret}
-                  secureTextEntry style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+                  secureTextEntry style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} theme={inputTheme} />
               </>
             )}
 
             {/* Common fields */}
             <TextInput label={t('settings', 'fromEmail')} value={fromEmail} onChangeText={setFromEmail}
               placeholder={t('settings', 'fromEmailPlaceholder')} keyboardType="email-address" autoCapitalize="none"
-              style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+              style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} theme={inputTheme} />
             <TextInput label={t('settings', 'fromName')} value={fromName} onChangeText={setFromName}
               placeholder={t('settings', 'fromNamePlaceholder')}
-              style={styles.input} textColor="#fff" theme={{ colors: { primary: '#e8622c', onSurfaceVariant: '#888' } }} />
+              style={[styles.input, { backgroundColor: colors.surfaceSecondary }]} textColor={colors.text} theme={inputTheme} />
 
             <View style={styles.addActions}>
-              <Button mode="outlined" onPress={resetForm} textColor="#888" style={styles.cancelButton}>
+              <Button mode="outlined" onPress={resetForm} textColor={colors.textSecondary} style={[styles.cancelButton, { borderColor: colors.border }]}>
                 {t('settings', 'cancel')}
               </Button>
               <Button mode="contained" onPress={() => {
@@ -368,7 +372,7 @@ export default function EmailSetupScreen() {
                   }
                   createMutation.mutate();
                 }} loading={createMutation.isPending}
-                disabled={!fromEmail.trim() || createMutation.isPending} buttonColor="#e8622c" style={styles.submitButton}>
+                disabled={!fromEmail.trim() || createMutation.isPending} buttonColor={colors.accent} style={styles.submitButton}>
                 {t('settings', 'save')}
               </Button>
             </View>
@@ -378,19 +382,19 @@ export default function EmailSetupScreen() {
         {/* Recent emails */}
         {recentEmails && recentEmails.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>{t('settings', 'recentEmails')}</Text>
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{t('settings', 'recentEmails')}</Text>
             {recentEmails.map((email) => (
-              <View key={email.id} style={styles.emailRow}>
+              <View key={email.id} style={[styles.emailRow, { backgroundColor: colors.surface }]}>
                 <MaterialCommunityIcons
                   name={email.status === 'sent' ? 'check-circle' : email.status === 'failed' ? 'close-circle' : 'clock-outline'}
                   size={18}
                   color={email.status === 'sent' ? '#22c55e' : email.status === 'failed' ? '#ef4444' : '#f59e0b'}
                 />
                 <View style={styles.emailInfo}>
-                  <Text style={styles.emailTo} numberOfLines={1}>{email.to_email}</Text>
-                  <Text style={styles.emailSubject} numberOfLines={1}>{email.subject}</Text>
+                  <Text style={[styles.emailTo, { color: colors.text }]} numberOfLines={1}>{email.to_email}</Text>
+                  <Text style={[styles.emailSubject, { color: colors.textSecondary }]} numberOfLines={1}>{email.subject}</Text>
                 </View>
-                <Text style={styles.emailDate}>
+                <Text style={[styles.emailDate, { color: colors.textTertiary }]}>
                   {format(new Date(email.created_at), 'd MMM', { locale: dateLocale })}
                 </Text>
               </View>
@@ -401,9 +405,9 @@ export default function EmailSetupScreen() {
         {/* Empty state */}
         {(!configs || configs.length === 0) && !showAdd && (
           <View style={styles.emptyState}>
-            <MaterialCommunityIcons name="email-outline" size={64} color="#2d2d44" />
-            <Text style={styles.emptyTitle}>{t('settings', 'noEmailConfig')}</Text>
-            <Text style={styles.emptyDesc}>{t('settings', 'configureEmail')}</Text>
+            <MaterialCommunityIcons name="email-outline" size={64} color={colors.border} />
+            <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>{t('settings', 'noEmailConfig')}</Text>
+            <Text style={[styles.emptyDesc, { color: colors.textTertiary }]}>{t('settings', 'configureEmail')}</Text>
           </View>
         )}
       </ScrollView>
@@ -412,51 +416,47 @@ export default function EmailSetupScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   scrollView: { flex: 1 },
   content: { padding: 16, paddingBottom: 40 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: '#ef4444', marginTop: 12, fontSize: 16 },
+  errorText: { marginTop: 12, fontSize: 16 },
   section: { marginBottom: 24 },
-  sectionLabel: { color: '#888', fontSize: 13, marginBottom: 8 },
-  configCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16, marginBottom: 8 },
+  sectionLabel: { fontSize: 13, marginBottom: 8 },
+  configCard: { borderRadius: 16, padding: 16, marginBottom: 8 },
   configHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   configInfo: { flex: 1 },
   providerRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  configProvider: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  configEmail: { color: '#e8622c', fontSize: 14, marginTop: 2 },
-  configName: { color: '#888', fontSize: 13, marginTop: 2 },
-  configDetail: { color: '#666', fontSize: 12, marginTop: 4, fontFamily: 'monospace' },
+  configProvider: { fontSize: 16, fontWeight: '600' },
+  configEmail: { fontSize: 14, marginTop: 2 },
+  configName: { fontSize: 13, marginTop: 2 },
+  configDetail: { fontSize: 12, marginTop: 4, fontFamily: 'monospace' },
   configBadges: { alignItems: 'flex-end' },
   statusChip: { borderRadius: 8 },
-  lastTest: { color: '#666', fontSize: 12, marginBottom: 8 },
+  lastTest: { fontSize: 12, marginBottom: 8 },
   configActions: { flexDirection: 'row', gap: 8 },
-  testButton: { borderColor: '#e8622c', borderRadius: 8, flex: 1 },
+  testButton: { borderRadius: 8, flex: 1 },
   deleteConfigButton: { borderColor: '#ef4444', borderRadius: 8, flex: 1 },
   addButton: { borderRadius: 12, marginBottom: 24 },
-  addCard: { backgroundColor: '#1e1e2e', borderRadius: 16, padding: 16, marginBottom: 24 },
-  addTitle: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 16 },
-  fieldLabel: { color: '#888', fontSize: 13, marginBottom: 8, marginTop: 4 },
+  addCard: { borderRadius: 16, padding: 16, marginBottom: 24 },
+  addTitle: { fontSize: 16, fontWeight: '600', marginBottom: 16 },
+  fieldLabel: { fontSize: 13, marginBottom: 8, marginTop: 4 },
   providerGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  providerChip: { backgroundColor: '#2d2d44' },
-  providerChipActive: { backgroundColor: '#e8622c' },
-  providerChipText: { color: '#ccc' },
-  providerChipTextActive: { color: '#fff' },
   providerNote: { flexDirection: 'row', gap: 8, backgroundColor: '#1a2744', borderRadius: 8, padding: 12, marginBottom: 12, alignItems: 'center' },
   providerNoteText: { color: '#7db8f0', fontSize: 13, flex: 1 },
-  input: { backgroundColor: '#2d2d44', marginBottom: 12, borderRadius: 8 },
+  input: { marginBottom: 12, borderRadius: 8 },
   radioRow: { flexDirection: 'row', gap: 16, marginBottom: 12 },
   radioOption: { flexDirection: 'row', alignItems: 'center' },
-  radioLabel: { color: '#ddd', fontSize: 14 },
+  radioLabel: { fontSize: 14 },
   addActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 4 },
-  cancelButton: { borderColor: '#2d2d44', borderRadius: 8 },
+  cancelButton: { borderRadius: 8 },
   submitButton: { borderRadius: 8 },
-  emailRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1e1e2e', borderRadius: 12, padding: 12, marginBottom: 6, gap: 10 },
+  emailRow: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, padding: 12, marginBottom: 6, gap: 10 },
   emailInfo: { flex: 1 },
-  emailTo: { color: '#fff', fontSize: 13 },
-  emailSubject: { color: '#888', fontSize: 12 },
-  emailDate: { color: '#666', fontSize: 11 },
+  emailTo: { fontSize: 13 },
+  emailSubject: { fontSize: 12 },
+  emailDate: { fontSize: 11 },
   emptyState: { alignItems: 'center', paddingVertical: 48 },
-  emptyTitle: { color: '#888', fontSize: 18, fontWeight: '600', marginTop: 16 },
-  emptyDesc: { color: '#666', fontSize: 14, marginTop: 8, textAlign: 'center' },
+  emptyTitle: { fontSize: 18, fontWeight: '600', marginTop: 16 },
+  emptyDesc: { fontSize: 14, marginTop: 8, textAlign: 'center' },
 });

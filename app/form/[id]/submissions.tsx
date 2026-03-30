@@ -7,6 +7,7 @@ import { useSubmissions } from '@/src/hooks/useSubmissions';
 import { useTranslation } from '@/src/translations';
 import { useLanguage } from '@/src/contexts/LanguageContext';
 import { SubmissionsSkeleton } from '@/src/components/SkeletonLoader';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 export default function FormSubmissionsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,6 +16,7 @@ export default function FormSubmissionsScreen() {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const dateLocale = language === 'sv' ? 'sv-SE' : 'en-US';
+  const { colors } = useAppTheme();
 
   const getPreview = (formData: Record<string, any>): string => {
     const values = Object.values(formData || {})
@@ -28,39 +30,39 @@ export default function FormSubmissionsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={submissions}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
           <Pressable onPress={() => router.push(`/form/${id}/submission/${item.id}`)}>
-            <Card style={styles.card} mode="outlined">
+            <Card style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]} mode="outlined">
               <Card.Content style={styles.cardContent}>
-                <View style={styles.numberBadge}>
-                  <Text style={styles.number}>#{(submissions?.length || 0) - index}</Text>
+                <View style={[styles.numberBadge, { backgroundColor: colors.surfaceSecondary }]}>
+                  <Text style={[styles.number, { color: colors.accent }]}>#{(submissions?.length || 0) - index}</Text>
                 </View>
                 <View style={styles.details}>
-                  <Text variant="bodySmall" style={styles.date}>
+                  <Text variant="bodySmall" style={[styles.date, { color: colors.textSecondary }]}>
                     {new Date(item.submitted_at).toLocaleDateString(dateLocale)}{' '}
                     {new Date(item.submitted_at).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                   </Text>
-                  <Text variant="bodySmall" style={styles.preview} numberOfLines={1}>
+                  <Text variant="bodySmall" style={[styles.preview, { color: colors.textSecondary }]} numberOfLines={1}>
                     {getPreview(item.form_data)}
                   </Text>
                 </View>
-                <MaterialCommunityIcons name="chevron-right" size={20} color="#666" />
+                <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textTertiary} />
               </Card.Content>
             </Card>
           </Pressable>
         )}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#e8622c" />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.accent} />
         }
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.centered}>
-            <MaterialCommunityIcons name="inbox-outline" size={64} color="#555" />
-            <Text style={styles.emptyText}>{t('forms', 'noSubmissions')}</Text>
+            <MaterialCommunityIcons name="inbox-outline" size={64} color={colors.textTertiary} />
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('forms', 'noSubmissions')}</Text>
           </View>
         }
       />
@@ -69,15 +71,15 @@ export default function FormSubmissionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
   list: { padding: 16 },
-  card: { marginBottom: 8, backgroundColor: '#1e1e2e', borderColor: '#2d2d44', borderRadius: 12 },
+  card: { marginBottom: 8, borderRadius: 12 },
   cardContent: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  numberBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#2d2d44', justifyContent: 'center', alignItems: 'center' },
-  number: { color: '#e8622c', fontWeight: 'bold', fontSize: 12 },
+  numberBadge: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
+  number: { fontWeight: 'bold', fontSize: 12 },
   details: { flex: 1 },
-  date: { color: '#aaa' },
-  preview: { color: '#888', marginTop: 4 },
-  emptyText: { color: '#888', marginTop: 16 },
+  date: {},
+  preview: { marginTop: 4 },
+  emptyText: { marginTop: 16 },
 });

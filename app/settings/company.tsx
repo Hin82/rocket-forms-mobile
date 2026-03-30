@@ -15,6 +15,7 @@ import { Stack } from 'expo-router';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTranslation } from '@/src/translations';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 interface Company {
   id: string;
@@ -35,6 +36,7 @@ interface Member {
 export default function CompanyScreen() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { colors } = useAppTheme();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -252,38 +254,38 @@ export default function CompanyScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container} edges={['bottom']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
         <Stack.Screen options={{ title: t('settings', 'company'), headerBackTitle: t('auth', 'back') }} />
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#e8622c" />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <Stack.Screen options={{ title: t('settings', 'company'), headerBackTitle: t('auth', 'back') }} />
       <ScrollView contentContainerStyle={styles.content}>
         {companies.length === 0 && (
-          <Text style={styles.emptyText}>{t('settings', 'noCompanies')}</Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('settings', 'noCompanies')}</Text>
         )}
 
         {companies.map((company) => (
           <Card
             key={company.id}
-            style={styles.card}
+            style={[styles.card, { backgroundColor: colors.surface }]}
             onPress={() => handleToggleExpand(company.id)}
           >
             <Card.Title
               title={company.name}
-              titleStyle={styles.cardTitle}
+              titleStyle={{ color: colors.text }}
               subtitle={`${company.member_count} ${company.member_count !== 1 ? t('settings', 'members').toLowerCase() : t('settings', 'member').toLowerCase()}`}
-              subtitleStyle={styles.cardSubtitle}
+              subtitleStyle={{ color: colors.textSecondary }}
               right={() => (
                 <Chip
-                  style={[styles.roleBadge, company.role === 'admin' && styles.adminBadge]}
-                  textStyle={styles.roleBadgeText}
+                  style={[styles.roleBadge, { backgroundColor: colors.border }, company.role === 'admin' && styles.adminBadge]}
+                  textStyle={[styles.roleBadgeText, { color: colors.text }]}
                 >
                   {company.role === 'admin' ? t('settings', 'admin') : t('settings', 'member')}
                 </Chip>
@@ -292,28 +294,28 @@ export default function CompanyScreen() {
 
             {expandedId === company.id && (
               <Card.Content style={styles.expandedContent}>
-                <Divider style={styles.divider} />
+                <Divider style={{ backgroundColor: colors.border }} />
 
                 {membersLoading ? (
-                  <ActivityIndicator size="small" color="#e8622c" style={{ marginVertical: 16 }} />
+                  <ActivityIndicator size="small" color={colors.accent} style={{ marginVertical: 16 }} />
                 ) : (
                   <>
-                    <Text style={styles.sectionLabel}>{t('settings', 'members')}</Text>
+                    <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{t('settings', 'members')}</Text>
                     {members.map((member) => (
                       <View key={member.id} style={styles.memberRow}>
                         <View style={styles.memberInfo}>
-                          <Text style={styles.memberName}>
+                          <Text style={{ color: colors.text, fontSize: 15 }}>
                             {member.first_name || member.last_name
                               ? `${member.first_name ?? ''} ${member.last_name ?? ''}`.trim()
                               : member.email}
                           </Text>
                           {(member.first_name || member.last_name) && (
-                            <Text style={styles.memberEmail}>{member.email}</Text>
+                            <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{member.email}</Text>
                           )}
                         </View>
                         <Chip
-                          style={[styles.memberRoleBadge, member.role === 'admin' && styles.adminBadge]}
-                          textStyle={styles.roleBadgeText}
+                          style={[{ backgroundColor: colors.border }, member.role === 'admin' && styles.adminBadge]}
+                          textStyle={[styles.roleBadgeText, { color: colors.text }]}
                         >
                           {member.role === 'admin' ? t('settings', 'admin') : t('settings', 'member')}
                         </Chip>
@@ -330,7 +332,7 @@ export default function CompanyScreen() {
 
                     {isAdmin(company.id) && (
                       <>
-                        <Divider style={[styles.divider, { marginTop: 12 }]} />
+                        <Divider style={{ backgroundColor: colors.border, marginTop: 12 }} />
 
                         {invitingCompanyId === company.id ? (
                           <View style={styles.inviteRow}>
@@ -339,19 +341,19 @@ export default function CompanyScreen() {
                               value={inviteEmail}
                               onChangeText={setInviteEmail}
                               mode="outlined"
-                              style={styles.inviteInput}
-                              textColor="#fff"
-                              outlineColor="#2d2d44"
-                              activeOutlineColor="#e8622c"
+                              style={[styles.inviteInput, { backgroundColor: colors.surface }]}
+                              textColor={colors.text}
+                              outlineColor={colors.border}
+                              activeOutlineColor={colors.accent}
                               keyboardType="email-address"
                               autoCapitalize="none"
-                              theme={{ colors: { onSurfaceVariant: '#888' } }}
+                              theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
                             />
                             <Button
                               mode="contained"
                               onPress={() => handleInvite(company.id)}
-                              buttonColor="#e8622c"
-                              textColor="#fff"
+                              buttonColor={colors.accent}
+                              textColor={colors.text}
                               compact
                               style={styles.inviteSendButton}
                             >
@@ -360,7 +362,7 @@ export default function CompanyScreen() {
                             <IconButton
                               icon="close"
                               size={20}
-                              iconColor="#888"
+                              iconColor={colors.textSecondary}
                               onPress={() => {
                                 setInvitingCompanyId(null);
                                 setInviteEmail('');
@@ -372,8 +374,8 @@ export default function CompanyScreen() {
                             mode="outlined"
                             icon="email-plus"
                             onPress={() => setInvitingCompanyId(company.id)}
-                            style={styles.actionButton}
-                            textColor="#e8622c"
+                            style={[styles.actionButton, { borderColor: colors.border }]}
+                            textColor={colors.accent}
                           >
                             {t('settings', 'invite')}
                           </Button>
@@ -397,20 +399,20 @@ export default function CompanyScreen() {
           </Card>
         ))}
 
-        <Divider style={[styles.divider, { marginVertical: 16 }]} />
+        <Divider style={{ backgroundColor: colors.border, marginVertical: 16 }} />
 
         {showCreateInput ? (
-          <View style={styles.createSection}>
+          <View style={[styles.createSection, { backgroundColor: colors.surface }]}>
             <TextInput
               label={t('settings', 'companyName')}
               value={newCompanyName}
               onChangeText={setNewCompanyName}
               mode="outlined"
-              style={styles.createInput}
-              textColor="#fff"
-              outlineColor="#2d2d44"
-              activeOutlineColor="#e8622c"
-              theme={{ colors: { onSurfaceVariant: '#888' } }}
+              style={[styles.createInput, { backgroundColor: colors.surface }]}
+              textColor={colors.text}
+              outlineColor={colors.border}
+              activeOutlineColor={colors.accent}
+              theme={{ colors: { onSurfaceVariant: colors.textSecondary } }}
             />
             <View style={styles.createButtons}>
               <Button
@@ -418,8 +420,8 @@ export default function CompanyScreen() {
                 onPress={handleCreateCompany}
                 loading={creating}
                 disabled={creating || !newCompanyName.trim()}
-                buttonColor="#e8622c"
-                textColor="#fff"
+                buttonColor={colors.accent}
+                textColor={colors.text}
                 style={{ flex: 1 }}
               >
                 {t('settings', 'create')}
@@ -430,7 +432,7 @@ export default function CompanyScreen() {
                   setShowCreateInput(false);
                   setNewCompanyName('');
                 }}
-                textColor="#888"
+                textColor={colors.textSecondary}
                 style={{ flex: 1 }}
               >
                 {t('settings', 'cancel')}
@@ -443,8 +445,8 @@ export default function CompanyScreen() {
             icon="plus"
             onPress={() => setShowCreateInput(true)}
             style={styles.createButton}
-            buttonColor="#e8622c"
-            textColor="#fff"
+            buttonColor={colors.accent}
+            textColor={colors.text}
           >
             {t('settings', 'createNewCompany')}
           </Button>
@@ -455,30 +457,24 @@ export default function CompanyScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   content: { padding: 16, paddingBottom: 40 },
-  emptyText: { color: '#888', textAlign: 'center', marginTop: 32, fontSize: 16 },
-  card: { backgroundColor: '#1e1e2e', marginBottom: 12, borderRadius: 12 },
-  cardTitle: { color: '#fff' },
-  cardSubtitle: { color: '#888' },
-  roleBadge: { backgroundColor: '#2d2d44', marginRight: 12 },
+  emptyText: { textAlign: 'center', marginTop: 32, fontSize: 16 },
+  card: { marginBottom: 12, borderRadius: 12 },
+  roleBadge: { marginRight: 12 },
   adminBadge: { backgroundColor: '#e8622c33' },
-  roleBadgeText: { color: '#fff', fontSize: 12 },
-  memberRoleBadge: { backgroundColor: '#2d2d44' },
+  roleBadgeText: { fontSize: 12 },
   expandedContent: { paddingBottom: 16 },
-  divider: { backgroundColor: '#2d2d44' },
-  sectionLabel: { color: '#888', fontSize: 13, marginTop: 12, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionLabel: { fontSize: 13, marginTop: 12, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
   memberRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
   memberInfo: { flex: 1 },
-  memberName: { color: '#fff', fontSize: 15 },
-  memberEmail: { color: '#888', fontSize: 13 },
   inviteRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 8 },
-  inviteInput: { flex: 1, backgroundColor: '#1e1e2e' },
+  inviteInput: { flex: 1 },
   inviteSendButton: { borderRadius: 8 },
-  actionButton: { marginTop: 8, borderColor: '#2d2d44', borderRadius: 8 },
-  createSection: { backgroundColor: '#1e1e2e', borderRadius: 12, padding: 16, gap: 12 },
-  createInput: { backgroundColor: '#1e1e2e' },
+  actionButton: { marginTop: 8, borderRadius: 8 },
+  createSection: { borderRadius: 12, padding: 16, gap: 12 },
+  createInput: { },
   createButtons: { flexDirection: 'row', gap: 12 },
   createButton: { borderRadius: 12, paddingVertical: 4 },
 });

@@ -15,6 +15,7 @@ import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import FolderManager from '@/src/components/FolderManager';
 import { FormListSkeleton } from '@/src/components/SkeletonLoader';
 import AnimatedItem from '@/src/components/AnimatedItem';
+import { useAppTheme } from '@/src/contexts/ThemeContext';
 
 function getDateLocale(languageCode: LanguageCode): string {
   const localeMap: Record<LanguageCode, string> = {
@@ -44,6 +45,7 @@ export default function FormsScreen() {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const dateLocale = getDateLocale(language);
+  const { colors } = useAppTheme();
 
   const sections = React.useMemo(() => {
     if (!forms) return [];
@@ -123,12 +125,12 @@ export default function FormsScreen() {
           <MaterialCommunityIcons name="pencil-outline" size={20} color="#fff" />
           <Text style={styles.swipeText}>{t('forms', 'editForm')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDeleteForm(item)} style={styles.swipeDeleteBtn}>
+        <TouchableOpacity onPress={() => handleDeleteForm(item)} style={[styles.swipeDeleteBtn, { backgroundColor: colors.error }]}>
           <MaterialCommunityIcons name="delete-outline" size={20} color="#fff" />
         </TouchableOpacity>
       </Animated.View>
     );
-  }, [router, t, handleDeleteForm]);
+  }, [router, t, handleDeleteForm, colors]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -192,36 +194,36 @@ export default function FormsScreen() {
 
     const content = (
       <Pressable onPress={handlePress} onLongPress={() => handleLongPress(item.id)} delayLongPress={400}>
-        <Card style={[styles.card, isSelected && styles.cardSelected]} mode="outlined">
+        <Card style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }, isSelected && { borderColor: colors.accent, backgroundColor: colors.surfaceSecondary }]} mode="outlined">
           <Card.Content style={styles.cardContent}>
             {selectMode && (
               <MaterialCommunityIcons
                 name={isSelected ? 'checkbox-marked-circle' : 'checkbox-blank-circle-outline'}
                 size={22}
-                color={isSelected ? '#e8622c' : '#555'}
+                color={isSelected ? colors.accent : colors.textTertiary}
                 style={{ marginRight: 8 }}
               />
             )}
             <View style={styles.cardLeft}>
-              <Text variant="titleMedium" numberOfLines={1} style={styles.formName}>
+              <Text variant="titleMedium" numberOfLines={1} style={[styles.formName, { color: colors.text }]}>
                 {item.name}
               </Text>
               <View style={styles.cardMeta}>
                 <View style={styles.metaItem}>
-                  <MaterialCommunityIcons name="format-list-bulleted" size={14} color="#666" />
-                  <Text style={styles.metaText}>{fieldCount}</Text>
+                  <MaterialCommunityIcons name="format-list-bulleted" size={14} color={colors.textTertiary} />
+                  <Text style={[styles.metaText, { color: colors.textTertiary }]}>{fieldCount}</Text>
                 </View>
                 <View style={styles.metaItem}>
-                  <MaterialCommunityIcons name="file-check-outline" size={14} color={subCount > 0 ? '#e8622c' : '#666'} />
-                  <Text style={[styles.metaText, subCount > 0 && styles.metaTextActive]}>{subCount}</Text>
+                  <MaterialCommunityIcons name="file-check-outline" size={14} color={subCount > 0 ? colors.accent : colors.textTertiary} />
+                  <Text style={[styles.metaText, { color: subCount > 0 ? colors.accent : colors.textTertiary }]}>{subCount}</Text>
                 </View>
-                <Text style={styles.metaDot}>·</Text>
-                <Text style={styles.metaText}>
+                <Text style={[styles.metaDot, { color: colors.textTertiary }]}>·</Text>
+                <Text style={[styles.metaText, { color: colors.textTertiary }]}>
                   {new Date(item.updated_at || item.created_at).toLocaleDateString(dateLocale)}
                 </Text>
               </View>
             </View>
-            {!selectMode && <MaterialCommunityIcons name="chevron-right" size={20} color="#555" />}
+            {!selectMode && <MaterialCommunityIcons name="chevron-right" size={20} color={colors.textTertiary} />}
           </Card.Content>
         </Card>
       </Pressable>
@@ -234,24 +236,26 @@ export default function FormsScreen() {
     );
 
     return <AnimatedItem index={index} refreshKey={refreshKey}>{wrapped}</AnimatedItem>;
-  }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress, refreshKey]);
+  }, [router, dateLocale, renderSwipeActions, selectMode, selectedIds, toggleSelect, handleLongPress, refreshKey, colors]);
 
   if (isLoading) {
     return <FormListSkeleton />;
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.searchRow}>
         <Searchbar
           placeholder={t('forms', 'searchPlaceholder')}
           onChangeText={setSearchQuery}
           value={searchQuery}
-          style={styles.searchbar}
-        inputStyle={styles.searchInput}
-      />
+          style={[styles.searchbar, { backgroundColor: colors.surface }]}
+          inputStyle={[styles.searchInput, { color: colors.text }]}
+          placeholderTextColor={colors.textSecondary}
+          iconColor={colors.textSecondary}
+        />
         <Pressable onPress={() => setShowFolders(true)} style={styles.folderBtn} accessibilityLabel={t('folders', 'manageFolders')} accessibilityRole="button">
-          <MaterialCommunityIcons name="folder-cog-outline" size={22} color="#e8622c" />
+          <MaterialCommunityIcons name="folder-cog-outline" size={22} color={colors.accent} />
         </Pressable>
       </View>
 
@@ -263,7 +267,7 @@ export default function FormsScreen() {
           <Pressable
             key={s}
             onPress={() => setSortBy(s)}
-            style={[styles.sortChip, sortBy === s && styles.sortChipActive]}
+            style={[styles.sortChip, { backgroundColor: colors.surface }, sortBy === s && styles.sortChipActive]}
             accessibilityRole="radio"
             accessibilityState={{ selected: sortBy === s }}
             accessibilityLabel={t('forms', `sort_${s}`)}
@@ -271,9 +275,9 @@ export default function FormsScreen() {
             <MaterialCommunityIcons
               name={s === 'date' ? 'clock-outline' : s === 'name' ? 'sort-alphabetical-ascending' : 'chart-bar'}
               size={14}
-              color={sortBy === s ? '#fff' : '#888'}
+              color={sortBy === s ? '#fff' : colors.textSecondary}
             />
-            <Text style={[styles.sortChipText, sortBy === s && styles.sortChipTextActive]}>
+            <Text style={[styles.sortChipText, { color: colors.textSecondary }, sortBy === s && styles.sortChipTextActive]}>
               {t('forms', `sort_${s}`)}
             </Text>
           </Pressable>
@@ -286,21 +290,21 @@ export default function FormsScreen() {
         renderItem={renderFormCard}
         renderSectionHeader={({ section: { title, isGroup, data } }) => (
           <View style={styles.sectionHeader}>
-            {isGroup && <MaterialCommunityIcons name="folder-outline" size={18} color="#e8622c" />}
-            <Text variant="titleSmall" style={styles.sectionTitle}>{title}</Text>
-            <Text style={styles.sectionCount}>{data.length}</Text>
+            {isGroup && <MaterialCommunityIcons name="folder-outline" size={18} color={colors.accent} />}
+            <Text variant="titleSmall" style={[styles.sectionTitle, { color: colors.text }]}>{title}</Text>
+            <Text style={[styles.sectionCount, { color: colors.textTertiary, backgroundColor: colors.surfaceSecondary }]}>{data.length}</Text>
           </View>
         )}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={() => { refetch(); setRefreshKey(k => k + 1); }} tintColor="#e8622c" />
+          <RefreshControl refreshing={isRefetching} onRefresh={() => { refetch(); setRefreshKey(k => k + 1); }} tintColor={colors.accent} />
         }
         contentContainerStyle={sections.length === 0 ? styles.listEmpty : styles.list}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <MaterialCommunityIcons name="file-document-outline" size={64} color="#2d2d44" />
-            <Text variant="titleMedium" style={styles.emptyTitle}>{t('forms', 'noForms')}</Text>
-            <Text style={styles.emptySubtitle}>{t('forms', 'noFormsDesc')}</Text>
-            <Pressable onPress={() => router.push('/create')} style={styles.emptyCreateBtn}>
+            <MaterialCommunityIcons name="file-document-outline" size={64} color={colors.border} />
+            <Text variant="titleMedium" style={[styles.emptyTitle, { color: colors.textSecondary }]}>{t('forms', 'noForms')}</Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>{t('forms', 'noFormsDesc')}</Text>
+            <Pressable onPress={() => router.push('/create')} style={[styles.emptyCreateBtn, { backgroundColor: colors.accent }]}>
               <MaterialCommunityIcons name="plus" size={20} color="#fff" />
               <Text style={styles.emptyCreateBtnText}>{t('forms', 'createFirstForm')}</Text>
             </Pressable>
@@ -309,12 +313,12 @@ export default function FormsScreen() {
       />
 
       {selectMode ? (
-        <View style={styles.batchBar}>
+        <View style={[styles.batchBar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
           <Pressable onPress={cancelSelect} style={styles.batchCancelBtn}>
-            <MaterialCommunityIcons name="close" size={20} color="#ccc" />
-            <Text style={styles.batchCancelText}>{selectedIds.size} {t('forms', 'selected')}</Text>
+            <MaterialCommunityIcons name="close" size={20} color={colors.text} />
+            <Text style={[styles.batchCancelText, { color: colors.text }]}>{selectedIds.size} {t('forms', 'selected')}</Text>
           </Pressable>
-          <Pressable onPress={handleBatchDelete} style={styles.batchDeleteBtn}>
+          <Pressable onPress={handleBatchDelete} style={[styles.batchDeleteBtn, { backgroundColor: colors.error }]}>
             <MaterialCommunityIcons name="delete-outline" size={20} color="#fff" />
             <Text style={styles.batchDeleteText}>{t('settings', 'delete')}</Text>
           </Pressable>
@@ -324,7 +328,7 @@ export default function FormsScreen() {
           icon="plus"
           label={t('forms', 'new')}
           onPress={() => router.push('/create')}
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: colors.accent }]}
           color="#fff"
         />
       )}
@@ -333,14 +337,13 @@ export default function FormsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121220' },
+  container: { flex: 1 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
   searchRow: { flexDirection: 'row', alignItems: 'center', paddingRight: 8 },
   searchbar: {
     flex: 1,
     marginLeft: 16,
     marginVertical: 8,
-    backgroundColor: '#1e1e2e',
     borderRadius: 12,
   },
   folderBtn: { padding: 8 },
@@ -348,12 +351,11 @@ const styles = StyleSheet.create({
   sortChip: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14,
-    backgroundColor: '#1e1e2e',
   },
   sortChipActive: { backgroundColor: '#e8622c' },
-  sortChipText: { color: '#888', fontSize: 12 },
+  sortChipText: { fontSize: 12 },
   sortChipTextActive: { color: '#fff' },
-  searchInput: { color: '#fff' },
+  searchInput: {},
   list: { paddingHorizontal: 16, paddingBottom: 80 },
   listEmpty: { flexGrow: 1, paddingHorizontal: 16, paddingBottom: 80 },
   sectionHeader: {
@@ -363,12 +365,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingTop: 20,
   },
-  sectionTitle: { color: '#ccc', fontWeight: '600', flex: 1 },
-  sectionCount: { color: '#666', fontSize: 13, backgroundColor: '#252540', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, overflow: 'hidden' },
+  sectionTitle: { fontWeight: '600', flex: 1 },
+  sectionCount: { fontSize: 13, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, overflow: 'hidden' },
   card: {
     marginBottom: 8,
-    backgroundColor: '#1e1e2e',
-    borderColor: '#2d2d44',
     borderRadius: 12,
   },
   cardContent: {
@@ -378,33 +378,32 @@ const styles = StyleSheet.create({
   },
   cardLeft: { flex: 1, marginRight: 12 },
   cardRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  formName: { color: '#fff' },
+  formName: {},
   cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { color: '#666', fontSize: 12 },
-  metaTextActive: { color: '#e8622c' },
-  metaDot: { color: '#444', fontSize: 12 },
+  metaText: { fontSize: 12 },
+  metaDot: { fontSize: 12 },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-  emptyTitle: { color: '#888', marginTop: 16, fontWeight: '600' },
-  emptySubtitle: { color: '#555', fontSize: 13, marginTop: 4, textAlign: 'center' },
+  emptyTitle: { marginTop: 16, fontWeight: '600' },
+  emptySubtitle: { fontSize: 13, marginTop: 4, textAlign: 'center' },
   emptyCreateBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#e8622c', borderRadius: 12,
+    borderRadius: 12,
     paddingHorizontal: 20, paddingVertical: 12, marginTop: 20,
   },
   emptyCreateBtnText: { color: '#fff', fontWeight: '600' },
-  cardSelected: { borderColor: '#e8622c', backgroundColor: '#252538' },
+  cardSelected: {},
   batchBar: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#1e1e2e', borderTopWidth: 1, borderTopColor: '#2d2d44',
+    borderTopWidth: 1,
     paddingHorizontal: 20, paddingVertical: 12, paddingBottom: 28,
   },
   batchCancelBtn: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  batchCancelText: { color: '#ccc', fontSize: 15 },
+  batchCancelText: { fontSize: 15 },
   batchDeleteBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#cc3333', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10,
+    paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10,
   },
   batchDeleteText: { color: '#fff', fontWeight: '600' },
   swipeActions: { flexDirection: 'row', width: 130, marginBottom: 8 },
@@ -414,14 +413,13 @@ const styles = StyleSheet.create({
   },
   swipeDeleteBtn: {
     width: 50, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#cc3333', borderTopRightRadius: 12, borderBottomRightRadius: 12,
+    borderTopRightRadius: 12, borderBottomRightRadius: 12,
   },
   swipeText: { color: '#fff', fontSize: 11, marginTop: 2 },
   fab: {
     position: 'absolute',
     left: 16,
     bottom: 16,
-    backgroundColor: '#e8622c',
     borderRadius: 16,
   },
 });
