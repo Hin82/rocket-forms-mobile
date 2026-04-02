@@ -42,21 +42,6 @@
             "BROWSABLE",
             "DEFAULT"
           ]
-        },
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "https",
-              "host": "rocketformspro.com",
-              "pathPrefix": "/form/"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
         }
       ],
       "adaptiveIcon": {
