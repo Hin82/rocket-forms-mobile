@@ -10,6 +10,7 @@ export type FieldType =
   | 'text' | 'email' | 'number' | 'url' | 'phone' | 'name'
   | 'textarea' | 'select' | 'radio' | 'checkbox' | 'yesno'
   | 'date' | 'time' | 'datetime' | 'file' | 'image' | 'document'
+  | 'video' | 'audio'
   | 'recaptcha' | 'separator' | 'text-display' | 'multi-text-row'
   | 'rating' | 'nps' | 'likert'
   | 'ranking' | 'hidden' | 'html-block' | 'page-break' | 'signature'
@@ -218,6 +219,15 @@ export interface FormField {
   // URL field
   urlLinkText?: string;
   urlOpenInNewTab?: boolean;
+  // Video field
+  videoAutoplay?: boolean;
+  videoControls?: boolean;
+  videoLoop?: boolean;
+  videoMuted?: boolean;
+  // Audio field
+  audioAutoplay?: boolean;
+  audioControls?: boolean;
+  audioLoop?: boolean;
   // Decorative / field image
   fieldImage?: string;
   imagePosition?: 'above' | 'below';

@@ -514,6 +514,26 @@ function FieldInput({ field, textColor, t }: { field: FormField; textColor: stri
         </View>
       );
 
+    case 'video':
+      return (
+        <View style={[styles.placeholderBox, { borderColor: textColor + '33' }]}>
+          <MaterialCommunityIcons name="video-outline" size={28} color={textColor + '55'} />
+          <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>
+            {t('preview', 'uploadVideo')}
+          </Text>
+        </View>
+      );
+
+    case 'audio':
+      return (
+        <View style={[styles.placeholderBox, { borderColor: textColor + '33' }]}>
+          <MaterialCommunityIcons name="microphone-outline" size={28} color={textColor + '55'} />
+          <Text style={[styles.placeholderBoxText, { color: textColor + '55' }]}>
+            {t('preview', 'uploadAudio')}
+          </Text>
+        </View>
+      );
+
     default:
       return (
         <TextInput

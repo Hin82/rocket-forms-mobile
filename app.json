@@ -2,7 +2,7 @@
   "expo": {
     "name": "Rocket Forms Pro",
     "slug": "rocket-forms-pro",
-    "version": "2.0.1",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rocketforms",
@@ -17,8 +17,9 @@
       "bundleIdentifier": "com.omniwise.rocketformspro",
       "associatedDomains": ["applinks:rocketformspro.com"],
       "infoPlist": {
-        "NSCameraUsageDescription": "Used to capture photos for form fields",
-        "NSPhotoLibraryUsageDescription": "Used to select images for form fields",
+        "NSCameraUsageDescription": "Used to capture photos and videos for form fields",
+        "NSPhotoLibraryUsageDescription": "Used to select images and videos for form fields",
+        "NSMicrophoneUsageDescription": "Used to record audio for form fields",
         "NSFaceIDUsageDescription": "Used for quick sign-in"
       }
     },
@@ -77,6 +78,24 @@
         }
       ],
       "expo-document-picker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Used to record video for form fields",
+          "microphonePermission": "Used to record audio for form fields",
+          "recordAudioAndroid": {
+            "audioEncoder": "aac",
+            "audioSampleRate": 44100,
+            "audioBitRate": 128000
+          }
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Used to record audio for form fields"
+        }
+      ],
       "expo-local-authentication",
       "@react-native-community/datetimepicker"
     ],
@@ -89,6 +108,8 @@
       },
       "router": {}
     },
-    "owner": "omniwiseab"
+    "owner": "omniwiseab",
+    "privacy": "https://rocketformspro.com/privacy-policy",
+    "terms": "https://rocketformspro.com/terms-of-service"
   }
 }

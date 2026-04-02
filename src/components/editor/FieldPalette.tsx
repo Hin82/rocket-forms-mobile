@@ -55,6 +55,8 @@ const CATEGORIES: PaletteCategory[] = [
       { type: 'file', labelKey: 'file', icon: 'file-upload-outline' },
       { type: 'image', labelKey: 'image', icon: 'image-outline' },
       { type: 'document', labelKey: 'document', icon: 'file-document-outline' },
+      { type: 'video', labelKey: 'video', icon: 'video-outline' },
+      { type: 'audio', labelKey: 'audio', icon: 'microphone-outline' },
     ],
   },
   {

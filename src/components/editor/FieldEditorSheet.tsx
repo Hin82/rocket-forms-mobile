@@ -69,6 +69,8 @@ const FIELD_TYPE_KEY_MAP: Record<string, string> = {
   address: 'address',
   matrix: 'matrix',
   drawing: 'drawing',
+  video: 'video',
+  audio: 'audio',
 };
 
 // ---- Interfaces ----
@@ -1335,6 +1337,71 @@ const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
                 <Switch
                   value={localField.urlOpenInNewTab !== false}
                   onValueChange={(v) => update({ urlOpenInNewTab: v })}
+                  color={COLORS.accent}
+                />
+              </Row>
+            </Section>
+          )}
+
+          {/* =============================== */}
+          {/* VIDEO                            */}
+          {/* =============================== */}
+          {ft === 'video' && (
+            <Section title={t('fieldEditor', 'videoSettings')}>
+              <Row label={t('fieldEditor', 'videoAutoplay')}>
+                <Switch
+                  value={!!localField.videoAutoplay}
+                  onValueChange={(v) => update({ videoAutoplay: v })}
+                  color={COLORS.accent}
+                />
+              </Row>
+              <Row label={t('fieldEditor', 'videoControls')}>
+                <Switch
+                  value={localField.videoControls !== false}
+                  onValueChange={(v) => update({ videoControls: v })}
+                  color={COLORS.accent}
+                />
+              </Row>
+              <Row label={t('fieldEditor', 'videoLoop')}>
+                <Switch
+                  value={!!localField.videoLoop}
+                  onValueChange={(v) => update({ videoLoop: v })}
+                  color={COLORS.accent}
+                />
+              </Row>
+              <Row label={t('fieldEditor', 'videoMuted')}>
+                <Switch
+                  value={!!localField.videoMuted}
+                  onValueChange={(v) => update({ videoMuted: v })}
+                  color={COLORS.accent}
+                />
+              </Row>
+            </Section>
+          )}
+
+          {/* =============================== */}
+          {/* AUDIO                            */}
+          {/* =============================== */}
+          {ft === 'audio' && (
+            <Section title={t('fieldEditor', 'audioSettings')}>
+              <Row label={t('fieldEditor', 'audioAutoplay')}>
+                <Switch
+                  value={!!localField.audioAutoplay}
+                  onValueChange={(v) => update({ audioAutoplay: v })}
+                  color={COLORS.accent}
+                />
+              </Row>
+              <Row label={t('fieldEditor', 'audioControls')}>
+                <Switch
+                  value={localField.audioControls !== false}
+                  onValueChange={(v) => update({ audioControls: v })}
+                  color={COLORS.accent}
+                />
+              </Row>
+              <Row label={t('fieldEditor', 'audioLoop')}>
+                <Switch
+                  value={!!localField.audioLoop}
+                  onValueChange={(v) => update({ audioLoop: v })}
                   color={COLORS.accent}
                 />
               </Row>
