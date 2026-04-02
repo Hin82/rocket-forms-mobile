@@ -20,6 +20,8 @@
     "@tanstack/react-query": "^5.94.5",
     "date-fns": "^4.1.0",
     "expo": "~55.0.8",
+    "expo-av": "^16.0.8",
+    "expo-camera": "~55.0.11",
     "expo-clipboard": "^55.0.9",
     "expo-constants": "~55.0.9",
     "expo-crypto": "~55.0.10",
