@@ -276,9 +276,18 @@ function getFieldIcon(type: string): string {
     text: 'form-textbox', email: 'email-outline', phone: 'phone-outline',
     textarea: 'text-box-outline', select: 'form-dropdown', radio: 'radiobox-marked',
     checkbox: 'checkbox-marked-outline', date: 'calendar', time: 'clock-outline',
-    file: 'file-outline', image: 'image-outline', signature: 'draw',
-    rating: 'star-outline', name: 'account-outline', number: 'numeric',
-    document: 'file-document-outline', yesno: 'toggle-switch-outline', address: 'map-marker-outline',
+    datetime: 'calendar-clock', file: 'file-outline', image: 'image-outline',
+    document: 'file-document-outline', video: 'video-outline', audio: 'microphone-outline',
+    signature: 'draw', drawing: 'draw', rating: 'star-outline', nps: 'emoticon-outline',
+    likert: 'format-list-checks', ranking: 'sort-ascending', slider: 'tune-variant',
+    name: 'account-outline', number: 'numeric', url: 'link-variant',
+    yesno: 'toggle-switch-outline', address: 'map-marker-outline',
+    color: 'palette-outline', currency: 'currency-usd',
+    personnummer: 'card-account-details-outline', organisationsnummer: 'domain',
+    matrix: 'table', separator: 'minus', 'text-display': 'text',
+    'html-block': 'code-tags', 'page-break': 'format-page-break',
+    'multi-text-row': 'format-list-text', hidden: 'eye-off-outline',
+    recaptcha: 'shield-check-outline',
   };
   return icons[type] || 'form-textbox';
 }

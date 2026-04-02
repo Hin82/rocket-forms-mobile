@@ -83,11 +83,7 @@
         {
           "cameraPermission": "Used to record video for form fields",
           "microphonePermission": "Used to record audio for form fields",
-          "recordAudioAndroid": {
-            "audioEncoder": "aac",
-            "audioSampleRate": 44100,
-            "audioBitRate": 128000
-          }
+          "recordAudioAndroid": true
         }
       ],
       [
@@ -106,10 +102,10 @@
       "eas": {
         "projectId": "6e42077a-f354-4686-87fd-6824e3d13e90"
       },
-      "router": {}
+      "router": {},
+      "privacy": "https://rocketformspro.com/privacy-policy",
+      "terms": "https://rocketformspro.com/terms-of-service"
     },
-    "owner": "omniwiseab",
-    "privacy": "https://rocketformspro.com/privacy-policy",
-    "terms": "https://rocketformspro.com/terms-of-service"
+    "owner": "omniwiseab"
   }
 }

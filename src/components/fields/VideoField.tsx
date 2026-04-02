@@ -25,7 +25,6 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
   const { t } = useTranslation();
   const videoRef = useRef<Video>(null);
   const [uploading, setUploading] = useState(false);
-  const [videoStatus, setVideoStatus] = useState<any>(null);
 
   const handlePickVideo = async () => {
     try {
@@ -74,6 +73,19 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
     }
   };
 
+  const getMimeType = (ext: string): string => {
+    const mimeMap: Record<string, string> = {
+      mp4: 'video/mp4',
+      webm: 'video/webm',
+      mov: 'video/quicktime',
+      avi: 'video/x-msvideo',
+      '3gp': 'video/3gpp',
+      mkv: 'video/x-matroska',
+      ogg: 'video/ogg',
+    };
+    return mimeMap[ext.toLowerCase()] || `video/${ext.toLowerCase()}`;
+  };
+
   const uploadVideo = async (uri: string) => {
     setUploading(true);
     try {
@@ -88,7 +100,7 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
       const { data, error } = await supabase.storage
         .from('form-assets')
         .upload(fileName, arrayBuffer, {
-          contentType: `video/${ext === 'mov' ? 'quicktime' : ext}`,
+          contentType: getMimeType(ext),
         });
 
       if (error) throw error;
@@ -108,7 +120,12 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
     }
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
+    if (videoRef.current) {
+      try {
+        await videoRef.current.stopAsync();
+      } catch {}
+    }
     onChange(null);
   };
 
@@ -162,7 +179,6 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
           shouldPlay={field.videoAutoplay || false}
           isLooping={field.videoLoop || false}
           isMuted={field.videoMuted || false}
-          onPlaybackStatusUpdate={(status) => setVideoStatus(status)}
         />
       </View>
 

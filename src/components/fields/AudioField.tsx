@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -35,6 +35,36 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
   const soundRef = useRef<Audio.Sound | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Stable waveform bar heights (no re-render flicker)
+  const waveformBars = useMemo(
+    () => Array.from({ length: 12 }, () => ({
+      height: 8 + Math.random() * 24,
+      opacity: 0.5 + Math.random() * 0.5,
+    })),
+    []
+  );
+
+  // Unload sound when value changes
+  useEffect(() => {
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
+      setIsPlaying(false);
+      setPlaybackPosition(0);
+      setPlaybackDuration(0);
+    };
+  }, [value]);
+
+  // Autoplay when value is set and audioAutoplay is true
+  useEffect(() => {
+    if (value && field.audioAutoplay && !isPlaying && !soundRef.current) {
+      togglePlayback();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, field.audioAutoplay]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -81,6 +111,10 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
 
   const handlePickAudio = async () => {
     try {
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
       const result = await DocumentPicker.getDocumentAsync({
         type: 'audio/*',
         copyToCacheDirectory: true,
@@ -99,6 +133,10 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
 
   const startRecording = async () => {
     try {
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
@@ -219,8 +257,9 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
               setIsPlaying(false);
               setPlaybackPosition(0);
               if (field.audioLoop) {
-                soundRef.current?.replayAsync();
-                setIsPlaying(true);
+                soundRef.current?.replayAsync()
+                  .then(() => setIsPlaying(true))
+                  .catch(() => setIsPlaying(false));
               }
             }
           }
@@ -267,15 +306,12 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
         </Text>
         {/* Simple waveform indicator */}
         <View style={styles.waveformRow}>
-          {Array.from({ length: 12 }).map((_, i) => (
+          {waveformBars.map((bar, i) => (
             <View
               key={i}
               style={[
                 styles.waveformBar,
-                {
-                  height: 8 + Math.random() * 24,
-                  opacity: 0.5 + Math.random() * 0.5,
-                },
+                { height: bar.height, opacity: bar.opacity },
               ]}
             />
           ))}
@@ -318,36 +354,49 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
   }
 
   // Playback UI
+  const showControls = field.audioControls !== false;
+
   return (
     <View style={styles.playerContainer}>
       <View style={styles.playerCard}>
-        <TouchableOpacity style={styles.playButton} onPress={togglePlayback}>
-          <MaterialCommunityIcons
-            name={isPlaying ? 'pause' : 'play'}
-            size={28}
-            color="#fff"
-          />
-        </TouchableOpacity>
-        <View style={styles.playerInfo}>
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width:
-                    playbackDuration > 0
-                      ? `${(playbackPosition / playbackDuration) * 100}%`
-                      : '0%',
-                },
-              ]}
+        {showControls && (
+          <TouchableOpacity style={styles.playButton} onPress={togglePlayback}>
+            <MaterialCommunityIcons
+              name={isPlaying ? 'pause' : 'play'}
+              size={28}
+              color="#fff"
             />
-          </View>
-          <View style={styles.timeRow}>
-            <Text style={styles.timeText}>{formatTime(playbackPosition)}</Text>
+          </TouchableOpacity>
+        )}
+        <View style={styles.playerInfo}>
+          {showControls && (
+            <>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width:
+                        playbackDuration > 0
+                          ? `${(playbackPosition / playbackDuration) * 100}%`
+                          : '0%',
+                    },
+                  ]}
+                />
+              </View>
+              <View style={styles.timeRow}>
+                <Text style={styles.timeText}>{formatTime(playbackPosition)}</Text>
+                <Text style={styles.timeText}>
+                  {playbackDuration > 0 ? formatTime(playbackDuration) : '--:--'}
+                </Text>
+              </View>
+            </>
+          )}
+          {!showControls && (
             <Text style={styles.timeText}>
-              {playbackDuration > 0 ? formatTime(playbackDuration) : '--:--'}
+              {t('fieldEditor', 'audioFile') || 'Audio file loaded'}
             </Text>
-          </View>
+          )}
         </View>
       </View>
 
