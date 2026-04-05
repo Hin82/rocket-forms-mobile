@@ -7,6 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import QRCode from 'react-native-qrcode-svg';
 import { useTranslation } from '../../translations';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface ShareSheetProps {
   visible: boolean;
@@ -21,7 +22,11 @@ export default function ShareSheet({
   formId,
   formName,
 }: ShareSheetProps) {
-  const snapPoints = useMemo(() => ['75%'], []);
+  const { isLandscape } = useResponsive();
+  const snapPoints = useMemo(
+    () => isLandscape ? ['90%'] : ['75%'],
+    [isLandscape],
+  );
   const { t } = useTranslation();
   const formUrl = `https://rocketformspro.com/form/${formId}`;
   const embedCode = `<iframe src="${formUrl}" width="100%" height="600" frameborder="0" style="border:none;"></iframe>`;

@@ -6,13 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Dimensions,
+  useWindowDimensions,
   ImageBackground,
   Image,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { FormField, FormSettings } from '../../hooks/useFormEditor';
 import { useTranslation } from '../../translations';
 
@@ -47,6 +48,9 @@ export default function FormPreviewSheet({
   formName,
 }: FormPreviewSheetProps) {
   const { t } = useTranslation();
+  const { height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const responsiveMediaHeight = Math.min(windowHeight * 0.4, 300);
   const titleStyle = settings.titleStyle;
   const titleFontSize = FONT_SIZE_MAP[titleStyle?.fontSize || '4xl'] || 36;
   const titleColor = titleStyle?.color || settings.textColor || '#111827';
@@ -134,7 +138,7 @@ export default function FormPreviewSheet({
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
       <View style={styles.container}>
         {/* Close bar */}
-        <View style={styles.closeBar}>
+        <View style={[styles.closeBar, { paddingTop: insets.top + 12 }]}>
           <Text style={styles.closeBarTitle}>{t('preview', 'previewTitle')}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
             <MaterialCommunityIcons name="close" size={24} color="#fff" />
@@ -395,7 +399,7 @@ function FieldInput({ field, textColor, t }: { field: FormField; textColor: stri
           <View style={{ alignItems: field.documentAlignment === 'right' ? 'flex-end' : field.documentAlignment === 'center' ? 'center' : 'flex-start' }}>
             <Image
               source={{ uri: docUrl }}
-              style={{ width: '100%', height: 300, borderRadius: 8 }}
+              style={{ width: '100%', height: responsiveMediaHeight, borderRadius: 8 }}
               resizeMode="contain"
             />
           </View>
@@ -599,15 +603,12 @@ function PageBreakPreview({ field, textColor, t }: { field: FormField; textColor
   );
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121220' },
   closeBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 56,
     paddingBottom: 12,
     paddingHorizontal: 16,
     backgroundColor: '#1e1e2e',

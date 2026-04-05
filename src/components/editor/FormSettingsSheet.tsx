@@ -9,6 +9,7 @@ import ColorPickerField from './ColorPickerField';
 import BackgroundLibrary from './BackgroundLibrary';
 import { useTranslation } from '@/src/translations';
 import type { FormSettings } from '../../hooks/useFormEditor';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface FormGroup {
   id: string;
@@ -67,7 +68,11 @@ const BG_POSITIONS = [
 
 const FormSettingsSheet = forwardRef<BottomSheet, FormSettingsSheetProps>(
   ({ formName, settings, formGroupId, notificationEmail, senderName, groups, onUpdateName, onUpdateSettings, onUpdateFormMeta, onClose }, ref) => {
-    const snapPoints = useMemo(() => ['80%', '95%'], []);
+    const { isLandscape } = useResponsive();
+    const snapPoints = useMemo(
+      () => isLandscape ? ['95%'] : ['80%', '95%'],
+      [isLandscape],
+    );
     const { t } = useTranslation();
 
     const [name, setName] = useState(formName);

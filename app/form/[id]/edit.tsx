@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Animated,
   Alert,
-  Dimensions,
 } from 'react-native';
 import { Text, ActivityIndicator, FAB, IconButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -26,6 +25,8 @@ import FormPreviewSheet from '@/src/components/editor/FormPreviewSheet';
 import ShareSheet from '@/src/components/editor/ShareSheet';
 import VersionHistorySheet from '@/src/components/editor/VersionHistorySheet';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useResponsive } from '@/src/hooks/useResponsive';
 import { useTranslation } from '@/src/translations';
 
 // Map field type identifiers (with hyphens) to translation keys (camelCase)
@@ -97,6 +98,8 @@ export default function FormEditorScreen() {
 
   const { data: groups = [] } = useFormGroups();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const { isLandscape } = useResponsive();
 
   // Sheet refs
   const paletteRef = useRef<BottomSheet>(null);
@@ -227,7 +230,7 @@ export default function FormEditorScreen() {
   return (
     <GestureHandlerRootView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBackBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
@@ -323,7 +326,7 @@ export default function FormEditorScreen() {
       {/* FAB */}
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { bottom: insets.bottom + 16, right: (isLandscape ? insets.right : 0) + 20 }]}
         color="#fff"
         onPress={handleOpenPalette}
       />
@@ -469,7 +472,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 56,
     paddingBottom: 12,
     paddingHorizontal: 12,
     backgroundColor: '#1e1e2e',
@@ -566,8 +568,6 @@ const styles = StyleSheet.create({
   // FAB
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 30,
     backgroundColor: '#e8622c',
     borderRadius: 16,
   },

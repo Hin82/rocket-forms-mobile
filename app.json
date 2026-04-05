@@ -3,7 +3,7 @@
     "name": "Rocket Forms Pro",
     "slug": "rocket-forms-pro",
     "version": "2.1.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "rocketforms",
     "userInterfaceStyle": "automatic",

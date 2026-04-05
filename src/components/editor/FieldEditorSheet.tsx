@@ -16,6 +16,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { FormField, FieldOption, ConditionalLogic, Condition } from '../../hooks/useFormEditor';
 import { useTranslation } from '@/src/translations';
 import { LANGUAGES } from '@/src/contexts/LanguageContext';
+import { useResponsive } from '../../hooks/useResponsive';
 
 // ---- Constants ----
 
@@ -108,7 +109,11 @@ function hasPlaceholder(type: string): boolean {
 const FieldEditorSheet = forwardRef<BottomSheet, FieldEditorSheetProps>(
   ({ field, allFields, onUpdate, onDelete, onDuplicate, onClose }, ref) => {
     const { t } = useTranslation();
-    const snapPoints = useMemo(() => ['80%', '95%'], []);
+    const { isLandscape } = useResponsive();
+    const snapPoints = useMemo(
+      () => isLandscape ? ['95%'] : ['80%', '95%'],
+      [isLandscape],
+    );
 
     const acceptedFileTypesOptions = useMemo(() => [
       { label: t('fieldEditor', 'fileTypeImages'), value: 'images' },
