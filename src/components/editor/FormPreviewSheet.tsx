@@ -48,8 +48,9 @@ export default function FormPreviewSheet({
   formName,
 }: FormPreviewSheetProps) {
   const { t } = useTranslation();
-  const { height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const isLandscape = windowWidth > windowHeight;
   const responsiveMediaHeight = Math.min(windowHeight * 0.4, 300);
   const titleStyle = settings.titleStyle;
   const titleFontSize = FONT_SIZE_MAP[titleStyle?.fontSize || '4xl'] || 36;
@@ -122,7 +123,16 @@ export default function FormPreviewSheet({
   const renderContent = () => (
     <ScrollView
       style={[styles.scrollView, !hasPageBg && { backgroundColor: bgColor }]}
-      contentContainerStyle={[styles.scrollContent, hasPageBg && styles.scrollContentWithBg]}
+      contentContainerStyle={[
+        styles.scrollContent,
+        hasPageBg && styles.scrollContentWithBg,
+        isLandscape && {
+          paddingHorizontal: Math.max(insets.left, 20) + 20,
+          maxWidth: 700,
+          alignSelf: 'center' as const,
+          width: '100%',
+        },
+      ]}
     >
       {hasPageBg ? (
         <View style={[styles.formCard, { backgroundColor: bgColor, borderRadius: settings.borderRadius || 8 }]}>
@@ -135,10 +145,15 @@ export default function FormPreviewSheet({
   );
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="fullScreen"
+      supportedOrientations={['portrait', 'landscape', 'landscape-left', 'landscape-right']}
+    >
       <View style={styles.container}>
         {/* Close bar */}
-        <View style={[styles.closeBar, { paddingTop: insets.top + 12 }]}>
+        <View style={[styles.closeBar, { paddingTop: insets.top + 8, paddingLeft: Math.max(insets.left, 16), paddingRight: Math.max(insets.right, 16) }]}>
           <Text style={styles.closeBarTitle}>{t('preview', 'previewTitle')}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
             <MaterialCommunityIcons name="close" size={24} color="#fff" />
