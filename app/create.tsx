@@ -19,6 +19,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { useFormGroups } from '@/src/hooks/useForms';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import { trackAction } from '@/src/hooks/useAppRating';
 import { useTranslation } from '@/src/translations';
 import FormPreviewCard from '@/src/components/FormPreviewCard';
@@ -343,7 +344,24 @@ export default function CreateFormScreen() {
     }
   };
 
-  const pickLogo = async () => {
+  const pickFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(t('settings', 'error'), t('create', 'cameraPermissionDenied'));
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [3, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setLogoUri(result.assets[0].uri);
+    }
+  };
+
+  const pickFromPhotos = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert(t('settings', 'error'), t('create', 'photoPermissionDenied'));
@@ -358,6 +376,31 @@ export default function CreateFormScreen() {
     if (!result.canceled && result.assets[0]) {
       setLogoUri(result.assets[0].uri);
     }
+  };
+
+  const pickFromFiles = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'image/*',
+      copyToCacheDirectory: true,
+      multiple: false,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setLogoUri(result.assets[0].uri);
+    }
+  };
+
+  const pickLogo = () => {
+    Alert.alert(
+      t('create', 'uploadLogo'),
+      t('create', 'chooseSource'),
+      [
+        { text: t('create', 'sourceCamera'), onPress: pickFromCamera },
+        { text: t('create', 'sourcePhotos'), onPress: pickFromPhotos },
+        { text: t('create', 'sourceFiles'), onPress: pickFromFiles },
+        { text: t('create', 'cancel'), style: 'cancel' },
+      ],
+      { cancelable: true }
+    );
   };
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

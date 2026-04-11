@@ -90,7 +90,7 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
           setSelectedCompanyIdState(mapped[0].id);
         }
       } catch (err) {
-        console.error('Failed to load companies:', err);
+        if (__DEV__) console.error('Failed to load companies:', err);
       } finally {
         setLoading(false);
       }

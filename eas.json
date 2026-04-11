@@ -3,6 +3,19 @@
     "version": ">= 18.0.0",
     "appVersionSource": "local"
   },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "conny@omniwise.se",
+        "ascAppId": "your-asc-app-id",
+        "appleTeamId": "your-team-id"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-services.json",
+        "track": "internal"
+      }
+    }
+  },
   "build": {
     "development": {
       "developmentClient": true,

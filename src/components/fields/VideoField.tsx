@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,7 +9,7 @@ import {
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { Video, ResizeMode } from 'expo-av';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from '../../translations';
 import type { FormField } from '../../hooks/useFormEditor';
@@ -23,8 +23,15 @@ interface VideoFieldProps {
 
 export default function VideoField({ field, value, onChange, readOnly }: VideoFieldProps) {
   const { t } = useTranslation();
-  const videoRef = useRef<Video>(null);
   const [uploading, setUploading] = useState(false);
+
+  const player = useVideoPlayer(value ?? null, (p) => {
+    p.loop = field.videoLoop || false;
+    p.muted = field.videoMuted || false;
+    if (field.videoAutoplay) {
+      p.play();
+    }
+  });
 
   const handlePickVideo = async () => {
     try {
@@ -120,12 +127,10 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
     }
   };
 
-  const handleRemove = async () => {
-    if (videoRef.current) {
-      try {
-        await videoRef.current.stopAsync();
-      } catch {}
-    }
+  const handleRemove = () => {
+    try {
+      player.pause();
+    } catch {}
     onChange(null);
   };
 
@@ -170,15 +175,12 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
   return (
     <View style={styles.previewContainer}>
       <View style={styles.videoWrapper}>
-        <Video
-          ref={videoRef}
-          source={{ uri: value }}
+        <VideoView
+          player={player}
           style={styles.video}
-          useNativeControls={field.videoControls !== false}
-          resizeMode={ResizeMode.CONTAIN}
-          shouldPlay={field.videoAutoplay || false}
-          isLooping={field.videoLoop || false}
-          isMuted={field.videoMuted || false}
+          nativeControls={field.videoControls !== false}
+          contentFit="contain"
+          allowsFullscreen
         />
       </View>
 

@@ -96,7 +96,7 @@ export default function SupportChat() {
       });
 
       if (error) {
-        console.warn('ai-support-chat error:', JSON.stringify(error));
+        if (__DEV__) console.warn('ai-support-chat error:', JSON.stringify(error));
         throw error;
       }
 
@@ -111,7 +111,7 @@ export default function SupportChat() {
 
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
-      console.warn('Chat send failed:', err);
+      if (__DEV__) console.warn('Chat send failed:', err);
       const errorMsg: ChatMessage = {
         id: Crypto.randomUUID(),
         message: t('chat', 'errorResponse'),

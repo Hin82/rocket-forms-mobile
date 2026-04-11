@@ -52,6 +52,26 @@ export default function SettingsScreen() {
     ]);
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(t('settings', 'deleteAccount'), t('settings', 'deleteAccountConfirm'), [
+      { text: t('settings', 'cancel'), style: 'cancel' },
+      {
+        text: t('settings', 'deleteWord'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const { error } = await supabase.functions.invoke('delete-account');
+            if (error) throw error;
+            await signOut();
+            Alert.alert(t('settings', 'deleteAccountSuccess'));
+          } catch {
+            Alert.alert(t('settings', 'error'), t('settings', 'deleteAccountError'));
+          }
+        },
+      },
+    ]);
+  };
+
   return (
     <ScrollView style={styles.container}>
       {/* Profile section */}
@@ -200,6 +220,22 @@ export default function SettingsScreen() {
           onPress={() => Linking.openURL('https://rocketformspro.com')}
         />
         <List.Item
+          title={t('settings', 'privacyPolicy')}
+          description={t('settings', 'privacyPolicyDesc')}
+          left={props => <List.Icon {...props} icon="shield-lock-outline" color="#e8622c" />}
+          titleStyle={styles.itemTitle}
+          descriptionStyle={styles.itemDesc}
+          onPress={() => Linking.openURL('https://rocketformspro.com/privacy-policy')}
+        />
+        <List.Item
+          title={t('settings', 'termsOfService')}
+          description={t('settings', 'termsOfServiceDesc')}
+          left={props => <List.Icon {...props} icon="file-document-outline" color="#e8622c" />}
+          titleStyle={styles.itemTitle}
+          descriptionStyle={styles.itemDesc}
+          onPress={() => Linking.openURL('https://rocketformspro.com/terms-of-service')}
+        />
+        <List.Item
           title={t('settings', 'version')}
           description={Constants.expoConfig?.version ?? '1.0.0'}
           left={props => <List.Icon {...props} icon="information-outline" color="#e8622c" />}
@@ -216,6 +252,16 @@ export default function SettingsScreen() {
         icon="logout"
       >
         {t('settings', 'signOut')}
+      </Button>
+
+      <Button
+        mode="text"
+        onPress={handleDeleteAccount}
+        style={styles.deleteButton}
+        textColor="#888"
+        icon="trash-can-outline"
+      >
+        {t('settings', 'deleteAccount')}
       </Button>
 
       <View style={{ height: 40 }} />
@@ -238,5 +284,9 @@ const styles = StyleSheet.create({
     marginTop: 24,
     borderColor: '#ef4444',
     borderRadius: 12,
+  },
+  deleteButton: {
+    marginHorizontal: 16,
+    marginTop: 8,
   },
 });

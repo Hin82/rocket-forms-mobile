@@ -72,10 +72,10 @@ export default function ProfileScreen() {
         .from('profiles')
         .upsert({ id: user!.id, avatar_seed: seed });
       if (error) {
-        console.warn(`Avatar save failed for user ${user!.id} seed=${seed}:`, error.message);
+        if (__DEV__) console.warn(`Avatar save failed for user ${user!.id} seed=${seed}:`, error.message);
       }
     } catch (err: any) {
-      console.warn('Avatar save threw unexpectedly:', err?.message);
+      if (__DEV__) console.warn('Avatar save threw unexpectedly:', err?.message);
     }
   };
 
