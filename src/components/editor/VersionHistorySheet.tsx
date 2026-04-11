@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from '../../translations';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface FormVersion {
   id: string;
@@ -50,7 +51,11 @@ export default function VersionHistorySheet({
   formId,
   onRestore,
 }: VersionHistorySheetProps) {
-  const snapPoints = useMemo(() => ['80%'], []);
+  const { isLandscape } = useResponsive();
+  const snapPoints = useMemo(
+    () => isLandscape ? ['95%'] : ['80%'],
+    [isLandscape],
+  );
   const [versions, setVersions] = useState<FormVersion[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

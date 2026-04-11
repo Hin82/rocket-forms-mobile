@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { FieldType } from '../../hooks/useFormEditor';
 import { useTranslation } from '../../translations';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface FieldPaletteProps {
   onAddField: (type: FieldType) => void;
@@ -114,7 +115,11 @@ const CATEGORIES: PaletteCategory[] = [
 ];
 
 const FieldPalette = forwardRef<BottomSheet, FieldPaletteProps>(({ onAddField, onClose }, ref) => {
-  const snapPoints = useMemo(() => ['70%', '90%'], []);
+  const { isLandscape, isTablet } = useResponsive();
+  const snapPoints = useMemo(
+    () => isLandscape ? ['90%', '95%'] : ['70%', '90%'],
+    [isLandscape],
+  );
   const { t } = useTranslation();
 
   const handleAdd = useCallback((type: FieldType) => {
@@ -143,7 +148,11 @@ const FieldPalette = forwardRef<BottomSheet, FieldPaletteProps>(({ onAddField, o
               {cat.items.map(item => (
                 <TouchableOpacity
                   key={item.type}
-                  style={styles.tile}
+                  style={[
+                    styles.tile,
+                    isLandscape && !isTablet && { width: '23%' as any },
+                    isLandscape && isTablet && { width: '15%' as any },
+                  ]}
                   onPress={() => handleAdd(item.type)}
                   activeOpacity={0.7}
                 >
@@ -177,7 +186,7 @@ const styles = StyleSheet.create({
   categoryTitle: { color: '#999', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   tile: {
-    width: '30%',
+    width: '30%' as any,
     backgroundColor: '#2d2d44',
     borderRadius: 12,
     paddingVertical: 14,

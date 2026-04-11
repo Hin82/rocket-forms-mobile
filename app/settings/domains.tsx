@@ -217,7 +217,14 @@ export default function DomainsScreen() {
                 { value: 'email', label: t('settings', 'emailType'), icon: 'email-outline' },
               ]}
               style={styles.segmented}
-              theme={{ colors: { secondaryContainer: '#e8622c', onSecondaryContainer: '#fff' } }}
+              theme={{
+                colors: {
+                  secondaryContainer: '#e8622c',
+                  onSecondaryContainer: '#fff',
+                  onSurface: '#fff',
+                  outline: '#3d3d5c',
+                },
+              }}
             />
             <View style={styles.addActions}>
               <Button mode="outlined" onPress={() => { setShowAdd(false); setNewDomain(''); }} textColor="#888" style={styles.cancelButton}>

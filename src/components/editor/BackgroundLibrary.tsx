@@ -69,7 +69,7 @@ export default function BackgroundLibrary({ visible, onClose, onSelect, currentB
       if (error) throw error;
       setPhotos(data?.results || []);
     } catch (err: any) {
-      console.warn('Unsplash search failed:', err);
+      if (__DEV__) console.warn('Unsplash search failed:', err);
       Alert.alert(t('settings', 'error'), t('backgroundLib', 'searchFailed'));
     } finally {
       setLoading(false);

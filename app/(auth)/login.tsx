@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, Image, Pressable } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Image, Pressable } from 'react-native';
 import { TextInput, Button, Text, HelperText, Menu, Checkbox } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useLanguage, LANGUAGES } from '@/src/contexts/LanguageContext';
 import { useTranslation } from '@/src/translations';
+import { useResponsive } from '@/src/hooks/useResponsive';
 
 const SAVED_EMAIL_KEY = 'saved_login_email';
 const REMEMBER_KEY = 'remember_login';
@@ -24,6 +25,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const { isLandscape } = useResponsive();
 
   const currentLang = LANGUAGES.find(l => l.code === language);
 
@@ -141,7 +143,12 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
       >
-        <View style={styles.header}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+        <View style={[styles.header, isLandscape && { marginBottom: 16 }]}>
           <Image
             source={require('../../assets/images/logo.png')}
             style={styles.logo}
@@ -222,6 +229,7 @@ export default function LoginScreen() {
             {t('auth', 'createAccount')}
           </Button>
         </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -235,7 +243,8 @@ const styles = StyleSheet.create({
   langMenu: { backgroundColor: '#2d2d44' },
   langMenuItem: { color: '#ccc' },
   langSelected: { color: '#e8622c', fontWeight: '600' },
-  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
+  content: { flex: 1, paddingHorizontal: 24 },
+  scrollContent: { flexGrow: 1, justifyContent: 'center' },
   header: { alignItems: 'center', marginBottom: 40 },
   logo: { width: 80, height: 80, borderRadius: 20, marginBottom: 16 },
   title: { color: '#ffffff', fontWeight: 'bold', marginBottom: 8 },

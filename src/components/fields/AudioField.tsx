@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,7 +10,15 @@ import {
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import { Audio } from 'expo-av';
+import {
+  useAudioPlayer,
+  useAudioPlayerStatus,
+  useAudioRecorder,
+  useAudioRecorderState,
+  AudioModule,
+  RecordingPresets,
+  setAudioModeAsync,
+} from 'expo-audio';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from '../../translations';
 import type { FormField } from '../../hooks/useFormEditor';
@@ -25,14 +33,19 @@ interface AudioFieldProps {
 export default function AudioField({ field, value, onChange, readOnly }: AudioFieldProps) {
   const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackPosition, setPlaybackPosition] = useState(0);
-  const [playbackDuration, setPlaybackDuration] = useState(0);
 
-  const recordingRef = useRef<Audio.Recording | null>(null);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const player = useAudioPlayer(value ?? null);
+  const playerStatus = useAudioPlayerStatus(player);
+
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(recorder);
+
+  const isRecording = recorderState.isRecording;
+  const isPlaying = playerStatus.playing;
+  const playbackPosition = playerStatus.currentTime || 0;
+  const playbackDuration = playerStatus.duration || 0;
+
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -45,38 +58,43 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
     []
   );
 
-  // Unload sound when value changes
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync().catch(() => {});
-        soundRef.current = null;
-      }
-      setIsPlaying(false);
-      setPlaybackPosition(0);
-      setPlaybackDuration(0);
-    };
-  }, [value]);
-
   // Autoplay when value is set and audioAutoplay is true
   useEffect(() => {
-    if (value && field.audioAutoplay && !isPlaying && !soundRef.current) {
-      togglePlayback();
+    if (value && field.audioAutoplay) {
+      player.play();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, field.audioAutoplay]);
 
-  // Cleanup on unmount
+  // Loop handling
+  useEffect(() => {
+    if (playerStatus.didJustFinish && field.audioLoop) {
+      player.seekTo(0);
+      player.play();
+    }
+  }, [playerStatus.didJustFinish, field.audioLoop, player]);
+
+  // Cleanup on unmount: stop timer + teardown player/recorder so native
+  // resources don't leak if the component unmounts mid-playback or mid-record.
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
-      if (recordingRef.current) {
-        recordingRef.current.stopAndUnloadAsync().catch(() => {});
-      }
+      (async () => {
+        try {
+          player.pause();
+        } catch {}
+        try {
+          if (recorderState.isRecording) {
+            await recorder.stop();
+          }
+        } catch {}
+      })();
     };
+    // We intentionally only run this on unmount — capturing latest refs via closure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Pulsing animation while recording
@@ -111,9 +129,8 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
 
   const handlePickAudio = async () => {
     try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
+      if (isPlaying) {
+        player.pause();
       }
       const result = await DocumentPicker.getDocumentAsync({
         type: 'audio/*',
@@ -133,12 +150,11 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
 
   const startRecording = async () => {
     try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
+      if (isPlaying) {
+        player.pause();
       }
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      if (!status.granted) {
         Alert.alert(
           t('fieldEditor', 'permissionRequired') || 'Permission Required',
           t('fieldEditor', 'microphonePermissionMsg') || 'Microphone permission is needed to record audio.'
@@ -146,16 +162,13 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
         return;
       }
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
       });
 
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-      await recording.startAsync();
-      recordingRef.current = recording;
-      setIsRecording(true);
+      await recorder.prepareToRecordAsync();
+      recorder.record();
       setRecordingDuration(0);
 
       timerRef.current = setInterval(() => {
@@ -170,23 +183,19 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
   };
 
   const stopRecording = async () => {
-    if (!recordingRef.current) return;
-
     try {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
 
-      setIsRecording(false);
-      await recordingRef.current.stopAndUnloadAsync();
+      await recorder.stop();
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
+      await setAudioModeAsync({
+        allowsRecording: false,
       });
 
-      const uri = recordingRef.current.getURI();
-      recordingRef.current = null;
+      const uri = recorder.uri;
 
       if (uri) {
         await uploadAudio(uri, 'audio/m4a');
@@ -230,57 +239,23 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
     }
   };
 
-  const togglePlayback = async () => {
+  const togglePlayback = () => {
     if (!value) return;
-
     try {
-      if (isPlaying && soundRef.current) {
-        await soundRef.current.pauseAsync();
-        setIsPlaying(false);
-        return;
+      if (isPlaying) {
+        player.pause();
+      } else {
+        player.play();
       }
-
-      if (soundRef.current) {
-        await soundRef.current.playAsync();
-        setIsPlaying(true);
-        return;
-      }
-
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: value },
-        { shouldPlay: true },
-        (status) => {
-          if (status.isLoaded) {
-            setPlaybackPosition(status.positionMillis / 1000);
-            setPlaybackDuration((status.durationMillis || 0) / 1000);
-            if (status.didJustFinish) {
-              setIsPlaying(false);
-              setPlaybackPosition(0);
-              if (field.audioLoop) {
-                soundRef.current?.replayAsync()
-                  .then(() => setIsPlaying(true))
-                  .catch(() => setIsPlaying(false));
-              }
-            }
-          }
-        }
-      );
-
-      soundRef.current = sound;
-      setIsPlaying(true);
     } catch (err) {
       Alert.alert('Playback Error', String(err));
     }
   };
 
-  const handleRemove = async () => {
-    if (soundRef.current) {
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
-    }
-    setIsPlaying(false);
-    setPlaybackPosition(0);
-    setPlaybackDuration(0);
+  const handleRemove = () => {
+    try {
+      player.pause();
+    } catch {}
     onChange(null);
   };
 

@@ -6,13 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Dimensions,
+  useWindowDimensions,
   ImageBackground,
   Image,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { FormField, FormSettings } from '../../hooks/useFormEditor';
 import { useTranslation } from '../../translations';
 
@@ -47,6 +48,10 @@ export default function FormPreviewSheet({
   formName,
 }: FormPreviewSheetProps) {
   const { t } = useTranslation();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isLandscape = windowWidth > windowHeight;
+  const responsiveMediaHeight = Math.min(windowHeight * 0.4, 300);
   const titleStyle = settings.titleStyle;
   const titleFontSize = FONT_SIZE_MAP[titleStyle?.fontSize || '4xl'] || 36;
   const titleColor = titleStyle?.color || settings.textColor || '#111827';
@@ -100,7 +105,13 @@ export default function FormPreviewSheet({
 
       {/* Fields */}
       {fields.map((field) => (
-        <FieldPreview key={field.id} field={field} textColor={textColor} t={t} />
+        <FieldPreview
+          key={field.id}
+          field={field}
+          textColor={textColor}
+          t={t}
+          responsiveMediaHeight={responsiveMediaHeight}
+        />
       ))}
 
       {/* Submit button */}
@@ -118,7 +129,16 @@ export default function FormPreviewSheet({
   const renderContent = () => (
     <ScrollView
       style={[styles.scrollView, !hasPageBg && { backgroundColor: bgColor }]}
-      contentContainerStyle={[styles.scrollContent, hasPageBg && styles.scrollContentWithBg]}
+      contentContainerStyle={[
+        styles.scrollContent,
+        hasPageBg && styles.scrollContentWithBg,
+        isLandscape && {
+          paddingHorizontal: Math.max(insets.left, 20) + 20,
+          maxWidth: 700,
+          alignSelf: 'center' as const,
+          width: '100%',
+        },
+      ]}
     >
       {hasPageBg ? (
         <View style={[styles.formCard, { backgroundColor: bgColor, borderRadius: settings.borderRadius || 8 }]}>
@@ -131,10 +151,15 @@ export default function FormPreviewSheet({
   );
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="fullScreen"
+      supportedOrientations={['portrait', 'landscape', 'landscape-left', 'landscape-right']}
+    >
       <View style={styles.container}>
         {/* Close bar */}
-        <View style={styles.closeBar}>
+        <View style={[styles.closeBar, { paddingTop: insets.top + 8, paddingLeft: Math.max(insets.left, 16), paddingRight: Math.max(insets.right, 16) }]}>
           <Text style={styles.closeBarTitle}>{t('preview', 'previewTitle')}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
             <MaterialCommunityIcons name="close" size={24} color="#fff" />
@@ -159,7 +184,17 @@ export default function FormPreviewSheet({
 
 // ---- Field Preview ----
 
-function FieldPreview({ field, textColor, t }: { field: FormField; textColor: string; t: (section: string, key: string) => string }) {
+function FieldPreview({
+  field,
+  textColor,
+  t,
+  responsiveMediaHeight,
+}: {
+  field: FormField;
+  textColor: string;
+  t: (section: string, key: string) => string;
+  responsiveMediaHeight: number;
+}) {
   if (field.type === 'hidden') return null;
 
   switch (field.type) {
@@ -178,7 +213,12 @@ function FieldPreview({ field, textColor, t }: { field: FormField; textColor: st
               {field.description}
             </Text>
           ) : null}
-          <FieldInput field={field} textColor={textColor} t={t} />
+          <FieldInput
+            field={field}
+            textColor={textColor}
+            t={t}
+            responsiveMediaHeight={responsiveMediaHeight}
+          />
         </View>
       );
   }
@@ -201,7 +241,17 @@ function FieldLabel({
   );
 }
 
-function FieldInput({ field, textColor, t }: { field: FormField; textColor: string; t: (section: string, key: string) => string }) {
+function FieldInput({
+  field,
+  textColor,
+  t,
+  responsiveMediaHeight,
+}: {
+  field: FormField;
+  textColor: string;
+  t: (section: string, key: string) => string;
+  responsiveMediaHeight: number;
+}) {
   const inputStyle = [styles.previewInput, { color: textColor, borderColor: textColor + '33' }];
 
   switch (field.type) {
@@ -395,7 +445,7 @@ function FieldInput({ field, textColor, t }: { field: FormField; textColor: stri
           <View style={{ alignItems: field.documentAlignment === 'right' ? 'flex-end' : field.documentAlignment === 'center' ? 'center' : 'flex-start' }}>
             <Image
               source={{ uri: docUrl }}
-              style={{ width: '100%', height: 300, borderRadius: 8 }}
+              style={{ width: '100%', height: responsiveMediaHeight, borderRadius: 8 }}
               resizeMode="contain"
             />
           </View>
@@ -599,15 +649,12 @@ function PageBreakPreview({ field, textColor, t }: { field: FormField; textColor
   );
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121220' },
   closeBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 56,
     paddingBottom: 12,
     paddingHorizontal: 16,
     backgroundColor: '#1e1e2e',

@@ -31,6 +31,7 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
@@ -40,3 +41,9 @@ yarn-error.*
 /ios
 /android
 .claude/worktrees/
+
+# credentials (never commit — upload via EAS dashboard or EAS secrets)
+google-services.json
+google-play-service-account*.json
+credentials/
+*.plist.secret
