@@ -8,6 +8,10 @@ import {
   ActivityIndicator,
   Animated,
   Image,
+  Platform,
+  ActionSheetIOS,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 import { Text, TextInput, Button, Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -263,6 +267,7 @@ export default function CreateFormScreen() {
 
   // Step 2 – Logo
   const [logoUri, setLogoUri] = useState<string | null>(null);
+  const [logoSourceModalVisible, setLogoSourceModalVisible] = useState(false);
 
   // Step 3 – Look
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
@@ -390,17 +395,28 @@ export default function CreateFormScreen() {
   };
 
   const pickLogo = () => {
-    Alert.alert(
-      t('create', 'uploadLogo'),
-      t('create', 'chooseSource'),
-      [
-        { text: t('create', 'sourceCamera'), onPress: pickFromCamera },
-        { text: t('create', 'sourcePhotos'), onPress: pickFromPhotos },
-        { text: t('create', 'sourceFiles'), onPress: pickFromFiles },
-        { text: t('create', 'cancel'), style: 'cancel' },
-      ],
-      { cancelable: true }
-    );
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          title: t('create', 'uploadLogo'),
+          message: t('create', 'chooseSource'),
+          options: [
+            t('create', 'sourceCamera'),
+            t('create', 'sourcePhotos'),
+            t('create', 'sourceFiles'),
+            t('create', 'cancel'),
+          ],
+          cancelButtonIndex: 3,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 0) pickFromCamera();
+          else if (buttonIndex === 1) pickFromPhotos();
+          else if (buttonIndex === 2) pickFromFiles();
+        }
+      );
+    } else {
+      setLogoSourceModalVisible(true);
+    }
   };
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -1018,6 +1034,61 @@ export default function CreateFormScreen() {
           </Pressable>
         )}
       </View>
+
+      {/* Android logo-source picker (iOS uses ActionSheetIOS) */}
+      <Modal
+        visible={logoSourceModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLogoSourceModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setLogoSourceModalVisible(false)}
+        >
+          <View style={styles.modalSheet}>
+            <Text style={styles.modalTitle}>{t('create', 'uploadLogo')}</Text>
+            <Text style={styles.modalMessage}>{t('create', 'chooseSource')}</Text>
+            <Pressable
+              style={styles.modalOption}
+              onPress={() => {
+                setLogoSourceModalVisible(false);
+                pickFromCamera();
+              }}
+            >
+              <MaterialCommunityIcons name="camera-outline" size={22} color="#e8622c" />
+              <Text style={styles.modalOptionText}>{t('create', 'sourceCamera')}</Text>
+            </Pressable>
+            <Pressable
+              style={styles.modalOption}
+              onPress={() => {
+                setLogoSourceModalVisible(false);
+                pickFromPhotos();
+              }}
+            >
+              <MaterialCommunityIcons name="image-multiple-outline" size={22} color="#e8622c" />
+              <Text style={styles.modalOptionText}>{t('create', 'sourcePhotos')}</Text>
+            </Pressable>
+            <Pressable
+              style={styles.modalOption}
+              onPress={() => {
+                setLogoSourceModalVisible(false);
+                pickFromFiles();
+              }}
+            >
+              <MaterialCommunityIcons name="folder-open-outline" size={22} color="#e8622c" />
+              <Text style={styles.modalOptionText}>{t('create', 'sourceFiles')}</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.modalOption, styles.modalCancel]}
+              onPress={() => setLogoSourceModalVisible(false)}
+            >
+              <Text style={styles.modalCancelText}>{t('create', 'cancel')}</Text>
+            </Pressable>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1265,5 +1336,59 @@ const styles = StyleSheet.create({
   },
   nextBtnTextDisabled: {
     color: '#555',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  modalSheet: {
+    backgroundColor: '#1e1e2e',
+    borderRadius: 16,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#2d2d44',
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '700',
+    textAlign: 'center',
+    paddingTop: 16,
+    paddingBottom: 4,
+  },
+  modalMessage: {
+    color: '#9d9db0',
+    fontSize: 13,
+    textAlign: 'center',
+    paddingBottom: 12,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  modalOptionText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  modalCancel: {
+    justifyContent: 'center',
+    marginTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: '#2d2d44',
+    borderRadius: 0,
+  },
+  modalCancelText: {
+    color: '#cc3333',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    flex: 1,
   },
 });

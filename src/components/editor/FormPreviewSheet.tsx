@@ -105,7 +105,13 @@ export default function FormPreviewSheet({
 
       {/* Fields */}
       {fields.map((field) => (
-        <FieldPreview key={field.id} field={field} textColor={textColor} t={t} />
+        <FieldPreview
+          key={field.id}
+          field={field}
+          textColor={textColor}
+          t={t}
+          responsiveMediaHeight={responsiveMediaHeight}
+        />
       ))}
 
       {/* Submit button */}
@@ -178,7 +184,17 @@ export default function FormPreviewSheet({
 
 // ---- Field Preview ----
 
-function FieldPreview({ field, textColor, t }: { field: FormField; textColor: string; t: (section: string, key: string) => string }) {
+function FieldPreview({
+  field,
+  textColor,
+  t,
+  responsiveMediaHeight,
+}: {
+  field: FormField;
+  textColor: string;
+  t: (section: string, key: string) => string;
+  responsiveMediaHeight: number;
+}) {
   if (field.type === 'hidden') return null;
 
   switch (field.type) {
@@ -197,7 +213,12 @@ function FieldPreview({ field, textColor, t }: { field: FormField; textColor: st
               {field.description}
             </Text>
           ) : null}
-          <FieldInput field={field} textColor={textColor} t={t} />
+          <FieldInput
+            field={field}
+            textColor={textColor}
+            t={t}
+            responsiveMediaHeight={responsiveMediaHeight}
+          />
         </View>
       );
   }
@@ -220,7 +241,17 @@ function FieldLabel({
   );
 }
 
-function FieldInput({ field, textColor, t }: { field: FormField; textColor: string; t: (section: string, key: string) => string }) {
+function FieldInput({
+  field,
+  textColor,
+  t,
+  responsiveMediaHeight,
+}: {
+  field: FormField;
+  textColor: string;
+  t: (section: string, key: string) => string;
+  responsiveMediaHeight: number;
+}) {
   const inputStyle = [styles.previewInput, { color: textColor, borderColor: textColor + '33' }];
 
   switch (field.type) {

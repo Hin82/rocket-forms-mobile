@@ -230,7 +230,16 @@ export default function FormEditorScreen() {
   return (
     <GestureHandlerRootView style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: insets.top + 12,
+            paddingLeft: insets.left + 12,
+            paddingRight: insets.right + 12,
+          },
+        ]}
+      >
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBackBtn}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>

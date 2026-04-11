@@ -62,10 +62,18 @@ export default function SettingsScreen() {
           try {
             const { error } = await supabase.functions.invoke('delete-account');
             if (error) throw error;
+          } catch {
+            Alert.alert(t('settings', 'error'), t('settings', 'deleteAccountError'));
+            return;
+          }
+          try {
             await signOut();
             Alert.alert(t('settings', 'deleteAccountSuccess'));
           } catch {
-            Alert.alert(t('settings', 'error'), t('settings', 'deleteAccountError'));
+            Alert.alert(
+              t('settings', 'deleteAccountSuccess'),
+              t('settings', 'signOutFailed')
+            );
           }
         },
       },

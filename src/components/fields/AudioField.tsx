@@ -74,11 +74,27 @@ export default function AudioField({ field, value, onChange, readOnly }: AudioFi
     }
   }, [playerStatus.didJustFinish, field.audioLoop, player]);
 
-  // Cleanup timer on unmount
+  // Cleanup on unmount: stop timer + teardown player/recorder so native
+  // resources don't leak if the component unmounts mid-playback or mid-record.
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      (async () => {
+        try {
+          player.pause();
+        } catch {}
+        try {
+          if (recorderState.isRecording) {
+            await recorder.stop();
+          }
+        } catch {}
+      })();
     };
+    // We intentionally only run this on unmount — capturing latest refs via closure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Pulsing animation while recording

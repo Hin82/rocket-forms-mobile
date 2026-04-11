@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -32,6 +32,16 @@ export default function VideoField({ field, value, onChange, readOnly }: VideoFi
       p.play();
     }
   });
+
+  // The useVideoPlayer setup callback only runs on initial player creation,
+  // so field-setting changes after mount would otherwise be ignored.
+  useEffect(() => {
+    player.loop = field.videoLoop || false;
+    player.muted = field.videoMuted || false;
+    if (field.videoAutoplay) {
+      player.play();
+    }
+  }, [player, field.videoLoop, field.videoMuted, field.videoAutoplay]);
 
   const handlePickVideo = async () => {
     try {
