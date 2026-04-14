@@ -40,7 +40,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
-.claude/worktrees/
+.claude/
 
 # credentials (never commit — upload via EAS dashboard or EAS secrets)
 google-services.json
