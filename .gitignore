@@ -47,3 +47,5 @@ google-services.json
 google-play-service-account*.json
 credentials/
 *.plist.secret
+
+.env.local
