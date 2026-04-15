@@ -2,7 +2,8 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { QueryClientProvider } from '@tanstack/react-query';
 import { PaperProvider } from 'react-native-paper';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, useNavigationContainerRef } from 'expo-router';
+import { isRunningInExpoGo } from 'expo';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect, useState, useCallback } from 'react';
 import * as Linking from 'expo-linking';
@@ -23,6 +24,32 @@ import OnboardingScreen, { hasSeenOnboarding } from '@/src/components/Onboarding
 import OfflineBanner from '@/src/components/OfflineBanner';
 import AnimatedSplash from '@/src/components/AnimatedSplash';
 import ShakeFeedback from '@/src/components/ShakeFeedback';
+import * as Sentry from '@sentry/react-native';
+
+const navigationIntegration = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: !isRunningInExpoGo(),
+});
+
+Sentry.init({
+  dsn: 'https://3e218a1e77a423ffde3620b8e622ce67@o4511222810673152.ingest.de.sentry.io/4511222812377168',
+
+  sendDefaultPii: true,
+  enableLogs: true,
+  environment: __DEV__ ? 'development' : 'production',
+
+  tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+
+  integrations: [
+    navigationIntegration,
+    Sentry.mobileReplayIntegration(),
+    Sentry.feedbackIntegration(),
+  ],
+
+  enableNativeFramesTracking: !isRunningInExpoGo(),
+});
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -84,10 +111,17 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  const navigationRef = useNavigationContainerRef();
+
+  useEffect(() => {
+    if (navigationRef?.current) {
+      navigationIntegration.registerNavigationContainer(navigationRef);
+    }
+  }, [navigationRef]);
 
   useEffect(() => {
     if (error) throw error;
@@ -100,7 +134,7 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return <RootLayoutNav />;
-}
+});
 
 function TranslatedStack() {
   const { t } = useTranslation();

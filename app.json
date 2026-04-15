@@ -64,7 +64,7 @@
       "blockedPermissions": [
         "android.permission.ACTIVITY_RECOGNITION"
       ],
-      "versionCode": 3
+      "versionCode": 4
     },
     "web": {
       "bundler": "metro",
@@ -104,6 +104,14 @@
         "expo-audio",
         {
           "microphonePermission": "Used to record audio for form fields"
+        }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "rocket-forms-app",
+          "organization": "omniwise-ab"
         }
       ]
     ],
