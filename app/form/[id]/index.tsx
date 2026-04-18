@@ -12,6 +12,7 @@ import { useLanguage, type LanguageCode } from '@/src/contexts/LanguageContext';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { FormDetailSkeleton } from '@/src/components/SkeletonLoader';
 import { useTrackAction } from '@/src/hooks/useAppRating';
+import { useCustomFormDomain } from '@/src/hooks/useCustomFormDomain';
 import WebhookManager from '@/src/components/WebhookManager';
 
 function getDateLocale(languageCode: LanguageCode): string {
@@ -81,7 +82,9 @@ export default function FormDetailScreen() {
 
   const submissionCount = stats?.total ?? 0;
 
-  const formUrl = `https://rocketformspro.com/form/${id}`;
+  const customDomain = useCustomFormDomain();
+  const baseUrl = customDomain ? `https://forms.${customDomain}` : 'https://rocketformspro.com';
+  const formUrl = `${baseUrl}/form/${id}`;
 
   const handleShare = async () => {
     await Share.share({

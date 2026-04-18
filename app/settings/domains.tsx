@@ -282,15 +282,15 @@ export default function DomainsScreen() {
                           <View style={styles.dnsRecord}>
                             <Text style={styles.dnsLabel}>{t('settings', 'spfRecord')}</Text>
                             <View style={styles.dnsValueRow}>
-                              <Text style={styles.dnsValue} selectable>v=spf1 include:spf.rocketformspro.com ~all</Text>
-                              <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard('v=spf1 include:spf.rocketformspro.com ~all')} />
+                              <Text style={styles.dnsValue} selectable>v=spf1 include:spf.brevo.com ~all</Text>
+                              <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard('v=spf1 include:spf.brevo.com ~all')} />
                             </View>
                           </View>
                           <View style={styles.dnsRecord}>
                             <Text style={styles.dnsLabel}>{t('settings', 'dmarcRecord')}</Text>
                             <View style={styles.dnsValueRow}>
-                              <Text style={styles.dnsValue} selectable>v=DMARC1; p=none; rua=mailto:dmarc@rocketformspro.com</Text>
-                              <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard('v=DMARC1; p=none; rua=mailto:dmarc@rocketformspro.com')} />
+                              <Text style={styles.dnsValue} selectable>{`v=DMARC1; p=none; rua=mailto:dmarc@${domain.domain}`}</Text>
+                              <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard(`v=DMARC1; p=none; rua=mailto:dmarc@${domain.domain}`)} />
                             </View>
                           </View>
                         </>
@@ -298,8 +298,8 @@ export default function DomainsScreen() {
                         <View style={styles.dnsRecord}>
                           <Text style={styles.dnsLabel}>{t('settings', 'cnameRecord')}</Text>
                           <View style={styles.dnsValueRow}>
-                            <Text style={styles.dnsValue} selectable>{domain.domain} CNAME forms.rocketformspro.com</Text>
-                            <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard(`${domain.domain} CNAME forms.rocketformspro.com`)} />
+                            <Text style={styles.dnsValue} selectable>{`forms.${domain.domain} CNAME rocket-forms-pro.pages.dev`}</Text>
+                            <IconButton icon="content-copy" size={16} iconColor="#e8622c" onPress={() => copyToClipboard(`forms.${domain.domain} CNAME rocket-forms-pro.pages.dev`)} />
                           </View>
                         </View>
                       )}
