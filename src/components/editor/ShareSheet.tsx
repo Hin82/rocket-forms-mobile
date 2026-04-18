@@ -8,6 +8,7 @@ import * as Haptics from 'expo-haptics';
 import QRCode from 'react-native-qrcode-svg';
 import { useTranslation } from '../../translations';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useCustomFormDomain } from '../../hooks/useCustomFormDomain';
 
 interface ShareSheetProps {
   visible: boolean;
@@ -28,7 +29,9 @@ export default function ShareSheet({
     [isLandscape],
   );
   const { t } = useTranslation();
-  const formUrl = `https://rocketformspro.com/form/${formId}`;
+  const customDomain = useCustomFormDomain();
+  const baseUrl = customDomain ? `https://forms.${customDomain}` : 'https://rocketformspro.com';
+  const formUrl = `${baseUrl}/form/${formId}`;
   const embedCode = `<iframe src="${formUrl}" width="100%" height="600" frameborder="0" style="border:none;"></iframe>`;
 
   const handleCopyLink = useCallback(async () => {
