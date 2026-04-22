@@ -2,7 +2,7 @@
   "expo": {
     "name": "Rocket Forms Pro",
     "slug": "rocket-forms-pro",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "rocketforms",
@@ -47,7 +47,6 @@
       "adaptiveIcon": {
         "backgroundColor": "#1a1a2e",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "permissions": [
@@ -64,7 +63,7 @@
       "blockedPermissions": [
         "android.permission.ACTIVITY_RECOGNITION"
       ],
-      "versionCode": 4
+      "versionCode": 5
     },
     "web": {
       "bundler": "metro",
