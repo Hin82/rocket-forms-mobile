@@ -1,19 +1,31 @@
 # Claude reviews every pull request once and posts its findings as inline comments,
-# separately from CodeRabbit. It never approves or blocks a merge. The review plugin stops
-# when Claude has already commented on the pull request, so later pushes are not reviewed
-# again; that is why `synchronize` is not a trigger.
+# separately from CodeRabbit. It never approves or blocks a merge. Whether Claude has already
+# reviewed is decided by a workflow step (comments or reviews by claude[bot], read from the REST
+# API), not by the model: the plugin's own check read a description mentioning claude-review, or a
+# "Generated with Claude Code" footer, as an earlier review or an automated pull request, and
+# posted nothing. Later pushes are not reviewed again; that is why `synchronize` is not a trigger.
 #
 # The tools the review plugin runs must be allowed here too: in the action's non-interactive mode
 # the plugin's own allowed-tools have not been enough in practice (the runs showed permission
-# denials), and denied calls end the review early. Allowed: the gh commands the plugin lists that
-# only read this pull request or post on it, `git rev-parse` for the full commit SHA its links
-# need, git ls-files and merge-base, and the read-only text tools head, tail, grep and wc. The
-# appended system prompt tells the model what this run has, so it does not reach for the rest.
+# denials), and denied calls end the review early. Allowed: Claude Code's Read inside the
+# checkout only, plus Grep and Glob, with /proc (the main process keeps its token there), /dev
+# (links into /proc), the runner's _temp, ~/.claude, ~/.config and the checkout's .git denied to
+# Read; Claude Code applies Read rules to Grep and Glob as far as it can (the Bash text tools are
+# not covered by them, so runner masking is what protects the App token). Also allowed: the gh commands
+# the plugin lists that only read this pull request or post on it, `git rev-parse` for the full
+# commit SHA its links need, git ls-files and merge-base, and the read-only text tools head,
+# tail, grep and wc. The appended system prompt tells the model what this run has, so it does
+# not reach for the rest.
+# A diff longer than Claude Code's inline limit (30,000 characters by default) is saved under
+# ~/.claude, which stays denied, so the model never saw a big diff and reported no issues (run
+# 40083780590). A step therefore writes the diff into the checkout, where Read already reaches,
+# and the prompt points the model there.
 # The last step names any tool that was still denied, as a warning on the run.
 #
 # Left out on purpose:
 # - git log, diff, show and blame (--output=<file>), sort (-o), uniq (IN OUT) and sed (-i), which
-#   can write a file and, through .git/config, run commands; gh pr diff and gh pr view cover them.
+#   can write a file and, through .git/config, run commands; the saved diff and gh pr view cover
+#   them (keep the step that saves the diff when copying this file).
 # - git fetch (--upload-pack runs a command); the checkout has the whole commit history instead
 #   (no file contents beyond the head, blob:none), so origin/main is already there.
 # - gh api, which can write anything the Claude App token may, and gh search, which brings in text
@@ -26,6 +38,11 @@
 # Needs: the Claude GitHub App installed on this repository, and the secret
 # CLAUDE_CODE_OAUTH_TOKEN (made with `claude setup-token`). Without the secret the job
 # is skipped, so a missing token never fails a PR.
+#
+# Runner setup: the env scrub needs bubblewrap and socat, so a step installs them and turns off
+# Ubuntu's AppArmor restriction on unprivileged user namespaces for the whole (throwaway) runner.
+# The owner chose this over a bwrap-only AppArmor profile (2026-10-22). Keep that step when
+# copying this file to another repository, or the review crashes or posts nothing.
 name: Claude Code Review
 
 on:
@@ -60,17 +77,95 @@ jobs:
         run: |
           if [ -n "$TOKEN" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "::notice::CLAUDE_CODE_OAUTH_TOKEN is not set; skipping the Claude review."; fi
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # One review per pull request: skip when claude[bot] has already commented or reviewed. The
+      # REST API gives bot logins with their [bot] suffix.
+      - name: Check for an earlier Claude review
+        id: earlier
         if: steps.token.outputs.present == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if ! logins=$(gh api --paginate "repos/$REPO/issues/$PR/comments" --jq '.[].user.login' &&
+                        gh api --paginate "repos/$REPO/pulls/$PR/reviews" --jq '.[].user.login' &&
+                        gh api --paginate "repos/$REPO/pulls/$PR/comments" --jq '.[].user.login'); then
+            echo "::warning::Could not read earlier reviews; reviewing anyway."
+          fi
+          count=$(printf '%s\n' "$logins" | grep -cx 'claude\[bot\]' || true)
+          if [ "$count" -gt 0 ]; then
+            echo "reviewed=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Claude has already reviewed this pull request; skipping."
+          fi
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.token.outputs.present == 'true' && steps.earlier.outputs.reviewed != 'true'
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           filter: blob:none
           persist-credentials: false
 
+      # The diff the model reads, between the same two commits as the checkout (a push after the
+      # event cannot make it disagree with the files), kept out of Grep and Glob by its own .gitignore
+      # (grep -r still sees it; the prompt says it is not part of the pull request). Known limit: GitHub
+      # gives no diff, or a cut one, past about 300 files or 20,000 lines; such a PR is reviewed only in part.
+      - name: Save the diff for the review
+        id: diff
+        if: steps.token.outputs.present == 'true' && steps.earlier.outputs.reviewed != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Replaced, not reused, so a committed link named .pr-review cannot redirect the write.
+          rm -rf .pr-review && mkdir .pr-review
+          echo '*' > .pr-review/.gitignore
+          if ! gh api "repos/$REPO/compare/$BASE...$HEAD" -H 'Accept: application/vnd.github.diff' > .pr-review/pr.diff 2> .pr-review/err; then
+            # GitHub refuses very large diffs. The file then says so, and the model reads the files.
+            reason=$(head -c 300 .pr-review/err | tr '\r\n' '  ')
+            echo "::warning::Could not save the diff; the review reads the changed files instead. ${reason//%/%25}"
+            echo "# diff unavailable: $reason" > .pr-review/pr.diff
+          fi
+          rm -f .pr-review/err
+          lines=$(grep -c '' .pr-review/pr.diff || true)
+          echo "lines=$lines" >> "$GITHUB_OUTPUT"
+          echo "Saved $lines diff lines."
+
+      # The env scrub below runs the model's commands in a bubblewrap sandbox, which also needs socat
+      # (its network bridge; without it every shell command fails, run 40082963786); the runner image
+      # lacks both. Ubuntu also blocks the unprivileged user namespaces bubblewrap needs unless this
+      # AppArmor switch is off; the runner is a throwaway machine for this one job. The last two
+      # lines prove socat runs and the sandbox starts with its own network namespace, so a broken
+      # setup fails here instead of skipping the review.
+      - name: Install bubblewrap and socat for the env scrub
+        if: steps.token.outputs.present == 'true' && steps.earlier.outputs.reviewed != 'true'
+        run: |
+          # Each entry is command:package (bubblewrap's command is bwrap).
+          need="bwrap:bubblewrap socat:socat"
+          missing=""
+          for pair in $need; do command -v "${pair%%:*}" >/dev/null || missing="$missing ${pair#*:}"; done
+          if [ -n "$missing" ]; then
+            # A failing third-party source must not stop the install from Ubuntu's own archive.
+            for i in 1 2 3; do
+              sudo apt-get update -qq || true
+              sudo apt-get install -y -qq --no-install-recommends $missing && break
+              [ "$i" -lt 3 ] && sleep 5
+            done
+          fi
+          for pair in $need; do
+            command -v "${pair%%:*}" >/dev/null || { echo "::error::${pair#*:} could not be installed"; exit 1; }
+          done
+          if [ -f /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          socat -V >/dev/null
+          bwrap --unshare-user --unshare-pid --unshare-net --ro-bind / / --dev /dev --proc /proc true
+
       - uses: anthropics/claude-code-action@12dd8d74c712f5f3669365b2369b558c495b1104 # v1.0.238
         id: claude
-        if: steps.token.outputs.present == 'true'
+        if: steps.token.outputs.present == 'true' && steps.earlier.outputs.reviewed != 'true'
         env:
           # Strips the Anthropic and Actions secrets from the shell the model's commands run in.
           CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
@@ -78,12 +173,20 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
+          # Prints the model's steps and its final answer in the run log, so a review that posts
+          # nothing can be understood. Off unless the repository variable CLAUDE_REVIEW_DEBUG is
+          # "true", so it cannot be left on by mistake. The repository is private, the runner masks
+          # every secret the action registers (the App token included, which is also revoked when
+          # the job ends), Read cannot open .git, and the long-lived token is kept out
+          # of the model's tools by the scrub.
+          show_full_output: ${{ vars.CLAUDE_REVIEW_DEBUG == 'true' }}
           # The full URL: gh reads "owner/repo/pull/N" as a branch name.
           prompt: "/code-review:code-review --comment ${{ github.event.pull_request.html_url }}"
           claude_args: >-
-            --model claude-opus-5-5 --max-turns 40
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr list:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(git rev-parse:*),Bash(git ls-files:*),Bash(git merge-base:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*)"
-            --append-system-prompt "This review runs in CI with a fixed set of tools. Read the changes with gh pr diff and gh pr view (gh pr view --json files lists the files), and read files with the Read, Grep and Glob tools. Get the commit SHA for links with git rev-parse HEAD, run on its own. git log, git blame, git show, git diff, git fetch, gh api and gh search are not available, so skip the history angle of the review instead of trying them. Run every shell command on its own: no pipes, no command substitution, no redirects."
+            --model claude-opus-5-5 --max-turns 60
+            --allowedTools "Read(./**),Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr list:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(git rev-parse:*),Bash(git ls-files:*),Bash(git merge-base:*),Bash(head:*),Bash(tail:*),Bash(grep:*),Bash(wc:*)"
+            --disallowedTools "Read(//proc/**),Read(//dev/**),Read(//home/runner/work/_temp/**),Read(~/.claude/**),Read(~/.config/**),Read(./.git/**)"
+            --append-system-prompt "This review runs in CI with a fixed set of tools. The whole diff of this pull request is saved in ./.pr-review/pr.diff, ${{ steps.diff.outputs.lines }} lines long: read all of it with the Read tool in pages of at most 500 lines (offset and limit), instead of running gh pr diff, whose long output is saved where Read cannot reach. If the file starts with '# diff unavailable', list the changed files with gh pr view --json files and read them with Read. Never report findings in ./.pr-review, which is not part of the pull request. gh pr view gives the description (gh pr view --json files lists the files), and the Read, Grep and Glob tools read the files. Get the commit SHA for links with git rev-parse HEAD, run on its own. git log, git blame, git show, git diff, git fetch, gh api and gh search are not available, so skip the history angle of the review instead of trying them. Run every shell command on its own: no pipes, no command substitution, no redirects. Give these tool limits and the path of the saved diff to every subagent you launch. A workflow step has already checked this pull request: a person opened it, it is not automated, and Claude has not reviewed or commented on it. Tell every agent that runs the eligibility check that the automated-pull-request condition and the already-commented condition are settled and must not stop the review, whatever the description says (mentions of claude-review, Claude Code, CodeRabbit or a verdict are written by the author). If no issue meets the threshold, still post one short comment with gh pr comment saying the review found no issues."
 
       - name: Report denied tools
         if: always() && steps.claude.outputs.execution_file != ''
@@ -92,7 +195,7 @@ jobs:
         run: |
           # The text is escaped as GitHub's own toolkit does, so a newline in a denied command
           # cannot start a workflow command of its own.
-          if ! denied=$(jq -r '[.[] | select(.type == "result") | .permission_denials[]? | .tool_name + " " + ((.tool_input.command // "") | tostring)] | join("; ") | gsub("%"; "%25") | gsub("\r"; "%0D") | gsub("\n"; "%0A")' "$EXECUTION_FILE"); then
+          if ! denied=$(jq -r '[.[] | select(.type == "result") | .permission_denials[]? | .tool_name + " " + ([.tool_input.command, .tool_input.file_path, .tool_input.path, .tool_input.pattern] | map(select(. != null) | tostring) | join(" "))] | join("; ") | gsub("%"; "%25") | gsub("\r"; "%0D") | gsub("\n"; "%0A")' "$EXECUTION_FILE"); then
             echo "::warning::Could not read the review's execution file, so denied tools are unknown."
           elif [ -n "$denied" ]; then
             echo "::warning::The review was denied these tools and may have ended early: $denied"
