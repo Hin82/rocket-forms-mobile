@@ -26,6 +26,9 @@
 # Why no shell at all (each point measured locally on Claude Code 2.1.296, and --tools also on
 # 2.1.286, the version the pinned action installs; on macOS, not on the runner's Linux build, so
 # check what the step "Report denied tools" prints on the first run):
+# - A committed symlink into a denied path does not get past the Read rules: Read on a link to
+#   .git/config, to a denied absolute directory (as /proc is) and on a path through a linked
+#   directory was denied each time, and Glob listed nothing through a linked .git directory.
 # - The action keeps its short-lived App token in the remote URL in .git/config and in GH_TOKEN
 #   and GITHUB_TOKEN, and the scrub below leaves those two in place.
 # - Leaving a command out of --allowedTools does not stop it. Claude Code runs commands it
@@ -190,6 +193,7 @@ jobs:
             reason=$(head -c 300 .pr-review/err | tr '\r\n' '  ')
             echo "::warning::Could not save the diff; the review reads the changed files instead. ${reason//%/%25}"
             echo "# diff unavailable: $reason" > .pr-review/pr.diff
+            echo "have_diff=false" >> "$GITHUB_OUTPUT"
             # With neither, the model has nothing to review and could still end with the
             # no-issues sentence, which would post the marker that stops every later run. Failing
             # here skips the review and posts nothing, so a re-run can try again.
@@ -272,6 +276,7 @@ jobs:
         if: steps.claude.conclusion == 'success' && steps.claude.outputs.execution_file != ''
         env:
           EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
+          HAVE_DIFF: ${{ steps.diff.outputs.have_diff != 'false' }}
         run: |
           # $(...) drops trailing newlines; the sed drops trailing spaces, quotes and Markdown emphasis
           # from the last line.
@@ -280,11 +285,15 @@ jobs:
             exit 0
           fi
           answer=$(printf '%s' "$answer" | sed -e "\$ s/[[:space:]*_\`'\"]*\$//")
-          if [[ "$answer" == *'No issues found. Checked for bugs and CLAUDE.md compliance.' ]]; then
+          if [[ "$answer" != *'No issues found. Checked for bugs and CLAUDE.md compliance.' ]]; then
+            echo "The review did not end with the 'No issues found' sentence."
+          elif [ "$HAVE_DIFF" != true ]; then
+            # Without the diff the model saw only the files as they are now, not what changed, so
+            # its "no issues" does not get the marker that stops every later review.
+            echo "::warning::The review found no issues but had no diff; not saying so on the pull request."
+          else
             echo "clean=true" >> "$GITHUB_OUTPUT"
             echo "The review found no issues."
-          else
-            echo "The review did not end with the 'No issues found' sentence."
           fi
 
       - name: Report denied tools
